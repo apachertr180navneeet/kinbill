@@ -4,7 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Company;
+use App\Models\{
+    User,
+    Company
+};
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Exception;
@@ -62,14 +65,15 @@ class CompanyController extends Controller
     {
         try {
             Company::where('id', $id)->delete();
+            User::where('company_id', $id)->delete();
 
             return response()->json([
-                'status' => true,
+                'success' => true,
                 'message' => 'Company deleted successfully',
             ]);
         } catch (Exception $e) {
             return response()->json([
-                'status' => false,
+                'success' => false,
                 'message' => $e->getMessage(),
             ]);
         }

@@ -15,6 +15,10 @@ class User extends Authenticatable implements JWTSubject
 {
     use HasApiTokens, HasFactory, Notifiable ,SoftDeletes;
 
+    protected $fillable = [
+        'full_name', 'email', 'phone', 'city', 'state', 'status', 'password','company_id' // Add all the attributes you want to be mass assignable
+    ];
+
     /**
      * The attributes that are mass assignable.
      *
@@ -48,13 +52,13 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->getKey();
     }
-    
+
     public function getJWTCustomClaims()
     {
         return [];
     }
 
-    
+
 
     public function getAvatarFullPathAttribute()
     {

@@ -3,7 +3,7 @@
     <div class="row">
         <div class="col-md-6 text-start">
             <h5 class="py-2 mb-2">
-                <span class="text-primary fw-light">Users</span>
+                <span class="text-primary fw-light">Company</span>
             </h5>
         </div>
         <div class="col-md-6 text-end">
@@ -180,11 +180,15 @@
                         const statusButton = row.status === "inactive"
                             ? `<button type="button" class="btn btn-sm btn-success" onclick="updateUserStatus(${row.id}, 'active')">Activate</button>`
                             : `<button type="button" class="btn btn-sm btn-danger" onclick="updateUserStatus(${row.id}, 'inactive')">Deactivate</button>`;
+
                         const deleteButton = `<button type="button" class="btn btn-sm btn-danger" onclick="deleteUser(${row.id})">Delete</button>`;
                         const editButton = `<button type="button" class="btn btn-sm btn-warning" onclick="editUser(${row.id})">Edit</button>`;
-                        return `${statusButton} ${deleteButton} ${editButton}`;
+                        const viewButton = `<a href="{{ route('admin.user.index') }}?id=${row.id}" class="btn btn-sm btn-info">View</a>`;
+
+                        return `${statusButton} ${deleteButton} ${editButton} ${viewButton}`;
                     },
                 },
+
             ],
         });
 
@@ -367,24 +371,12 @@
             });
         };
 
-        // Flash message function
-        function setFlash(type, message) {
-            const flashContainer = document.createElement("div");
-            flashContainer.className = `alert alert-${type}`;
-            flashContainer.textContent = message;
-
-            // Assuming you have a container to append flash messages
-            const flashMessageContainer = document.getElementById("flash-message-container");
-            if (flashMessageContainer) {
-                flashMessageContainer.appendChild(flashContainer);
-
-                // Automatically remove the flash message after 3 seconds
-                setTimeout(() => {
-                    flashContainer.remove();
-                }, 3000);
-            } else {
-                console.warn("Flash message container not found!");
-            }
+         // Flash message function using Toast.fire
+         function setFlash(type, message) {
+            Toast.fire({
+                icon: type,
+                title: message
+            });
         }
 
         // Expose functions to global scope

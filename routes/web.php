@@ -8,7 +8,8 @@ use App\Http\Controllers\Admin\{
     ContactController,
     NotificationController,
     AdminUserController,
-    CompanyController
+    CompanyController,
+    UserController
 };
 
 /*
@@ -66,25 +67,19 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::post('update', 'updateCompany')->name('update');  // Update Comapny
         });
 
-        // Contact Management Routes
-        // Route::prefix('contacts')->name('contacts.')->controller(ContactController::class)->group(function () {
-        //     Route::get('/', 'index')->name('index');  // List all contacts
-        //     Route::get('all', 'getallcontact')->name('allcontact');  // Fetch all contact data
-        //     Route::delete('delete/{id}', 'destroy')->name('destroy');  // Delete a contact by ID
-        // });
 
-        // Page Management Routes
-        // Route::prefix('page')->name('page.')->controller(PageController::class)->group(function () {
-        //     Route::get('create/{key}', 'create')->name('create');  // Create a page with a specific key
-        //     Route::put('update/{key}', 'update')->name('update');  // Update a page with a specific key
-        // });
+        // Admin User Management Routes
+        Route::prefix('users')->name('user.')->controller(UserController::class)->group(function () {
+            Route::get('/', 'index')->name('index');  // This defines the route as 'admin.user.index'
+            Route::get('all', 'getall')->name('alluser');
+            Route::post('store', 'store')->name('store');
+            Route::post('status', 'status')->name('status');
+            Route::delete('delete/{id}', 'destroy')->name('destroy');
+            Route::get('company/{id}', 'get')->name('get');
+            Route::get('{id}', 'show')->name('show');
+            Route::post('update', 'update')->name('update');
+        });
 
-        // Notification Management Routes
-        // Route::prefix('notifications')->name('notifications.')->controller(NotificationController::class)->group(function () {
-        //     Route::get('index', 'index')->name('index');  // List all notifications
-        //     Route::get('clear', 'clear')->name('clear');  // Clear notifications
-        //     Route::delete('delete/{id}', 'destroy')->name('destroy');  // Delete a notification by ID
-        // });
     });
 });
 

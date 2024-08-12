@@ -25,9 +25,9 @@
         <link rel="stylesheet" href="{{asset('assets/admin/css/sweet-alert.css')}}" />
         @yield('style')
         <style>
-            
+
         </style>
-        
+
     </head>
     <body>
        <div class="layout-wrapper layout-content-navbar">
@@ -42,7 +42,7 @@
                     </div>
                     @include('admin.layouts.elements.right_sidebar')
                 </div>
-        
+
                 <script src="{{asset('assets/admin/vendor/libs/jquery/jquery.js')}}"></script>
                 <script src="{{asset('assets/admin/vendor/libs/popper/popper.js')}}"></script>
                 <script src="{{asset('assets/admin/vendor/js/bootstrap.js')}}"></script>
