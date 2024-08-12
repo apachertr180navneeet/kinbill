@@ -20,5 +20,12 @@
 			</a>
 		</li>
 
+        <li class="menu-item {{ request()->is('admin/variation') ? 'active' : ''}}">
+			<a href="{{route('company.variation.index')}}" class="menu-link">
+				<i class="menu-icon tf-icons bx bx-home-circle"></i>
+				<div data-i18n="variation">Variation</div>
+			</a>
+		</li>
+
 	</ul>
 </aside>

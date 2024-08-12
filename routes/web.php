@@ -15,6 +15,7 @@ use App\Http\Controllers\Admin\{
 
 use App\Http\Controllers\Company\{
     CompanyAuthController,
+    VariationController
 };
 
 /*
@@ -105,7 +106,7 @@ Route::prefix('company')->name('company.')->group(function () {
         // Routes requiring 'admin' middleware
         Route::middleware('user')->group(function () {
 
-            // Admin Dashboard and Profile Routes
+            // Company Dashboard and Profile Routes
             Route::controller(CompanyAuthController::class)->group(function () {
                 Route::get('dashboard', 'companyDashboard')->name('dashboard');  // Admin dashboard
                 Route::get('change-password', 'changePassword')->name('change.password');  // Change password form
@@ -113,6 +114,17 @@ Route::prefix('company')->name('company.')->group(function () {
                 Route::get('logout', 'logout')->name('logout');  // Logout route
                 Route::get('profile', 'companyProfile')->name('profile');  // Admin profile page
                 Route::post('profile', 'updatecompanyProfile')->name('update.profile');  // Update admin profile
+            });
+
+            // Variation Management Routes
+            Route::prefix('variation')->name('variation.')->controller(VariationController::class)->group(function () {
+                Route::get('/', 'index')->name('index');  // This defines the route as 'admin.user.index'
+                Route::get('all', 'getall')->name('getall');
+                Route::post('store', 'store')->name('store');
+                Route::post('status', 'status')->name('status');
+                Route::delete('delete/{id}', 'destroy')->name('destroy');
+                Route::get('get/{id}', 'get')->name('get');
+                Route::post('update', 'update')->name('update');
             });
 
         });
