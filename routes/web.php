@@ -12,6 +12,11 @@ use App\Http\Controllers\Admin\{
     UserController
 };
 
+
+use App\Http\Controllers\Company\{
+    CompanyAuthController,
+};
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -80,6 +85,37 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::post('update', 'update')->name('update');
         });
 
+    });
+});
+
+
+// Admin Routes with 'admin' prefix and 'admin.' name
+Route::prefix('company')->name('company.')->group(function () {
+
+    // Admin Authentication Routes
+    Route::controller(CompanyAuthController::class)->group(function () {
+        Route::get('/', 'index');  // Admin landing page
+        Route::get('login', 'login')->name('login');  // Login page
+        Route::post('login', 'postLogin')->name('login.post');  // Handle login form submission
+        Route::get('forget-password', 'showForgetPasswordForm')->name('forget.password.get');  // Show forget password form
+        Route::post('forget-password', 'submitForgetPasswordForm')->name('forget.password.post');  // Handle forget password form submission
+        Route::get('reset-password/{token}', 'showResetPasswordForm')->name('reset.password.get');  // Show reset password form
+        Route::post('reset-password', 'submitResetPasswordForm')->name('reset.password.post');  // Handle reset password form submission
+
+        // Routes requiring 'admin' middleware
+        Route::middleware('user')->group(function () {
+
+            // Admin Dashboard and Profile Routes
+            Route::controller(CompanyAuthController::class)->group(function () {
+                Route::get('dashboard', 'companyDashboard')->name('dashboard');  // Admin dashboard
+                Route::get('change-password', 'changePassword')->name('change.password');  // Change password form
+                Route::post('update-password', 'updatePassword')->name('update.password');  // Handle change password form submission
+                Route::get('logout', 'logout')->name('logout');  // Logout route
+                Route::get('profile', 'companyProfile')->name('profile');  // Admin profile page
+                Route::post('profile', 'updatecompanyProfile')->name('update.profile');  // Update admin profile
+            });
+
+        });
     });
 });
 
