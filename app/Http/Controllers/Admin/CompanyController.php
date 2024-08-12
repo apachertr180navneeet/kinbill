@@ -42,11 +42,11 @@ class CompanyController extends Controller
     public function companyStatus(Request $request)
     {
         try {
-            $company = Company::findOrFail($request->userid);
+            $company = Company::find($request->userId);
             $company->status = $request->status;
             $company->save();
 
-            return response()->json(['success' => true]);
+            return response()->json(['success' => true , 'message' => 'Comapny Status Updated Successfully']);
         } catch (Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()]);
         }

@@ -189,7 +189,7 @@
         });
 
         // Handle form submission via AJAX
-        $('#AddCompany').click(function(e) {
+        $('#AddComapany').click(function(e) {
             e.preventDefault();
 
             // Collect form data
@@ -315,7 +315,8 @@
                         url: "{{ route('admin.company.status') }}",
                         data: { userId, status, _token: $('meta[name="csrf-token"]').attr('content') },
                         success: function (response) {
-                            if (response.success) {
+                            console.log(response);
+                            if (response.success == true) {
                                 const successMessage = status === "active" ? "Company activated successfully." : "Company deactivated successfully.";
                                 setFlash("success", successMessage);
                             } else {
