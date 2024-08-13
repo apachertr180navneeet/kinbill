@@ -89,6 +89,7 @@ class CompanyController extends Controller
             'address' => 'nullable|string',
             'city' => 'required|string|max:100',
             'type' => 'required|string|in:type1,type2', // Adjust types as necessary
+            'gstin' => 'required',
         ];
 
         // Validate the request data
@@ -103,7 +104,7 @@ class CompanyController extends Controller
 
         // Save the company data
         $company = Company::create($request->only([
-            'name', 'email', 'phone', 'address', 'city', 'type'
+            'name', 'email', 'phone', 'address', 'city', 'type','gstin'
         ]));
 
         return response()->json([
@@ -129,6 +130,7 @@ public function updateCompany(Request $request)
         'address' => 'required|string',
         'city' => 'required|string',
         'type' => 'required|string',
+        'gstin' => 'required|string',
         'id' => 'required|integer|exists:companies,id', // Adjust as needed
     ]);
 

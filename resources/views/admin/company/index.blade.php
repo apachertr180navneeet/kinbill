@@ -70,6 +70,11 @@
                         <small class="error-text text-danger"></small>
                     </div>
                     <div class="col-md-12 mb-3">
+                        <label for="gstin" class="form-label">GSTIN</label>
+                        <input type="text" id="gstin" class="form-control" placeholder="" />
+                        <small class="error-text text-danger"></small>
+                    </div>
+                    <div class="col-md-12 mb-3">
                         <label for="type" class="form-label">Type</label>
                         <select id="type" class="form-select form-select">
                             <option value="">select</option>
@@ -121,6 +126,11 @@
                     <div class="col-md-12 mb-3">
                         <label for="city" class="form-label">City</label>
                         <input type="text" id="editcity" class="form-control" placeholder="" />
+                        <small class="error-text text-danger"></small>
+                    </div>
+                    <div class="col-md-12 mb-3">
+                        <label for="gstin" class="form-label">GSTIN</label>
+                        <input type="text" id="editgstin" class="form-control" placeholder="" />
                         <small class="error-text text-danger"></small>
                     </div>
                     <div class="col-md-12 mb-3">
@@ -204,6 +214,7 @@
                 address: $('#address').val(),
                 city: $('#city').val(),
                 type: $('#type').val(),
+                gstin: $('#gstin').val(),
                 _token: $('meta[name="csrf-token"]').attr('content') // CSRF token
             };
 
@@ -255,6 +266,7 @@
                     $('#editaddress').val(data.address);
                     $('#editcity').val(data.city);
                     $('#edittype').val(data.type);
+                    $('#editgstin').val(data.gstin);
 
                     // Open the modal
                     $('#editModal').modal('show');
@@ -280,6 +292,7 @@
                     address: $('#editaddress').val(),
                     city: $('#editcity').val(),
                     type: $('#edittype').val(),
+                    gstin: $('#editgstin').val(),
                     id: userId // Ensure userId is in scope or adjust accordingly
                 },
                 success: function(response) {

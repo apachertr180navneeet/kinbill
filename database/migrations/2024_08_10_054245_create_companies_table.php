@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->string('phone')->unique();
             $table->string('address')->nullable();
-            $table->string('getin')->nullable();
+            $table->string('gstin')->nullable();
             $table->string('city')->nullable();
             $table->enum('type', ['type1', 'type2'])->default('type1');
             $table->enum('status', ['active', 'inactive'])->default('active');
