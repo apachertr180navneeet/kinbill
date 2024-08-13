@@ -3,12 +3,12 @@
     <div class="row">
         <div class="col-md-6 text-start">
             <h5 class="py-2 mb-2">
-                <span class="text-primary fw-light">Vendor</span>
+                <span class="text-primary fw-light">Customer</span>
             </h5>
         </div>
         <div class="col-md-6 text-end">
             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addModal">
-                Add Vendor
+                Add Customer
             </button>
         </div>
     </div>
@@ -21,7 +21,8 @@
                             <thead>
                                 <tr>
                                     <th>Name</th>
-                                    <th>GST No.</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
                                     <th>Status</th>
                                     <th>Action</th>
                                 </tr>
@@ -39,7 +40,7 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel1">Vendor Add</h5>
+                <h5 class="modal-title" id="exampleModalLabel1">Customer Add</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -75,10 +76,7 @@
                         <small class="error-text text-danger"></small>
                     </div>
                     <div class="col-md-12 mb-3">
-                        <label for="gst" class="form-label">GST No.</label>
-                        <input type="text" id="gst" class="form-control" placeholder="" />
-                        <small class="error-text text-danger"></small>
-                        <input type="hidden" id="role" value="vendor">
+                        <input type="hidden" id="role" value="customer">
                     </div>
                 </div>
             </div>
@@ -94,7 +92,7 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel1">Vendor Edit</h5>
+                <h5 class="modal-title" id="exampleModalLabel1">Customer Edit</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
@@ -132,10 +130,7 @@
                         <small class="error-text text-danger"></small>
                     </div>
                     <div class="col-md-12 mb-3">
-                        <label for="gst" class="form-label">GST No.</label>
-                        <input type="text" id="editgst" class="form-control" placeholder="" />
-                        <small class="error-text text-danger"></small>
-                        <input type="hidden" id="role" value="vendor">
+                        <input type="hidden" id="role" value="customer">
                     </div>
                 </div>
             </div>
@@ -154,14 +149,17 @@
         const table = $("#ItemTable").DataTable({
             processing: true,
             ajax: {
-                url: "{{ route('company.vendor.getall') }}",
+                url: "{{ route('company.customer.getall') }}",
             },
             columns: [
                 {
                     data: "full_name",
                 },
                 {
-                    data: "gst_no",
+                    data: "email",
+                },
+                {
+                    data: "phone",
                 },
                 {
                     data: "status",
@@ -201,9 +199,8 @@
                 address: $('#address').val(),
                 city: $('#city').val(),
                 state: $('#state').val(),
-                zipcode: $('#zipcode').val(),
-                gst: $('#gst').val(),
                 role: $('#role').val(),
+                zipcode: $('#zipcode').val(),
                 _token: $('meta[name="csrf-token"]').attr('content') // CSRF token
             };
 
@@ -212,7 +209,7 @@
             $('.error-text').text('');
 
             $.ajax({
-                url: '{{ route('company.vendor.store') }}', // Adjust the route as necessary
+                url: '{{ route('company.customer.store') }}', // Adjust the route as necessary
                 type: 'POST',
                 data: data,
                 success: function(response) {
@@ -243,7 +240,7 @@
 
         // Define editUser function
         function editUser(userId) {
-            const url = '{{ route("company.vendor.get", ":userid") }}'.replace(":userid", userId);
+            const url = '{{ route("company.customer.get", ":userid") }}'.replace(":userid", userId);
             $.ajax({
                 url: url, // Update this URL to match your route
                 method: 'GET',
@@ -256,7 +253,6 @@
                     $('#editphone').val(data.phone);
                     $('#editcity').val(data.city);
                     $('#editstate').val(data.state);
-                    $('#editgst').val(data.gst_no);
                     $('#editzipcode').val(data.zipcode);
 
                     // Open the modal
@@ -273,7 +269,7 @@
         $('#EditComapany').on('click', function() {
             const userId = $('#compid').val(); // Ensure userId is available in the scope
             $.ajax({
-                url: '{{ route('company.vendor.update') }}', // Update this URL to match your route
+                url: '{{ route('company.customer.update') }}', // Update this URL to match your route
                 method: 'POST',
                 data: {
                     full_name: $('#editname').val(),
@@ -282,7 +278,6 @@
                     address: $('#editaddress').val(),
                     city: $('#editcity').val(),
                     state: $('#editstate').val(),
-                    gst_no: $('#editgst').val(),
                     zipcode: $('#editzipcode').val(),
                     _token: $('meta[name="csrf-token"]').attr('content'), // CSRF token
                     id: userId // Ensure userId is in scope or adjust accordingly
@@ -319,7 +314,7 @@
                 if (result.isConfirmed) {
                     $.ajax({
                         type: "POST",
-                        url: "{{ route('company.vendor.status') }}",
+                        url: "{{ route('company.customer.status') }}",
                         data: { userId, status, _token: $('meta[name="csrf-token"]').attr('content') },
                         success: function (response) {
                             console.log(response);
@@ -353,7 +348,7 @@
                 confirmButtonText: "Yes",
             }).then((result) => {
                 if (result.isConfirmed) {
-                    const url = '{{ route("company.vendor.destroy", ":userId") }}'.replace(":userId", userId);
+                    const url = '{{ route("company.customer.destroy", ":userId") }}'.replace(":userId", userId);
                     $.ajax({
                         type: "DELETE",
                         url,

@@ -11,7 +11,7 @@ use App\Models\{
     };
 use Mail, DB, Hash, Validator, Session, File, Exception, Redirect, Auth;
 
-class VendorController extends Controller
+class CustomerController extends Controller
 {
     /**
      * Display the User index page.
@@ -21,7 +21,7 @@ class VendorController extends Controller
     public function index(Request $request)
     {
         // Pass the company and comId to the view
-        return view('company.vendor.index');
+        return view('company.customer.index');
     }
 
     /**
@@ -36,7 +36,7 @@ class VendorController extends Controller
 
         $compId = $user->company_id;
 
-        $items = User::where('role', 'vendor')->get();
+        $items = User::where('role', 'customer')->get();
 
         return response()->json(['data' => $items]);
     }
@@ -96,7 +96,6 @@ class VendorController extends Controller
             'address' => 'nullable|string',
             'city' => 'required|string|max:100',
             'state' => 'required|string',
-            'gst' => 'required|string',
         ];
 
         // Validate the request data
@@ -118,10 +117,9 @@ class VendorController extends Controller
             'email' => $request->email,
             'phone' => $request->phone,
             'state' => $request->state,
-            'zipcode' => $request->zipcode,
             'city' => $request->city,
+            'zipcode' => $request->zipcode,
             'role' => $request->role,
-            'gst_no' =>  $request->gst,
             'company_id' => $compId,
             'password' => Hash::make('12345678'),
         ];
@@ -150,7 +148,6 @@ class VendorController extends Controller
             'address' => 'nullable|string',
             'city' => 'required|string|max:100',
             'state' => 'required|string',
-            'gst_no' => 'required|string',
             'id' => 'required|integer|exists:users,id', // Adjust as needed
         ]);
 

@@ -49,5 +49,13 @@
 			</a>
 		</li>
 
+
+        <li class="menu-item {{ request()->is('admin/customer') ? 'active' : ''}}">
+			<a href="{{route('company.customer.index')}}" class="menu-link">
+				<i class="menu-icon tf-icons bx bx-home-circle"></i>
+				<div data-i18n="tax">Customer</div>
+			</a>
+		</li>
+
 	</ul>
 </aside>
