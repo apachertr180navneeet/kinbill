@@ -14,4 +14,6 @@ class Variation extends Model
     protected $fillable = [
         'name', 'code', 'company_id' // Add all the attributes you want to be mass assignable
     ];
+
+
 }
