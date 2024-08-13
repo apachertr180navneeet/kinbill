@@ -183,7 +183,7 @@
 
                         const deleteButton = `<button type="button" class="btn btn-sm btn-danger" onclick="deleteUser(${row.id})">Delete</button>`;
                         const editButton = `<button type="button" class="btn btn-sm btn-warning" onclick="editUser(${row.id})">Edit</button>`;
-                        const viewButton = `<a href="{{ route('admin.user.index') }}?id=${row.id}" class="btn btn-sm btn-info">View</a>`;
+                        const viewButton = `<a href="{{ route('admin.user.index') }}?id=${row.id}" class="btn btn-sm btn-info">Add User</a>`;
 
                         return `${statusButton} ${deleteButton} ${editButton} ${viewButton}`;
                     },
