@@ -17,7 +17,8 @@ use App\Http\Controllers\Company\{
     CompanyAuthController,
     VariationController,
     TaxController,
-    ItemController
+    ItemController,
+    VendorController
 };
 
 /*
@@ -151,6 +152,16 @@ Route::prefix('company')->name('company.')->group(function () {
                 Route::post('update', 'update')->name('update');
             });
 
+            // Vendor Management Routes
+            Route::prefix('vendor')->name('vendor.')->controller(VendorController::class)->group(function () {
+                Route::get('/', 'index')->name('index');  // This defines the route as 'admin.user.index'
+                Route::get('all', 'getall')->name('getall');
+                Route::post('store', 'store')->name('store');
+                Route::post('status', 'status')->name('status');
+                Route::delete('delete/{id}', 'destroy')->name('destroy');
+                Route::get('get/{id}', 'get')->name('get');
+                Route::post('update', 'update')->name('update');
+            });
         });
     });
 });
