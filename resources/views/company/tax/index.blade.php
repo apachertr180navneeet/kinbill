@@ -7,12 +7,12 @@
     <div class="row">
         <div class="col-md-6 text-start">
             <h5 class="py-2 mb-2">
-                <span class="text-primary fw-light">Variation</span>
+                <span class="text-primary fw-light">Tax</span>
             </h5>
         </div>
         <div class="col-md-6 text-end">
             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addModal">
-                Add Variation
+                Add Tax
             </button>
         </div>
     </div>
@@ -24,8 +24,8 @@
                         <table class="table table-bordered" id="variationTable">
                             <thead>
                                 <tr>
-                                    <th>Variation code</th>
-                                    <th>Unit Name</th>
+                                    <th>Rate</th>
+                                    <th>Name</th>
                                     <th>Status</th>
                                     <th>Action</th>
                                 </tr>
@@ -43,7 +43,7 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel1">Variation Add</h5>
+                <h5 class="modal-title" id="exampleModalLabel1">Tax Add</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -54,8 +54,8 @@
                         <small class="error-text text-danger"></small>
                     </div>
                     <div class="col-md-12 mb-3">
-                        <label for="code" class="form-label">Code</label>
-                        <input type="text" id="code" class="form-control" placeholder="Enter Code" />
+                        <label for="rate" class="form-label">Rate</label>
+                        <input type="text" id="rate" class="form-control" placeholder="Enter Rate" />
                         <small class="error-text text-danger"></small>
                     </div>
                 </div>
@@ -72,7 +72,7 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel1">User Edit</h5>
+                <h5 class="modal-title" id="exampleModalLabel1">Tax Edit</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -84,8 +84,8 @@
                         <small class="error-text text-danger"></small>
                     </div>
                     <div class="col-md-12 mb-3">
-                        <label for="code" class="form-label">Code</label>
-                        <input type="text" id="editcode" class="form-control" placeholder="" />
+                        <label for="rate" class="form-label">Rate</label>
+                        <input type="text" id="editrate" class="form-control" placeholder="Enter Rate" />
                         <small class="error-text text-danger"></small>
                     </div>
                 </div>
@@ -104,11 +104,11 @@
         const table = $('#variationTable').DataTable({
             processing: true,
             ajax: {
-                url: "{{ route('company.variation.getall') }}",
+                url: "{{ route('company.tax.getall') }}",
                 type: 'GET',
             },
             columns: [
-                { data: "code" },
+                { data: "rate" },
                 { data: "name" },
                 {
                     data: "status",
@@ -143,7 +143,7 @@
             // Collect form data
             let data = {
                 name: $('#name').val(),
-                code: $('#code').val(),
+                rate: $('#rate').val(),
                 _token: $('meta[name="csrf-token"]').attr('content')
             };
 
@@ -151,7 +151,7 @@
             $('.error-text').text('');
 
             $.ajax({
-                url: '{{ route('company.variation.store') }}',
+                url: '{{ route('company.tax.store') }}',
                 type: 'POST',
                 data: data,
                 success: function(response) {
@@ -181,20 +181,20 @@
 
         // Define editUser function
         window.editUser = function(userId) {
-            const url = '{{ route("company.variation.get", ":userid") }}'.replace(":userid", userId);
+            const url = '{{ route("company.tax.get", ":userid") }}'.replace(":userid", userId);
             $.ajax({
                 url: url,
                 method: 'GET',
                 success: function(data) {
                     $('#compid').val(data.id);
                     $('#editname').val(data.name);
-                    $('#editcode').val(data.code);
+                    $('#editrate').val(data.rate);
 
                     $('#editModal').modal('show');
-                    setFlash("success", 'Variation found successfully.');
+                    setFlash("success", 'Tax found successfully.');
                 },
                 error: function() {
-                    setFlash("error", "Variation not found. Please try again later.");
+                    setFlash("error", "Tax not found. Please try again later.");
                 }
             });
         };
@@ -203,12 +203,12 @@
         $('#EditUser').on('click', function() {
             const userId = $('#compid').val();
             $.ajax({
-                url: '{{ route('company.variation.update') }}',
+                url: '{{ route('company.tax.update') }}',
                 method: 'POST',
                 data: {
                     _token: $('meta[name="csrf-token"]').attr('content'),
                     name: $('#editname').val(), // Ensure consistency in field names
-                    code: $('#editcode').val(), // Ensure consistency in field names
+                    rate: $('#editrate').val(), // Ensure consistency in field names
                     id: userId
                 },
                 success: function(response) {
@@ -229,7 +229,7 @@
 
         // Update user status
         window.updateUserStatus = function(userId, status) {
-            const message = status === "active" ? "Variation will be able to log in after activation." : "Variation will not be able to log in after deactivation.";
+            const message = status === "active" ? "Tax will be able to log in after activation." : "Tax will not be able to log in after deactivation.";
 
             Swal.fire({
                 title: "Are you sure?",
@@ -243,11 +243,11 @@
                 if (result.isConfirmed) {
                     $.ajax({
                         type: "POST",
-                        url: "{{ route('company.variation.status') }}",
+                        url: "{{ route('company.tax.status') }}",
                         data: { userId, status, _token: $('meta[name="csrf-token"]').attr('content') },
                         success: function (response) {
                             if (response.success) {
-                                const successMessage = status === "active" ? "Variation activated successfully." : "Variation deactivated successfully.";
+                                const successMessage = status === "active" ? "Tax activated successfully." : "Tax deactivated successfully.";
                                 setFlash("success", successMessage);
                             } else {
                                 setFlash("error", "There was an issue changing the status. Please contact your system administrator.");
@@ -268,7 +268,7 @@
         window.deleteUser = function(userId) {
             Swal.fire({
                 title: "Are you sure?",
-                text: "Do you want to delete this Variation?",
+                text: "Do you want to delete this Tax?",
                 icon: "warning",
                 showCancelButton: true,
                 confirmButtonColor: "#3085d6",
@@ -276,16 +276,16 @@
                 confirmButtonText: "Yes",
             }).then((result) => {
                 if (result.isConfirmed) {
-                    const url = '{{ route("company.variation.destroy", ":userId") }}'.replace(":userId", userId);
+                    const url = '{{ route("company.tax.destroy", ":userId") }}'.replace(":userId", userId);
                     $.ajax({
                         type: "DELETE",
                         url,
                         data: { _token: $('meta[name="csrf-token"]').attr('content') },
                         success: function (response) {
                             if (response.success) {
-                                setFlash("success", "User deleted successfully.");
+                                setFlash("success", "Tax deleted successfully.");
                             } else {
-                                setFlash("error", "There was an issue deleting the variation. Please contact your system administrator.");
+                                setFlash("error", "There was an issue deleting the tax. Please contact your system administrator.");
                             }
                             table.ajax.reload();
                         },

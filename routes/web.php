@@ -15,7 +15,8 @@ use App\Http\Controllers\Admin\{
 
 use App\Http\Controllers\Company\{
     CompanyAuthController,
-    VariationController
+    VariationController,
+    TaxController
 };
 
 /*
@@ -118,6 +119,17 @@ Route::prefix('company')->name('company.')->group(function () {
 
             // Variation Management Routes
             Route::prefix('variation')->name('variation.')->controller(VariationController::class)->group(function () {
+                Route::get('/', 'index')->name('index');  // This defines the route as 'admin.user.index'
+                Route::get('all', 'getall')->name('getall');
+                Route::post('store', 'store')->name('store');
+                Route::post('status', 'status')->name('status');
+                Route::delete('delete/{id}', 'destroy')->name('destroy');
+                Route::get('get/{id}', 'get')->name('get');
+                Route::post('update', 'update')->name('update');
+            });
+
+            // Tax Management Routes
+            Route::prefix('tax')->name('tax.')->controller(TaxController::class)->group(function () {
                 Route::get('/', 'index')->name('index');  // This defines the route as 'admin.user.index'
                 Route::get('all', 'getall')->name('getall');
                 Route::post('store', 'store')->name('store');
