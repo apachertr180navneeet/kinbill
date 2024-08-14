@@ -7,7 +7,8 @@ use Illuminate\Http\Request;
 use App\Models\{
         User,
         Variation,
-        Item
+        Item,
+        Tax
     };
 use Mail, DB, Hash, Validator, Session, File, Exception, Redirect, Auth;
 
@@ -25,8 +26,9 @@ class ItemController extends Controller
         $compId = $user->company_id;
 
         $variation = Variation::where('company_id',$compId)->where('status','active')->orderBy('id', 'desc')->get();
+        $taxs = Tax::where('company_id',$compId)->where('status','active')->orderBy('id', 'desc')->get();
         // Pass the company and comId to the view
-        return view('company.item.index', compact('variation'));
+        return view('company.item.index', compact('variation','taxs'));
     }
 
     /**

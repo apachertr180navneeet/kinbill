@@ -12,7 +12,7 @@ class Item extends Model
     use HasFactory , SoftDeletes;
 
     protected $fillable = [
-        'company_id', 'variation_id', 'name', 'description' // Add all the attributes you want to be mass assignable
+        'company_id', 'variation_id', 'name', 'description', 'tax_id' // Add all the attributes you want to be mass assignable
     ];
 
     // Define the relationship

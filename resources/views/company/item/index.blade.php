@@ -64,6 +64,16 @@
                         </select>
                         <small class="error-text text-danger"></small>
                     </div>
+                    <div class="col-md-12 mb-3">
+                        <label for="tax_id" class="form-label">Tax</label>
+                        <select id="tax_id" class="form-select form-select">
+                            <option value="">select</option>
+                            @foreach ( $taxs as $tax )
+                                <option value="{{ $tax->id }}">{{ $tax->rate }}</option>
+                            @endforeach
+                        </select>
+                        <small class="error-text text-danger"></small>
+                    </div>
                 </div>
             </div>
             <div class="modal-footer">
@@ -101,6 +111,16 @@
                             <option value="">select</option>
                             @foreach ( $variation as $var )
                                 <option value="{{ $var->id }}">{{ $var->name }}</option>
+                            @endforeach
+                        </select>
+                        <small class="error-text text-danger"></small>
+                    </div>
+                    <div class="col-md-12 mb-3">
+                        <label for="tax_id" class="form-label">Tax</label>
+                        <select id="edittax_id" class="form-select form-select">
+                            <option value="">select</option>
+                            @foreach ( $taxs as $tax )
+                                <option value="{{ $tax->id }}">{{ $tax->rate }}</option>
                             @endforeach
                         </select>
                         <small class="error-text text-danger"></small>
@@ -166,6 +186,7 @@
                 name: $('#name').val(),
                 description: $('#description').val(),
                 variation_id: $('#variation_id').val(),
+                tax_id: $('#tax_id').val(),
                 _token: $('meta[name="csrf-token"]').attr('content') // CSRF token
             };
 
@@ -215,6 +236,7 @@
                     $('#editname').val(data.name);
                     $('#editdescription').val(data.description);
                     $('#editvariation_id').val(data.variation_id);
+                    $('#edittax_id').val(data.tax_id);
 
                     // Open the modal
                     $('#editModal').modal('show');
@@ -237,6 +259,7 @@
                     name: $('#editname').val(),
                     description: $('#editdescription').val(),
                     variation_id: $('#editvariation_id').val(),
+                    tax_id: $('#edittax_id').val(),
                     id: userId // Ensure userId is in scope or adjust accordingly
                 },
                 success: function(response) {
