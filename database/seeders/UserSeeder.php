@@ -34,7 +34,6 @@ class UserSeeder extends Seeder
             'zipcode' => '2000',
             'latitude' => '-33.8664701',
             'longitude' => '151.2081952',
-            'device_token' => '0',
             'status' => 'active',
         ]);
     }

@@ -13,30 +13,27 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->integer('company_id');
-            $table->string('first_name');
-            $table->string('last_name');
+            $table->unsignedBigInteger('company_id')->nullable();
+
             $table->string('full_name');
-            $table->string('slug');
             $table->string('email')->unique();
             $table->string('phone')->unique();
             $table->string('password');
             $table->timestamp('email_verified_at')->nullable();
             $table->timestamp('phone_verified_at')->nullable();
             $table->enum('role',['admin','user','vendor','customer'])->default('user');
-            $table->string('address')->default(Null);
-            $table->string('area')->default(Null);
-            $table->string('city')->default(Null);
-            $table->string('state')->default(Null);
-            $table->string('country');
+            $table->string('address')->default('');
+            $table->string('area')->default('');
+            $table->string('city')->default('');
+            $table->string('state')->default('');
             $table->integer('country_code')->default(61);
-            $table->string('zipcode')->default(Null);
-            $table->string('latitude')->default(Null);
-            $table->string('longitude')->default(Null);
+            $table->string('zipcode')->default('');
+            $table->string('latitude')->default('');
+            $table->string('longitude')->default('');
             $table->string('timezone')->default('Australia/Sydney');
-            // $table->text('avatar')->default(Null);
-            // $table->text('bio')->default(Null);
-            $table->string('device_token')->default(Null);
+            $table->text('avatar')->default('');
+            $table->text('bio')->default('');
+            $table->string('device_token')->default('');
             $table->enum('device_type',['android','ios'])->default('ios');
             $table->enum('status',['active','inactive'])->default('active');
             $table->rememberToken();
