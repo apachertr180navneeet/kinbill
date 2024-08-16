@@ -132,6 +132,8 @@ Route::prefix('company')->name('company.')->group(function () {
             Route::get('/add', 'add')->name('add');
             Route::post('/store', 'store')->name('store');
             Route::delete('/delete/{id}', 'destroy')->name('destroy');
+            Route::get('/edit/{id}', 'edit')->name('edit'); // New route for edit
+            Route::put('/update/{id}', 'update')->name('update'); // New route for update
         });
     });
 });

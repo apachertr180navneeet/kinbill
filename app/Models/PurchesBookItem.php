@@ -20,4 +20,11 @@ class PurchesBookItem extends Model
     protected $fillable = [
         'purches_book_id', 'item_id', 'quantity', 'rate', 'tax', 'amount', 'status' // Add all the attributes you want to be mass assignable
     ];
+
+
+    public function item()
+    {
+        return $this->belongsTo(Item::class, 'item_id');
+    }
+
 }

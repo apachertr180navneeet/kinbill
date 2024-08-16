@@ -166,4 +166,100 @@ class PurchesBookController extends Controller
 
     }
 
+    public function edit($id)
+    {
+        // Get the authenticated user and their company ID
+        $user = Auth::user();
+        $compId = $user->company_id;
+
+        $purchaseBook = PurchesBook::with('purchesbookitem.item.variation')->find($id);
+
+        // Fetch all active vendors for the user's company
+        $vendors = User::where('role', 'vendor')
+            ->where('company_id', $compId)
+            ->where('status', 'active')
+            ->get();
+
+        // Fetch all items with their variations and tax details for the user's company
+        $items = Item::join('variations', 'items.variation_id', '=', 'variations.id')
+            ->join('taxes', 'items.tax_id', '=', 'taxes.id')
+            ->where('items.company_id', $compId)
+            ->select('items.*', 'variations.name as variation_name', 'taxes.rate as tax_rate')
+            ->get();
+
+        return view('company.purches_book.edit', compact('purchaseBook', 'vendors', 'items'));
+    }
+
+    public function update(Request $request, $id)
+{
+    // Step 1: Check if items are provided
+    if (empty($request->items) || empty($request->quantities) || empty($request->rates) || empty($request->taxes) || empty($request->totalAmounts)) {
+        return redirect()->back()->with(['error' => 'No items provided. Please add items to the purchase book.']);
+    }
+
+    $purchaseBook = PurchesBook::with('purchesbookitem')->find($id);
+
+    // Step 2: Subtract old quantities from StockReport
+    foreach ($purchaseBook->purchesbookitem as $item) {
+        $stockReport = StockReport::where('item_id', $item->item_id)->first();
+        if ($stockReport) {
+            $stockReport->quantity -= $item->quantity;
+            $stockReport->save();
+        }
+    }
+
+    // Step 3: Update Purchase Book details
+    $purchaseBook->date = $request->date;
+    $purchaseBook->invoice_number = $request->invoice;
+    $purchaseBook->vendor_id = $request->vendor;
+    $purchaseBook->transport = $request->transport;
+    $purchaseBook->total_tax = $request->total_tax;
+    $purchaseBook->other_expense = $request->other_expense;
+    $purchaseBook->discount = $request->discount;
+    $purchaseBook->round_off = $request->round_off;
+    $purchaseBook->grand_total = $request->grand_total;
+
+    // Delete existing items to reattach with updated quantities
+    $purchaseBook->purchesbookitem()->delete();
+
+    // Step 4: Add new quantities to StockReport and attach items to PurchaseBook
+    foreach ($request->items as $index => $itemId) {
+        $quantity = $request->quantities[$index];
+        $amount = $request->rates[$index];
+        $tax = $request->taxes[$index];
+        $total = $request->totalAmounts[$index];
+
+        // Check if the item exists before updating or creating stock report entry
+        if (Item::find($itemId)) {
+            // Update or create a StockReport entry
+            $stockReport = StockReport::where('item_id', $itemId)->first();
+            if ($stockReport) {
+                $stockReport->quantity += $quantity;
+                $stockReport->save();
+            } else {
+                StockReport::create([
+                    'item_id' => $itemId,
+                    'quantity' => $quantity,
+                ]);
+            }
+
+            // Recreate the purchase book item record
+            $purchaseBook->purchesbookitem()->create([
+                'item_id' => $itemId,
+                'quantity' => $quantity,
+                'rate' => $amount,
+                'tax' => $tax,
+                'amount' => $total,
+            ]);
+        } else {
+            // Handle the case where the item does not exist
+            return redirect()->back()->with(['error' => "Item with ID $itemId does not exist."]);
+        }
+    }
+
+    $purchaseBook->save();
+
+    return redirect()->route('company.purches.book.index')->with('success', 'Purchase book updated successfully.');
+}
+
 }

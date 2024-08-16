@@ -44,6 +44,9 @@
 @section('script')
 <script>
     $(document).ready(function() {
+        // Base URL for the edit route
+        const baseUrl = "{{ route('company.purches.book.edit', ['id' => ':id']) }}";
+
         const table = $('#variationTable').DataTable({
             processing: true,
             ajax: {
@@ -56,10 +59,10 @@
                 { data: "grand_total" },
                 { data: "vendor_name" },
                 {
-                    data: "action",
-                    render: (data, type, row) => {
-                        const deleteButton = `<button type="button" class="btn btn-sm btn-danger" onclick="deletePurchase(${row.id})">Delete</button>`;
-                        const editButton = `<button type="button" class="btn btn-sm btn-warning" onclick="edit(${row.id})">Edit</button>`;
+                    data: "id",
+                    render: function (data, type, row) {
+                        const deleteButton = `<button type="button" class="btn btn-sm btn-danger" onclick="deletePurchase(${data})">Delete</button>`;
+                        const editButton = `<a href="${baseUrl.replace(':id', data)}" class="btn btn-sm btn-warning">Edit</a>`;
                         return `${deleteButton} ${editButton}`;
                     },
                 },
@@ -111,6 +114,5 @@
             });
         }
     });
-
 </script>
 @endsection

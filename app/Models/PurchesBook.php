@@ -23,7 +23,7 @@ class PurchesBook extends Model
 
     // Other model code...
 
-    public function items()
+    public function purchesbookitem()
     {
         return $this->hasMany(PurchesBookItem::class, 'purches_book_id');
     }
