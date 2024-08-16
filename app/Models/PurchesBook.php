@@ -18,6 +18,13 @@ class PurchesBook extends Model
      * @var array
      */
     protected $fillable = [
-        'date', 'invoice_number', 'vendor_id', 'transport', 'total_tax', 'other_expense', 'discount', 'round_off', 'grand_total' , 'status' // Add all the attributes you want to be mass assignable
+        'date', 'invoice_number', 'vendor_id', 'transport', 'total_tax', 'other_expense', 'discount', 'round_off', 'grand_total' , 'status' , 'company_id' // Add all the attributes you want to be mass assignable
     ];
+
+    // Other model code...
+
+    public function items()
+    {
+        return $this->hasMany(PurchesBookItem::class, 'purches_book_id');
+    }
 }

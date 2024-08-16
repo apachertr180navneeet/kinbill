@@ -131,4 +131,39 @@ class PurchesBookController extends Controller
             return redirect()->back()->with('error', 'An error occurred while saving the purchase book entry.');
         }
     }
+
+    public function destroy($id)
+    {
+        try {
+            DB::transaction(function () use ($id) {
+                // Find the purchase book
+                $purchaseBook = PurchesBook::find($id);
+
+                if (!$purchaseBook) {
+                    throw new \Exception('Purchase Book not found.');
+                }
+
+                // Loop through the items to update the stock
+                foreach ($purchaseBook->items as $item) {
+                    $stockReport = StockReport::where('item_id', $item->item_id)->first();
+                    if ($stockReport) {
+                        $stockReport->quantity -= $item->quantity;
+                        $stockReport->save();
+                    }
+                }
+
+                // Delete items related to the purchase book
+                $purchaseBook->items()->delete();
+
+                // Delete the purchase book itself
+                $purchaseBook->delete();
+            });
+
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()]);
+        }
+
+    }
+
 }

@@ -131,6 +131,7 @@ Route::prefix('company')->name('company.')->group(function () {
             Route::get('all', 'getall')->name('getall');
             Route::get('/add', 'add')->name('add');
             Route::post('/store', 'store')->name('store');
+            Route::delete('/delete/{id}', 'destroy')->name('destroy');
         });
     });
 });

@@ -58,8 +58,7 @@
                 {
                     data: "action",
                     render: (data, type, row) => {
-
-                        const deleteButton = `<button type="button" class="btn btn-sm btn-danger" onclick="delete(${row.id})">Delete</button>`;
+                        const deleteButton = `<button type="button" class="btn btn-sm btn-danger" onclick="deletePurchase(${row.id})">Delete</button>`;
                         const editButton = `<button type="button" class="btn btn-sm btn-warning" onclick="edit(${row.id})">Edit</button>`;
                         return `${deleteButton} ${editButton}`;
                     },
@@ -68,31 +67,35 @@
         });
 
         // Delete
-        window.delete = function(userId) {
+        window.deletePurchase = function(purchaseBookId) {
+            console.log("Delete function triggered for ID: ", purchaseBookId);
             Swal.fire({
                 title: "Are you sure?",
-                text: "Do you want to delete this Tax?",
+                text: "Do you want to delete this Purchase Book and update the stock?",
                 icon: "warning",
                 showCancelButton: true,
                 confirmButtonColor: "#3085d6",
                 cancelButtonColor: "#d33",
-                confirmButtonText: "Yes",
+                confirmButtonText: "Yes, delete it!",
             }).then((result) => {
                 if (result.isConfirmed) {
-                    const url = '{{ route("company.tax.destroy", ":userId") }}'.replace(":userId", userId);
+                    const url = '{{ route("company.purches.book.destroy", ":purchaseBookId") }}'.replace(":purchaseBookId", purchaseBookId);
+                    console.log("URL for delete: ", url);
                     $.ajax({
                         type: "DELETE",
-                        url,
+                        url: url,
                         data: { _token: $('meta[name="csrf-token"]').attr('content') },
                         success: function (response) {
+                            console.log("AJAX Success Response: ", response);
                             if (response.success) {
-                                setFlash("success", "Tax deleted successfully.");
+                                setFlash("success", "Purchase book deleted successfully and stock updated.");
                             } else {
-                                setFlash("error", "There was an issue deleting the tax. Please contact your system administrator.");
+                                setFlash("error", "There was an issue deleting the purchase book. Please contact your system administrator.");
                             }
                             table.ajax.reload();
                         },
-                        error: function () {
+                        error: function (xhr, status, error) {
+                            console.log("AJAX Error: ", error);
                             setFlash("error", "There was an issue processing your request. Please try again later.");
                         },
                     });
@@ -108,5 +111,6 @@
             });
         }
     });
+
 </script>
 @endsection
