@@ -21,11 +21,14 @@
                 <div class="card-body  pb-5">
                     <form action="{{ route('company.update.profile') }}" method="POST" enctype="multipart/form-data">
                         @csrf
+                        @php
+                            $fullname = explode(' ',$user->full_name);
+                        @endphp
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label class="form-label">First Name*</label>
-                                    <input type="text" id="" name="first_name" class="form-control" placeholder="Enter First Name" value="{{old('first_name',$user->first_name)}}" required>
+                                    <input type="text" id="" name="first_name" class="form-control" placeholder="Enter First Name" value="{{old('first_name',$fullname['0'])}}" required>
                                     @error('first_name')
                                         <div class="text-danger">{{ $message }}</div>
                                     @enderror
@@ -34,7 +37,7 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label class="form-label">Last Name*</label>
-                                    <input type="text" name="last_name" class="form-control" placeholder="Enter Last Name" value="{{ old('last_name',$user->last_name)}}" required>
+                                    <input type="text" name="last_name" class="form-control" placeholder="Enter Last Name" value="{{ old('last_name',$fullname['1'])}}" required>
                                     @error('last_name')
                                         <div class="text-danger">{{ $message }}</div>
                                     @enderror

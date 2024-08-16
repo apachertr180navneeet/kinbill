@@ -130,6 +130,7 @@ Route::prefix('company')->name('company.')->group(function () {
             Route::get('/', 'index')->name('index');
             Route::get('all', 'getall')->name('getall');
             Route::get('/add', 'add')->name('add');
+            Route::post('/store', 'store')->name('store');
         });
     });
 });

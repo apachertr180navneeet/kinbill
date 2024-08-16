@@ -59,16 +59,16 @@
                     data: "action",
                     render: (data, type, row) => {
 
-                        const deleteButton = `<button type="button" class="btn btn-sm btn-danger" onclick="deleteUser(${row.id})">Delete</button>`;
-                        const editButton = `<button type="button" class="btn btn-sm btn-warning" onclick="editUser(${row.id})">Edit</button>`;
+                        const deleteButton = `<button type="button" class="btn btn-sm btn-danger" onclick="delete(${row.id})">Delete</button>`;
+                        const editButton = `<button type="button" class="btn btn-sm btn-warning" onclick="edit(${row.id})">Edit</button>`;
                         return `${deleteButton} ${editButton}`;
                     },
                 },
             ],
         });
 
-        // Delete user
-        window.deleteUser = function(userId) {
+        // Delete
+        window.delete = function(userId) {
             Swal.fire({
                 title: "Are you sure?",
                 text: "Do you want to delete this Tax?",
