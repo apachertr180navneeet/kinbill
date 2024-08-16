@@ -13,7 +13,8 @@ use App\Http\Controllers\Company\{
     TaxController,
     ItemController,
     VendorController,
-    CustomerController
+    CustomerController,
+    PurchesBookController
 };
 
 /*
@@ -110,7 +111,7 @@ Route::prefix('company')->name('company.')->group(function () {
         });
 
         // Resource Management Routes
-        foreach (['variation', 'tax', 'item', 'vendor', 'customer'] as $resource) {
+        foreach (['variation', 'tax', 'item', 'vendor', 'customer', 'customer'] as $resource) {
             Route::prefix($resource)->name("$resource.")->group(function () use ($resource) {
                 $controller = "App\Http\Controllers\Company\\" . ucfirst($resource) . "Controller";
                 Route::get('/', [$controller, 'index'])->name('index');
@@ -122,6 +123,14 @@ Route::prefix('company')->name('company.')->group(function () {
                 Route::post('update', [$controller, 'update'])->name('update');
             });
         }
+
+
+        // Admin User Management Routes
+        Route::prefix('purches-book')->name('purches.book.')->controller(PurchesBookController::class)->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('all', 'getall')->name('getall');
+            Route::get('/add', 'add')->name('add');
+        });
     });
 });
 

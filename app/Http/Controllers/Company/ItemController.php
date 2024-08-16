@@ -44,6 +44,7 @@ class ItemController extends Controller
         $compId = $user->company_id;
 
         $items = Item::join('variations', 'items.variation_id', '=', 'variations.id')
+        ->where('items.company_id',$compId)
         ->select('items.*', 'variations.name as variation_name')
         ->get();
 
@@ -98,7 +99,8 @@ class ItemController extends Controller
         $rules = [
             'name' => 'required|string',
             'description' => 'required',
-            'variation_id' => 'required'
+            'variation_id' => 'required',
+            'tax_id' => 'required'
         ];
 
         // Validate the request data
@@ -119,6 +121,7 @@ class ItemController extends Controller
             'name' => $request->name,
             'description' => $request->description,
             'variation_id' => $request->variation_id,
+            'tax_id' => $request->tax_id,
             'company_id' => $compId
         ];
         Item::create($dataUser);
