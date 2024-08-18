@@ -14,7 +14,8 @@ use App\Http\Controllers\Company\{
     ItemController,
     VendorController,
     CustomerController,
-    PurchesBookController
+    PurchesBookController,
+    SalesBookController
 };
 
 /*
@@ -31,7 +32,15 @@ use App\Http\Controllers\Company\{
 Route::get('/', [AdminAuthController::class, 'index']);  // Default landing page
 Route::get('/home', [AdminAuthController::class, 'index']);  // Redirect to the home page
 
-// Admin Routes with 'admin' prefix and 'admin.' name
+/*
+|--------------------------------------------------------------------------
+| Admin Routes
+|--------------------------------------------------------------------------
+|
+| Routes for admin functionalities, prefixed with 'admin' and named with 'admin.'
+|
+*/
+
 Route::prefix('admin')->name('admin.')->group(function () {
 
     // Admin Authentication Routes
@@ -84,7 +93,15 @@ Route::prefix('admin')->name('admin.')->group(function () {
     });
 });
 
-// Company Routes with 'company' prefix and 'company.' name
+/*
+|--------------------------------------------------------------------------
+| Company Routes
+|--------------------------------------------------------------------------
+|
+| Routes for company functionalities, prefixed with 'company' and named with 'company.'
+|
+*/
+
 Route::prefix('company')->name('company.')->group(function () {
 
     // Company Authentication Routes
@@ -110,8 +127,8 @@ Route::prefix('company')->name('company.')->group(function () {
             Route::post('profile', 'updatecompanyProfile')->name('update.profile');
         });
 
-        // Resource Management Routes
-        foreach (['variation', 'tax', 'item', 'vendor', 'customer', 'customer'] as $resource) {
+        // Resource Management Routes (Variation, Tax, Item, Vendor, Customer)
+        foreach (['variation', 'tax', 'item', 'vendor', 'customer'] as $resource) {
             Route::prefix($resource)->name("$resource.")->group(function () use ($resource) {
                 $controller = "App\Http\Controllers\Company\\" . ucfirst($resource) . "Controller";
                 Route::get('/', [$controller, 'index'])->name('index');
@@ -124,21 +141,40 @@ Route::prefix('company')->name('company.')->group(function () {
             });
         }
 
-
-        // Admin User Management Routes
+        // Purchase Book Management Routes
         Route::prefix('purches-book')->name('purches.book.')->controller(PurchesBookController::class)->group(function () {
             Route::get('/', 'index')->name('index');
             Route::get('all', 'getall')->name('getall');
             Route::get('/add', 'add')->name('add');
             Route::post('/store', 'store')->name('store');
             Route::delete('/delete/{id}', 'destroy')->name('destroy');
-            Route::get('/edit/{id}', 'edit')->name('edit'); // New route for edit
-            Route::put('/update/{id}', 'update')->name('update'); // New route for update
+            Route::get('/edit/{id}', 'edit')->name('edit'); // Edit route
+            Route::put('/update/{id}', 'update')->name('update'); // Update route
+        });
+
+
+        // Sales Book Management Routes
+        Route::prefix('sales-book')->name('sales.book.')->controller(SalesBookController::class)->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('all', 'getall')->name('getall');
+            Route::get('/add', 'add')->name('add');
+            Route::post('/store', 'store')->name('store');
+            Route::delete('/delete/{id}', 'destroy')->name('destroy');
+            Route::get('/edit/{id}', 'edit')->name('edit'); // Edit route
+            Route::put('/update/{id}', 'update')->name('update'); // Update route
         });
     });
 });
 
-// Routes for authenticated users
+/*
+|--------------------------------------------------------------------------
+| Authenticated User Routes
+|--------------------------------------------------------------------------
+|
+| Routes that require user authentication
+|
+*/
+
 Route::middleware(['auth'])->group(function () {
     // Define routes that require user authentication here
 });

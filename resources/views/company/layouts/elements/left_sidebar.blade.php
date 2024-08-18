@@ -51,6 +51,7 @@
             <ul class="menu-sub">
                 @foreach([
                     ['route' => 'company.purches.book.index', 'text' => 'Purches Book'],
+                    ['route' => 'company.sales.book.index', 'text' => 'Sales Book'],
                 ] as $processmenu)
                     <li class="menu-item {{ request()->routeIs($processmenu['route']) ? 'active' : '' }}">
                         <a href="{{ route($processmenu['route']) }}" class="menu-link">

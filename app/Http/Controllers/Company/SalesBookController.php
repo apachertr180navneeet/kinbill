@@ -4,28 +4,28 @@ namespace App\Http\Controllers\Company;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\{User, Company, Tax, Item, PurchesBook, PurchesBookItem, StockReport};
+use App\Models\{User, Company, Tax, Item, SalesBook, SalesBookItem, StockReport};
 use Illuminate\Support\Facades\{Auth, DB, Mail, Hash, Validator, Session};
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Redirect;
 use Exception;
 
-class PurchesBookController extends Controller
+class SalesBookController extends Controller
 {
     /**
-     * Display the purchase book index page.
+     * Display the sales book index page.
      *
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\View\View
      */
     public function index(Request $request)
     {
-        // Simply returning the view for purchase book index page
-        return view('company.purches_book.index');
+        // Simply returning the view for sales book index page
+        return view('company.sales_book.index');
     }
 
     /**
-     * Fetch all purchase books for the authenticated user's company and return them as JSON.
+     * Fetch all sales books for the authenticated user's company and return them as JSON.
      *
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\JsonResponse
@@ -36,20 +36,20 @@ class PurchesBookController extends Controller
         $user = Auth::user();
         $compId = $user->company_id;
 
-        // Fetch all purchase books for the user's company, including vendor details
-        $purchesBooks = PurchesBook::join('users', 'purches_books.vendor_id', '=', 'users.id')
-            ->where('purches_books.company_id', $compId)
-            ->select('purches_books.*', 'users.full_name as vendor_name')
-            ->orderByDesc('purches_books.id')
+        // Fetch all sales books for the user's company, including vendor details
+        $salesBooks = SalesBook::join('users', 'sales_books.customer_id', '=', 'users.id')
+            ->where('sales_books.company_id', $compId)
+            ->select('sales_books.*', 'users.full_name as customer_name')
+            ->orderByDesc('sales_books.id')
             ->get();
 
 
-        // Return the purchase books data as JSON response
-        return response()->json(['data' => $purchesBooks]);
+        // Return the sales books data as JSON response
+        return response()->json(['data' => $salesBooks]);
     }
 
     /**
-     * Show the form for adding a new purchase book.
+     * Show the form for adding a new sales book.
      *
      * @return \Illuminate\View\View
      */
@@ -60,7 +60,7 @@ class PurchesBookController extends Controller
         $compId = $user->company_id;
 
         // Fetch all active vendors for the user's company
-        $vendors = User::where('role', 'vendor')
+        $customers = User::where('role', 'customer')
             ->where('company_id', $compId)
             ->where('status', 'active')
             ->get();
@@ -72,8 +72,8 @@ class PurchesBookController extends Controller
             ->select('items.*', 'variations.name as variation_name', 'taxes.rate as tax_rate')
             ->get();
 
-        // Pass the vendors and items data to the view for adding a new purchase book
-        return view('company.purches_book.add', compact('vendors', 'items'));
+        // Pass the vendors and items data to the view for adding a new sales book
+        return view('company.sales_book.add', compact('customers', 'items'));
     }
 
     public function store(Request $request)
@@ -85,13 +85,13 @@ class PurchesBookController extends Controller
             // Get the authenticated user and their company ID
             $user = Auth::user();
             $compId = $user->company_id;
-            // Save the purchase book details in the purches_books table
-            $purchesBook = PurchesBook::create([
+            // Save the sales book details in the sales_books table
+            $salesBook = SalesBook::create([
                 'date' => $request->date,
                 'company_id' => $compId,
-                'invoice_number' => $request->invoice,
-                'vendor_id' => $request->vendor,
-                'transport' => $request->transport,
+                'dispatch_number' => $request->dispatch,
+                'customer_id' => $request->customer,
+                'item_weight' => $request->weight,
                 'total_tax' => $request->total_tax,
                 'other_expense' => $request->other_expense,
                 'discount' => $request->discount,
@@ -99,10 +99,10 @@ class PurchesBookController extends Controller
                 'grand_total' => $request->grand_total,
             ]);
 
-            // Save each item in the purches_book_items table
+            // Save each item in the sales_book_items table
             foreach ($request->items as $index => $itemId) {
-                $item = PurchesBookItem::create([
-                    'purches_book_id' => $purchesBook->id,
+                $item = SalesBookItem::create([
+                    'sales_book_id' => $salesBook->id,
                     'item_id' => $itemId,
                     'quantity' => $request->quantities[$index],
                     'rate' => $request->rates[$index],
@@ -110,10 +110,11 @@ class PurchesBookController extends Controller
                     'amount' => $request->totalAmounts[$index],
                 ]);
 
+                $quantity = $request->quantities[$index];
                 // Update or create a StockReport entry
                 $stockReport = StockReport::where('item_id', $itemId)->first();
                 if ($stockReport) {
-                    $stockReport->quantity += $quantity;
+                    $stockReport->quantity -= $quantity;
                     $stockReport->save();
                 } else {
                     StockReport::create([
@@ -127,14 +128,14 @@ class PurchesBookController extends Controller
             DB::commit();
 
             // Redirect with a success message
-            return redirect()->route('company.purches.book.index')->with('success', 'Purchase book entry saved successfully.');
+            return redirect()->route('company.sales.book.index')->with('success', 'sales book entry saved successfully.');
         } catch (\Exception $e) {
             dd($e);
             // Rollback the transaction on error
             DB::rollback();
 
             // Redirect with an error message
-            return redirect()->back()->with('error', 'An error occurred while saving the purchase book entry.');
+            return redirect()->back()->with('error', 'An error occurred while saving the sales book entry.');
         }
     }
 
@@ -142,15 +143,15 @@ class PurchesBookController extends Controller
     {
         try {
             DB::transaction(function () use ($id) {
-                // Find the purchase book
-                $purchaseBook = PurchesBook::with('purchesbookitem')->find($id);
+                // Find the sales book
+                $salesBook = SalesBook::with('salesbookitem')->find($id);
 
-                if (!$purchaseBook) {
-                    throw new \Exception('Purchase Book not found.');
+                if (!$salesBook) {
+                    throw new \Exception('sales Book not found.');
                 }
 
                 // Loop through the items to update the stock
-                foreach ($purchaseBook->purchesbookitem as $item) {
+                foreach ($salesBook->salesbookitem as $item) {
                     $stockReport = StockReport::where('item_id', $item->item_id)->first();
                     if ($stockReport) {
                         $stockReport->quantity -= $item->quantity;
@@ -158,11 +159,11 @@ class PurchesBookController extends Controller
                     }
                 }
 
-                // Delete items related to the purchase book
-                $purchaseBook->purchesbookitem()->delete();
+                // Delete items related to the sales book
+                $salesBook->salesbookitem()->delete();
 
-                // Delete the purchase book itself
-                $purchaseBook->delete();
+                // Delete the sales book itself
+                $salesBook->delete();
             });
 
             return response()->json(['success' => true]);
@@ -178,10 +179,10 @@ class PurchesBookController extends Controller
         $user = Auth::user();
         $compId = $user->company_id;
 
-        $purchaseBook = PurchesBook::with('purchesbookitem.item.variation')->find($id);
+        $salesBook = SalesBook::with('salesbookitem.item.variation')->find($id);
 
         // Fetch all active vendors for the user's company
-        $vendors = User::where('role', 'vendor')
+        $customers = User::where('role', 'customer')
             ->where('company_id', $compId)
             ->where('status', 'active')
             ->get();
@@ -193,20 +194,20 @@ class PurchesBookController extends Controller
             ->select('items.*', 'variations.name as variation_name', 'taxes.rate as tax_rate')
             ->get();
 
-        return view('company.purches_book.edit', compact('purchaseBook', 'vendors', 'items'));
+        return view('company.sales_book.edit', compact('salesBook', 'customers', 'items'));
     }
 
     public function update(Request $request, $id)
     {
         // Step 1: Check if items are provided
         if (empty($request->items) || empty($request->quantities) || empty($request->rates) || empty($request->taxes) || empty($request->totalAmounts)) {
-            return redirect()->back()->with(['error' => 'No items provided. Please add items to the purchase book.']);
+            return redirect()->back()->with(['error' => 'No items provided. Please add items to the sales book.']);
         }
 
-        $purchaseBook = PurchesBook::with('purchesbookitem')->find($id);
+        $salesBook = SalesBook::with('salesbookitem')->find($id);
 
         // Step 2: Subtract old quantities from StockReport
-        foreach ($purchaseBook->purchesbookitem as $item) {
+        foreach ($salesBook->salesbookitem as $item) {
             $stockReport = StockReport::where('item_id', $item->item_id)->first();
             if ($stockReport) {
                 $stockReport->quantity -= $item->quantity;
@@ -214,21 +215,21 @@ class PurchesBookController extends Controller
             }
         }
 
-        // Step 3: Update Purchase Book details
-        $purchaseBook->date = $request->date;
-        $purchaseBook->invoice_number = $request->invoice;
-        $purchaseBook->vendor_id = $request->vendor;
-        $purchaseBook->transport = $request->transport;
-        $purchaseBook->total_tax = $request->total_tax;
-        $purchaseBook->other_expense = $request->other_expense;
-        $purchaseBook->discount = $request->discount;
-        $purchaseBook->round_off = $request->round_off;
-        $purchaseBook->grand_total = $request->grand_total;
+        // Step 3: Update sales Book details
+        $salesBook->date = $request->date;
+        $salesBook->dispatch_number = $request->dispatch;
+        $salesBook->customer_id = $request->customer;
+        $salesBook->item_weight = $request->weight;
+        $salesBook->total_tax = $request->total_tax;
+        $salesBook->other_expense = $request->other_expense;
+        $salesBook->discount = $request->discount;
+        $salesBook->round_off = $request->round_off;
+        $salesBook->grand_total = $request->grand_total;
 
         // Delete existing items to reattach with updated quantities
-        $purchaseBook->purchesbookitem()->delete();
+        $salesBook->salesbookitem()->delete();
 
-        // Step 4: Add new quantities to StockReport and attach items to PurchaseBook
+        // Step 4: Add new quantities to StockReport and attach items to salesBook
         foreach ($request->items as $index => $itemId) {
             $quantity = $request->quantities[$index];
             $amount = $request->rates[$index];
@@ -240,7 +241,7 @@ class PurchesBookController extends Controller
                 // Update or create a StockReport entry
                 $stockReport = StockReport::where('item_id', $itemId)->first();
                 if ($stockReport) {
-                    $stockReport->quantity += $quantity;
+                    $stockReport->quantity -= $quantity;
                     $stockReport->save();
                 } else {
                     StockReport::create([
@@ -249,8 +250,8 @@ class PurchesBookController extends Controller
                     ]);
                 }
 
-                // Recreate the purchase book item record
-                $purchaseBook->purchesbookitem()->create([
+                // Recreate the sales book item record
+                $salesBook->salesbookitem()->create([
                     'item_id' => $itemId,
                     'quantity' => $quantity,
                     'rate' => $amount,
@@ -263,9 +264,8 @@ class PurchesBookController extends Controller
             }
         }
 
-        $purchaseBook->save();
+        $salesBook->save();
 
-        return redirect()->route('company.purches.book.index')->with('success', 'Purchase book updated successfully.');
+        return redirect()->route('company.sales.book.index')->with('success', 'sales book updated successfully.');
     }
-
 }
