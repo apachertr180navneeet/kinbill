@@ -109,6 +109,7 @@ class PurchesBookController extends Controller
                     'tax' => $request->taxes[$index],
                     'amount' => $request->totalAmounts[$index],
                 ]);
+                $quantity = $request->quantities[$index];
 
                 // Update or create a StockReport entry
                 $stockReport = StockReport::where('item_id', $itemId)->first();

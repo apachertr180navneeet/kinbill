@@ -255,8 +255,6 @@ class CompanyAuthController extends Controller
                 $file->move($path, $filename);
                 $user->avatar = $folder . $filename;
             }
-            $user->first_name = $request->first_name;
-            $user->last_name = $request->last_name;
             $user->full_name = $request->first_name . " " . $request->last_name;
             $user->phone = $request->phone;
             $user->email = $request->email;
