@@ -52,6 +52,7 @@
                 @foreach([
                     ['route' => 'company.purches.book.index', 'text' => 'Purchase Book'],
                     ['route' => 'company.sales.book.index', 'text' => 'Sales Book'],
+                    ['route' => 'company.receipt.book.voucher.index', 'text' => 'Receipt Book Voucher'],
                 ] as $processmenu)
                     <li class="menu-item {{ request()->routeIs($processmenu['route']) ? 'active' : '' }}">
                         <a href="{{ route($processmenu['route']) }}" class="menu-link">
