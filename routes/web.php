@@ -17,7 +17,8 @@ use App\Http\Controllers\Company\{
     PurchesBookController,
     SalesBookController,
     ReceiptBookVoucherController,
-    PaymentBookController
+    PaymentBookController,
+    PurchesReportController
 };
 
 /*
@@ -154,7 +155,6 @@ Route::prefix('company')->name('company.')->group(function () {
             Route::put('/update/{id}', 'update')->name('update'); // Update route
         });
 
-
         // Sales Book Management Routes
         Route::prefix('sales-book')->name('sales.book.')->controller(SalesBookController::class)->group(function () {
             Route::get('/', 'index')->name('index');
@@ -166,8 +166,7 @@ Route::prefix('company')->name('company.')->group(function () {
             Route::put('/update/{id}', 'update')->name('update'); // Update route
         });
 
-
-        // Sales Book Management Routes
+        // Receipt Book Voucher Management Routes
         Route::prefix('receipt-book-voucher')->name('receipt.book.voucher.')->controller(ReceiptBookVoucherController::class)->group(function () {
             Route::get('/', 'index')->name('index');
             Route::get('all', 'getall')->name('getall');
@@ -179,8 +178,7 @@ Route::prefix('company')->name('company.')->group(function () {
             Route::put('/update/{id}', 'update')->name('update'); // Update route
         });
 
-
-        // Sales Book Management Routes
+        // Payment Book Management Routes
         Route::prefix('payment-book')->name('payment.book.')->controller(PaymentBookController::class)->group(function () {
             Route::get('/', 'index')->name('index');
             Route::get('all', 'getall')->name('getall');
@@ -191,6 +189,15 @@ Route::prefix('company')->name('company.')->group(function () {
             Route::get('/print/{id}', 'print')->name('print'); // Print route
             Route::put('/update/{id}', 'update')->name('update'); // Update route
         });
+
+
+        // Payment Book Management Routes
+        Route::prefix('purches-report')->name('purches.report.')->controller(PurchesReportController::class)->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('all', 'getall')->name('getall');
+            Route::get('/print/{id}', 'print')->name('print'); // Print route
+        });
+
     });
 });
 
@@ -206,4 +213,3 @@ Route::prefix('company')->name('company.')->group(function () {
 Route::middleware(['auth'])->group(function () {
     // Define routes that require user authentication here
 });
-

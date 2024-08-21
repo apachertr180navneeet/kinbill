@@ -65,6 +65,26 @@
             </ul>
         </li>
 
+         {{--  Report menu  --}}
+         <li class="menu-item {{ request()->routeIs(['company.purches.report.*']) ? 'active open' : '' }}">
+            <a href="javascript:void(0);" class="menu-link menu-toggle">
+                <i class="menu-icon tf-icons bx bx-home-circle"></i>
+                <div class="text-truncate" data-i18n="Master">Report</div>
+            </a>
+            <ul class="menu-sub">
+                @foreach([
+                    ['route' => 'company.purches.report.index', 'text' => 'Purchase Reprt'],
+                ] as $reportmenu)
+                    <li class="menu-item {{ request()->routeIs($reportmenu['route']) ? 'active' : '' }}">
+                        <a href="{{ route($reportmenu['route']) }}" class="menu-link">
+                            <i class="menu-icon tf-icons"></i>
+                            <div data-i18n="{{ $reportmenu['text'] }}">{{ $reportmenu['text'] }}</div>
+                        </a>
+                    </li>
+                @endforeach
+            </ul>
+        </li>
+
 
 
 
