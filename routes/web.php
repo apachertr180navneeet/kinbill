@@ -16,7 +16,8 @@ use App\Http\Controllers\Company\{
     CustomerController,
     PurchesBookController,
     SalesBookController,
-    ReceiptBookVoucherController
+    ReceiptBookVoucherController,
+    PaymentBookController
 };
 
 /*
@@ -168,6 +169,19 @@ Route::prefix('company')->name('company.')->group(function () {
 
         // Sales Book Management Routes
         Route::prefix('receipt-book-voucher')->name('receipt.book.voucher.')->controller(ReceiptBookVoucherController::class)->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('all', 'getall')->name('getall');
+            Route::get('/add', 'add')->name('add');
+            Route::post('/store', 'store')->name('store');
+            Route::delete('/delete/{id}', 'destroy')->name('destroy');
+            Route::get('/edit/{id}', 'edit')->name('edit'); // Edit route
+            Route::get('/print/{id}', 'print')->name('print'); // Print route
+            Route::put('/update/{id}', 'update')->name('update'); // Update route
+        });
+
+
+        // Sales Book Management Routes
+        Route::prefix('payment-book')->name('payment.book.')->controller(PaymentBookController::class)->group(function () {
             Route::get('/', 'index')->name('index');
             Route::get('all', 'getall')->name('getall');
             Route::get('/add', 'add')->name('add');

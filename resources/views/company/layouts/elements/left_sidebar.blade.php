@@ -19,7 +19,7 @@
         </li>
 
         {{--  Master Menu  --}}
-        <li class="menu-item {{ request()->routeIs('company.variation.index') || request()->routeIs('company.tax.index') || request()->routeIs('company.item.index') || request()->routeIs('company.vendor.index') || request()->routeIs('company.customer.index') ? 'active open' : '' }}">
+        <li class="menu-item {{ request()->routeIs('company.variation.*') || request()->routeIs('company.tax.*') || request()->routeIs('company.item.*') || request()->routeIs('company.vendor.*') || request()->routeIs('company.customer.*') ? 'active open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon tf-icons bx bx-home-circle"></i>
                 <div class="text-truncate" data-i18n="Master">Master</div>
@@ -43,7 +43,7 @@
         </li>
 
         {{--  Process menu  --}}
-        <li class="menu-item {{ request()->routeIs('company.purches.book.index') ? 'active open' : '' }}">
+        <li class="menu-item {{ request()->routeIs(['company.purches.book.*', 'company.sales.book.*', 'company.receipt.book.voucher.*', 'company.payment.book.*']) ? 'active open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon tf-icons bx bx-home-circle"></i>
                 <div class="text-truncate" data-i18n="Master">Process</div>
@@ -53,6 +53,7 @@
                     ['route' => 'company.purches.book.index', 'text' => 'Purchase Book'],
                     ['route' => 'company.sales.book.index', 'text' => 'Sales Book'],
                     ['route' => 'company.receipt.book.voucher.index', 'text' => 'Receipt Book Voucher'],
+                    ['route' => 'company.payment.book.index', 'text' => 'Payment Book'],
                 ] as $processmenu)
                     <li class="menu-item {{ request()->routeIs($processmenu['route']) ? 'active' : '' }}">
                         <a href="{{ route($processmenu['route']) }}" class="menu-link">
@@ -63,6 +64,8 @@
                 @endforeach
             </ul>
         </li>
+
+
 
 
     </ul>
