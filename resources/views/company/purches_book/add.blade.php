@@ -25,12 +25,18 @@
                             <!-- Date Field -->
                             <div class="col-md-6 mb-3">
                                 <label for="date" class="form-label">Date</label>
-                                <input class="form-control" type="date" id="date" name="date">
+                                <input class="form-control" type="date" id="date" name="date" value="{{ old('date') }}">
+                                @error('date')
+                                    <div class="text-danger">{{ $message }}</div>
+                                @enderror
                             </div>
                             <!-- Invoice Field -->
                             <div class="col-md-6 mb-3">
                                 <label for="invoice" class="form-label">Invoice</label>
-                                <input type="text" class="form-control" id="invoice" name="invoice">
+                                <input type="text" class="form-control" id="invoice" name="invoice" value="{{ old('invoice') }}">
+                                @error('invoice')
+                                    <div class="text-danger">{{ $message }}</div>
+                                @enderror
                             </div>
                             <!-- Vendor Field -->
                             <div class="col-md-6 mb-3">
@@ -38,14 +44,20 @@
                                 <select class="form-select" id="vendor" name="vendor">
                                     <option selected>Select</option>
                                     @foreach ($vendors as $vendor)
-                                        <option value="{{ $vendor->id }}">{{ $vendor->full_name }}</option>
+                                        <option value="{{ $vendor->id }}" {{ old('vendor') == $vendor->id ? 'selected' : '' }}>{{ $vendor->full_name }}</option>
                                     @endforeach
                                 </select>
+                                @error('vendor')
+                                    <div class="text-danger">{{ $message }}</div>
+                                @enderror
                             </div>
                             <!-- Transport Field -->
                             <div class="col-md-6 mb-3">
                                 <label for="transport" class="form-label">Transport</label>
-                                <input type="text" class="form-control" id="transport" name="transport">
+                                <input type="text" class="form-control" id="transport" name="transport" value="{{ old('transport') }}">
+                                @error('transport')
+                                    <div class="text-danger">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
                     </div>
@@ -62,16 +74,19 @@
                                         <option value="{{ $item->id }}" data-tax="{{ $item->tax_rate }}" data-variation="{{ $item->variation_name }}">{{ $item->name }}</option>
                                     @endforeach
                                 </select>
+                                <div id="item_error" class="text-danger"></div>
                             </div>
                             <!-- Quantity Field -->
                             <div class="col-md-3 mb-3">
                                 <label for="qty" class="form-label">Quantity</label>
                                 <input type="number" class="form-control" id="qty" min="0">
+                                <div id="qty_error" class="text-danger"></div>
                             </div>
                             <!-- Amount per Unit Field -->
                             <div class="col-md-3 mb-3">
                                 <label for="amount" class="form-label">Amount per Unit</label>
                                 <input type="number" class="form-control" id="amount" min="0">
+                                <div id="amount_error" class="text-danger"></div>
                             </div>
                             <!-- Add Item Button -->
                             <div class="col-md-3 mb-3">
@@ -109,6 +124,9 @@
                             </div>
                             <div class="col-md-3 mb-3">
                                 <input type="number" class="form-control" id="total_tax" value="0" name="total_tax" min="0" readonly>
+                                @error('total_tax')
+                                    <div class="text-danger">{{ $message }}</div>
+                                @enderror
                             </div>
                             <div class="col-md-3 mb-3"></div>
                         </div>
@@ -120,6 +138,9 @@
                             </div>
                             <div class="col-md-3 mb-3">
                                 <input type="number" class="form-control" id="other_expense" value="0" min="0" name="other_expense">
+                                @error('other_expense')
+                                    <div class="text-danger">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
                         <!-- Discount -->
@@ -130,6 +151,9 @@
                             </div>
                             <div class="col-md-3 mb-3">
                                 <input type="number" class="form-control" id="discount" name="discount" min="0" value="0">
+                                @error('discount')
+                                    <div class="text-danger">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
                         <!-- Round Off -->
@@ -140,6 +164,9 @@
                             </div>
                             <div class="col-md-3 mb-3">
                                 <input type="text" class="form-control" id="round_off" name="round_off" value="0" step="any">
+                                @error('round_off')
+                                    <div class="text-danger">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
                         <!-- Grand Total -->
@@ -150,13 +177,16 @@
                             </div>
                             <div class="col-md-3 mb-3">
                                 <input type="number" class="form-control" id="grand_total" name="grand_total" value="0" min="0" readonly>
+                                @error('grand_total')
+                                    <div class="text-danger">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
 
-                        <!-- Save BUtton -->
+                        <!-- Save Button -->
                         <div class="row">
                             <div class="col-md-3 mb-3">
-                                <button type="submit" class="btn btn-primary">Save</button>
+                                <button type="submit" class="btn btn-primary" id="saveButton">Save</button>
                             </div>
                         </div>
                     </div>
@@ -183,7 +213,6 @@
             const calculatedTotal = grandTotal + otherExpense - discount + roundOff;
             $('#grand_total').val(calculatedTotal.toFixed(2));
         }
-
 
         // Add item to the table
         $('#addItem').on('click', function() {
@@ -258,20 +287,45 @@
         $('#other_expense, #discount, #round_off').on('input', function() {
             updateGrandTotal();
         });
-    });
 
-    // Flash message function using Toast.fire
-    function setFlash(type, message) {
-        Toast.fire({
-            icon: type,
-            title: message
+        // Validate before form submission
+        $('form').on('submit', function(e) {
+            if ($('#itemsTable tbody tr').length === 0) {
+                setFlash("error", "Please add at least one item to the purchase.");
+                e.preventDefault(); // Prevent form submission
+                return;
+            }
+
+            let valid = true;
+            $('#itemsTable tbody tr').each(function() {
+                if ($(this).find('input[name="items[]"]').length === 0 ||
+                    $(this).find('input[name="quantities[]"]').length === 0 ||
+                    $(this).find('input[name="rates[]"]').length === 0 ||
+                    $(this).find('input[name="taxes[]"]').length === 0 ||
+                    $(this).find('input[name="totalAmounts[]"]').length === 0) {
+                    valid = false;
+                }
+            });
+
+            if (!valid) {
+                setFlash("error", "Please ensure all fields (items, quantities, rates, taxes, total amounts) are filled in each row.");
+                e.preventDefault(); // Prevent form submission
+            }
         });
-    }
 
-    $(document).ready(function(){
+        // Flash message function using Toast.fire
+        function setFlash(type, message) {
+            Toast.fire({
+                icon: type,
+                title: message
+            });
+        }
+
+        // Ensure only valid numbers are entered in round off field
         $('#round_off').on('input', function() {
             this.value = this.value.replace(/[^0-9.-]/g, '');
         });
     });
+
 </script>
 @endsection

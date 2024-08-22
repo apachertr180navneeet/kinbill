@@ -78,6 +78,29 @@ class PurchesBookController extends Controller
 
     public function store(Request $request)
     {
+        // Validate the request data
+        $validatedData = $request->validate([
+            'date' => 'required|date',
+            'invoice' => 'required|string|max:255',
+            'vendor' => 'required|exists:users,id',
+            'transport' => 'required|string|max:255',
+            'total_tax' => 'required|numeric|min:0',
+            'other_expense' => 'required|numeric|min:0',
+            'discount' => 'required|numeric|min:0',
+            'round_off' => 'required|numeric',
+            'grand_total' => 'required|numeric|min:0',
+            'items' => 'required|array|min:1',
+            'items.*' => 'exists:items,id',
+            'quantities' => 'required|array|min:1',
+            'quantities.*' => 'required|numeric|min:1',
+            'rates' => 'required|array|min:1',
+            'rates.*' => 'required|numeric|min:0',
+            'taxes' => 'required|array|min:1',
+            'taxes.*' => 'required|numeric|min:0',
+            'totalAmounts' => 'required|array|min:1',
+            'totalAmounts.*' => 'required|numeric|min:0',
+        ]);
+
         // Start a database transaction
         DB::beginTransaction();
 
@@ -85,6 +108,7 @@ class PurchesBookController extends Controller
             // Get the authenticated user and their company ID
             $user = Auth::user();
             $compId = $user->company_id;
+
             // Save the purchase book details in the purches_books table
             $purchesBook = PurchesBook::create([
                 'date' => $request->date,
@@ -109,6 +133,7 @@ class PurchesBookController extends Controller
                     'tax' => $request->taxes[$index],
                     'amount' => $request->totalAmounts[$index],
                 ]);
+
                 $quantity = $request->quantities[$index];
 
                 // Update or create a StockReport entry
@@ -130,7 +155,6 @@ class PurchesBookController extends Controller
             // Redirect with a success message
             return redirect()->route('company.purches.book.index')->with('success', 'Purchase book entry saved successfully.');
         } catch (\Exception $e) {
-            dd($e);
             // Rollback the transaction on error
             DB::rollback();
 
@@ -138,6 +162,7 @@ class PurchesBookController extends Controller
             return redirect()->back()->with('error', 'An error occurred while saving the purchase book entry.');
         }
     }
+
 
     public function destroy($id)
     {
@@ -199,14 +224,29 @@ class PurchesBookController extends Controller
 
     public function update(Request $request, $id)
     {
-        // Step 1: Check if items are provided
-        if (empty($request->items) || empty($request->quantities) || empty($request->rates) || empty($request->taxes) || empty($request->totalAmounts)) {
-            return redirect()->back()->with(['error' => 'No items provided. Please add items to the purchase book.']);
-        }
+        // Validate the incoming request
+        $validatedData = $request->validate([
+            'date' => 'required|date',
+            'invoice' => 'required|string',
+            'vendor' => 'required|exists:users,id',
+            'items' => 'required|array|min:1',
+            'quantities' => 'required|array|min:1',
+            'rates' => 'required|array|min:1',
+            'taxes' => 'required|array|min:1',
+            'totalAmounts' => 'required|array|min:1',
+            'total_tax' => 'required|numeric|min:0',
+            'grand_total' => 'required|numeric|min:0',
+        ], [
+            'items.required' => 'No items provided. Please add items to the purchase book.',
+            'quantities.required' => 'Quantities are required for all items.',
+            'rates.required' => 'Rates are required for all items.',
+            'taxes.required' => 'Taxes are required for all items.',
+            'totalAmounts.required' => 'Total amounts are required for all items.',
+        ]);
 
         $purchaseBook = PurchesBook::with('purchesbookitem')->find($id);
 
-        // Step 2: Subtract old quantities from StockReport
+        // Step 1: Subtract old quantities from StockReport
         foreach ($purchaseBook->purchesbookitem as $item) {
             $stockReport = StockReport::where('item_id', $item->item_id)->first();
             if ($stockReport) {
@@ -215,7 +255,7 @@ class PurchesBookController extends Controller
             }
         }
 
-        // Step 3: Update Purchase Book details
+        // Step 2: Update Purchase Book details
         $purchaseBook->date = $request->date;
         $purchaseBook->invoice_number = $request->invoice;
         $purchaseBook->vendor_id = $request->vendor;
@@ -229,7 +269,7 @@ class PurchesBookController extends Controller
         // Delete existing items to reattach with updated quantities
         $purchaseBook->purchesbookitem()->delete();
 
-        // Step 4: Add new quantities to StockReport and attach items to PurchaseBook
+        // Step 3: Add new quantities to StockReport and attach items to PurchaseBook
         foreach ($request->items as $index => $itemId) {
             $quantity = $request->quantities[$index];
             $amount = $request->rates[$index];
@@ -260,7 +300,7 @@ class PurchesBookController extends Controller
                 ]);
             } else {
                 // Handle the case where the item does not exist
-                return redirect()->back()->with(['error' => "Item with ID $itemId does not exist."]);
+                return redirect()->back()->withInput()->withErrors(["Item with ID $itemId does not exist."]);
             }
         }
 
@@ -268,5 +308,6 @@ class PurchesBookController extends Controller
 
         return redirect()->route('company.purches.book.index')->with('success', 'Purchase book updated successfully.');
     }
+
 
 }

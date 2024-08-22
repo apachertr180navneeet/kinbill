@@ -78,6 +78,24 @@ class SalesBookController extends Controller
 
     public function store(Request $request)
     {
+        // Validate the request data
+        $request->validate([
+            'date' => 'required|date',
+            'dispatch' => 'required|string|max:255',
+            'customer' => 'required|exists:users,id',
+            'weight' => 'required|numeric',
+            'total_tax' => 'required|numeric',
+            'other_expense' => 'required|numeric',
+            'discount' => 'required|numeric',
+            'round_off' => 'required|numeric',
+            'grand_total' => 'required|numeric',
+            'items.*' => 'required|exists:items,id',
+            'quantities.*' => 'required|numeric|min:0',
+            'rates.*' => 'required|numeric|min:0',
+            'taxes.*' => 'required|numeric|min:0',
+            'totalAmounts.*' => 'required|numeric|min:0',
+        ]);
+
         // Start a database transaction
         DB::beginTransaction();
 
@@ -85,6 +103,7 @@ class SalesBookController extends Controller
             // Get the authenticated user and their company ID
             $user = Auth::user();
             $compId = $user->company_id;
+
             // Save the sales book details in the sales_books table
             $salesBook = SalesBook::create([
                 'date' => $request->date,
@@ -101,7 +120,7 @@ class SalesBookController extends Controller
 
             // Save each item in the sales_book_items table
             foreach ($request->items as $index => $itemId) {
-                $item = SalesBookItem::create([
+                SalesBookItem::create([
                     'sales_book_id' => $salesBook->id,
                     'item_id' => $itemId,
                     'quantity' => $request->quantities[$index],
@@ -128,16 +147,16 @@ class SalesBookController extends Controller
             DB::commit();
 
             // Redirect with a success message
-            return redirect()->route('company.sales.book.index')->with('success', 'sales book entry saved successfully.');
+            return redirect()->route('company.sales.book.index')->with('success', 'Sales book entry saved successfully.');
         } catch (\Exception $e) {
-            dd($e);
             // Rollback the transaction on error
             DB::rollback();
-
+            dd($e);
             // Redirect with an error message
             return redirect()->back()->with('error', 'An error occurred while saving the sales book entry.');
         }
     }
+
 
     public function destroy($id)
     {

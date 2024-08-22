@@ -63,9 +63,9 @@
                                     <td class="text-nowrap">{{ $index + 1 }}</td>
                                     <td class="text-nowrap">{{ $item->item->name }}</td>
                                     <td class="text-nowrap">{{ $item->quantity ?? 'N/A' }}</td>
-                                    <td class="text-nowrap">₹{{ number_format($item->rate, 2) ?? '0.00' }}</td>
-                                    <td class="text-nowrap">₹{{ number_format($item->tax, 2) ?? '0.00' }}</td>
-                                    <td class="text-nowrap">₹{{ number_format($item->amount, 2) ?? '0.00' }}</td>
+                                    <td class="text-nowrap">₹{{ number_format(floatval($item->rate ?? 0), 2) }}</td>
+                                    <td class="text-nowrap">₹{{ number_format(floatval($item->tax ?? 0), 2) }}</td>
+                                    <td class="text-nowrap">₹{{ number_format(floatval($item->amount ?? 0), 2) }}</td>
                                 </tr>
                             @endforeach
                             <tr>
@@ -83,10 +83,10 @@
                                     <p class="mb-0">Grand Total:</p>
                                 </td>
                                 <td class="px-4 py-5">
-                                    <p class="fw-medium mb-2">₹{{ $purchaseReport->other_expense }}</p>
-                                    <p class="fw-medium mb-2">₹{{ $purchaseReport->discount }}</p>
-                                    <p class="fw-medium mb-2">₹{{ $purchaseReport->round_off }}</p>
-                                    <p class="fw-medium mb-0">₹{{ $purchaseReport->grand_total }}</p>
+                                    <p class="fw-medium mb-2">₹{{ number_format(floatval($salesReport->other_expense ?? 0), 2) }}</p>
+                                    <p class="fw-medium mb-2">₹{{ number_format(floatval($salesReport->discount ?? 0), 2) }}</p>
+                                    <p class="fw-medium mb-2">₹{{ number_format(floatval($salesReport->round_off ?? 0), 2) }}</p>
+                                    <p class="fw-medium mb-0">₹{{ number_format(floatval($salesReport->grand_total ?? 0), 2) }}</p>
                                 </td>
                             </tr>
                         </tbody>

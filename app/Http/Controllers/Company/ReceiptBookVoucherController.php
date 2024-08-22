@@ -73,34 +73,47 @@ class ReceiptBookVoucherController extends Controller
 
     public function store(Request $request)
     {
-        // Start a database transaction
-        DB::beginTransaction();
+        // Define validation rules
+        $rules = [
+            'date' => 'required|date',
+            'receipt' => 'required|string|max:255',
+            'customer' => 'required|exists:customers,id',
+            'amount' => 'required|numeric|min:0',
+            'discount' => 'required|numeric|min:0',
+            'round_off' => 'required|numeric|min:0',
+            'grand_total' => 'required|numeric|min:0',
+            'remark' => 'required|string|max:500',
+            'payment_method' => 'required|string|in:cash,credit,debit',
+        ];
+
+        // Validate the request data
+        $validatedData = $request->validate($rules);
 
         try {
             // Get the authenticated user and their company ID
             $user = Auth::user();
             $compId = $user->company_id;
+
             // Save the sales book details in the sales_books table
             $salesBook = ReceiptBookVoucher::create([
-                'date' => $request->date,
+                'date' => $validatedData['date'],
                 'company_id' => $compId,
-                'receipt_vouchers_number' => $request->receipt,
-                'customer_id' => $request->customer,
-                'amount' => $request->amount,
-                'discount' => $request->discount,
-                'round_off' => $request->round_off,
-                'grand_total' => $request->grand_total,
-                'remark' => $request->remark,
-                'payment_type' => $request->payment_method,
+                'receipt_vouchers_number' => $validatedData['receipt'],
+                'customer_id' => $validatedData['customer'],
+                'amount' => $validatedData['amount'],
+                'discount' => $validatedData['discount'] ?? 0,
+                'round_off' => $validatedData['round_off'] ?? 0,
+                'grand_total' => $validatedData['grand_total'],
+                'remark' => $validatedData['remark'] ?? '',
+                'payment_type' => $validatedData['payment_method'],
             ]);
 
             // Commit the transaction
             DB::commit();
 
             // Redirect with a success message
-            return redirect()->route('company.receipt.book.voucher.index')->with('success', 'receipt book entry saved successfully.');
+            return redirect()->route('company.receipt.book.voucher.index')->with('success', 'Receipt book entry saved successfully.');
         } catch (\Exception $e) {
-            dd($e);
             // Rollback the transaction on error
             DB::rollback();
 
@@ -108,6 +121,7 @@ class ReceiptBookVoucherController extends Controller
             return redirect()->back()->with('error', 'An error occurred while saving the sales book entry.');
         }
     }
+
 
 
     public function destroy($id)

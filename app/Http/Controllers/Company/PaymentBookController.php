@@ -73,6 +73,19 @@ class PaymentBookController extends Controller
 
     public function store(Request $request)
     {
+        // Define validation rules
+        $validatedData = $request->validate([
+            'date' => 'required|date',
+            'payment' => 'required|string|max:255',
+            'vendor' => 'required|exists:vendors,id',
+            'amount' => 'required|numeric|min:0',
+            'discount' => 'required|numeric|min:0',
+            'round_off' => 'required|numeric',
+            'grand_total' => 'required|numeric',
+            'remark' => 'required|string',
+            'payment_method' => 'required|string|in:cash,cheque,online bank,other',
+        ]);
+
         // Start a database transaction
         DB::beginTransaction();
 
@@ -80,7 +93,8 @@ class PaymentBookController extends Controller
             // Get the authenticated user and their company ID
             $user = Auth::user();
             $compId = $user->company_id;
-            // Save the sales book details in the sales_books table
+
+            // Save the payment book details in the payment_books table
             $salesBook = PaymentBook::create([
                 'date' => $request->date,
                 'company_id' => $compId,
@@ -98,16 +112,16 @@ class PaymentBookController extends Controller
             DB::commit();
 
             // Redirect with a success message
-            return redirect()->route('company.payment.book.index')->with('success', 'receipt book entry saved successfully.');
+            return redirect()->route('company.payment.book.index')->with('success', 'Payment book entry saved successfully.');
         } catch (\Exception $e) {
-            dd($e);
             // Rollback the transaction on error
             DB::rollback();
 
             // Redirect with an error message
-            return redirect()->back()->with('error', 'An error occurred while saving the sales book entry.');
+            return redirect()->back()->with('error', 'An error occurred while saving the payment book entry.');
         }
     }
+
 
 
     public function destroy($id)

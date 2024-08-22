@@ -20,32 +20,42 @@
                 <div class="card mb-4">
                     <h5 class="card-header">Add Sales</h5>
                     <div class="card-body">
+                        <!-- Display validation errors -->
+                        @if ($errors->any())
+                            <div class="alert alert-danger">
+                                <ul>
+                                    @foreach ($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
                         <!-- Purchase details form -->
                         <div class="row">
                             <!-- Date Field -->
                             <div class="col-md-6 mb-3">
                                 <label for="date" class="form-label">Date</label>
-                                <input class="form-control" type="date" id="date" name="date">
+                                <input class="form-control" type="date" id="date" name="date" value="{{ old('date') }}">
                             </div>
                             <!-- Invoice Field -->
                             <div class="col-md-6 mb-3">
                                 <label for="dispatch" class="form-label">Dispatch</label>
-                                <input type="text" class="form-control" id="dispatch" name="dispatch">
+                                <input type="text" class="form-control" id="dispatch" name="dispatch" value="{{ old('dispatch') }}">
                             </div>
                             <!-- customer Field -->
                             <div class="col-md-6 mb-3">
                                 <label for="customer" class="form-label">Customer</label>
                                 <select class="form-select" id="customer" name="customer">
-                                    <option selected>Select</option>
+                                    <option value="">Select</option>
                                     @foreach ($customers as $customer)
-                                        <option value="{{ $customer->id }}">{{ $customer->full_name }}</option>
+                                        <option value="{{ $customer->id }}" {{ old('customer') == $customer->id ? 'selected' : '' }}>{{ $customer->full_name }}</option>
                                     @endforeach
                                 </select>
                             </div>
                             <!-- Transport Field -->
                             <div class="col-md-6 mb-3">
                                 <label for="weight" class="form-label">Weight</label>
-                                <input type="text" class="form-control" id="weight" name="weight">
+                                <input type="text" class="form-control" id="weight" name="weight" value="{{ old('weight') }}">
                             </div>
                         </div>
                     </div>
@@ -57,7 +67,7 @@
                             <div class="col-md-3 mb-3">
                                 <label for="item" class="form-label">Item</label>
                                 <select class="form-select" id="item">
-                                    <option selected>Select</option>
+                                    <option value="">Select</option>
                                     @foreach ($items as $item)
                                         <option value="{{ $item->id }}" data-tax="{{ $item->tax_rate }}" data-variation="{{ $item->variation_name }}">{{ $item->name }}</option>
                                     @endforeach
@@ -119,7 +129,7 @@
                                 <label for="other_expense" class="form-label text-end">Other Expense(+)</label>
                             </div>
                             <div class="col-md-3 mb-3">
-                                <input type="number" class="form-control" id="other_expense" value="0" min="0" name="other_expense">
+                                <input type="number" class="form-control" id="other_expense" value="0" name="other_expense" min="0">
                             </div>
                         </div>
                         <!-- Discount -->
@@ -129,17 +139,17 @@
                                 <label for="discount" class="form-label text-end">Discount(-)</label>
                             </div>
                             <div class="col-md-3 mb-3">
-                                <input type="number" class="form-control" id="discount" name="discount" min="0" value="0">
+                                <input type="number" class="form-control" id="discount" value="0" name="discount" min="0">
                             </div>
                         </div>
                         <!-- Round Off -->
                         <div class="row">
                             <div class="col-md-3 mb-3"></div>
                             <div class="col-md-6 mb-3">
-                                <label for="round_off" class="form-label text-end">Round Off(-/+)</label>
+                                <label for="round_off" class="form-label text-end">Round Off</label>
                             </div>
                             <div class="col-md-3 mb-3">
-                                <input type="text" class="form-control" id="round_off" name="round_off" value="0" step="any">
+                                <input type="number" class="form-control" id="round_off" value="0" name="round_off" min="0">
                             </div>
                         </div>
                         <!-- Grand Total -->
@@ -149,24 +159,22 @@
                                 <label for="grand_total" class="form-label text-end">Grand Total</label>
                             </div>
                             <div class="col-md-3 mb-3">
-                                <input type="number" class="form-control" id="grand_total" name="grand_total" value="0" min="0" readonly>
+                                <input type="number" class="form-control" id="grand_total" value="0" name="grand_total" min="0" readonly>
                             </div>
                         </div>
+                    </div>
 
-                        <!-- Save BUtton -->
-                        <div class="row">
-                            <div class="col-md-3 mb-3">
-                                <button type="submit" class="btn btn-primary">Save</button>
-                            </div>
-                        </div>
+                    <!-- Save Button -->
+                    <div class="card-body text-center">
+                        <button type="submit" class="btn btn-primary">Save</button>
                     </div>
                 </div>
             </div>
         </div>
     </form>
 </div>
-
 @endsection
+
 
 @section('script')
 <script>
@@ -183,7 +191,6 @@
             const calculatedTotal = grandTotal + otherExpense - discount + roundOff;
             $('#grand_total').val(calculatedTotal.toFixed(2));
         }
-
 
         // Add item to the table
         $('#addItem').on('click', function() {
@@ -258,6 +265,18 @@
         $('#other_expense, #discount, #round_off').on('input', function() {
             updateGrandTotal();
         });
+
+        // Validation on form submission
+        $('#coustomer_add').on('submit', function(e) {
+            // Check if the items table is empty
+            if ($('#itemsTable tbody tr').length === 0) {
+                e.preventDefault(); // Prevent form submission
+                setFlash('error', 'Please add at least one item to the sales book.');
+                return false;
+            }
+
+            // Additional validation checks can be added here if needed
+        });
     });
 
     // Flash message function using Toast.fire
@@ -274,4 +293,5 @@
         });
     });
 </script>
+
 @endsection

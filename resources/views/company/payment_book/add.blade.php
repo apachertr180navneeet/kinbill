@@ -24,49 +24,70 @@
             <div class="col-xl-12 col-lg-12">
                 <div class="card mb-4">
                     <div class="card-body">
-                        <!-- Receipt Voucher details form -->
+                        <!-- Payment Voucher details form -->
                         <table class="table table-borderless">
                             <tr>
                                 <td>
                                     <label for="payment" class="form-label">Payment Voucher No.</label>
-                                    <input type="text" class="form-control" id="payment" name="payment">
+                                    <input type="text" class="form-control @error('payment') is-invalid @enderror" id="payment" name="payment" value="{{ old('payment') }}">
+                                    @error('payment')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
                                 </td>
                                 <td class="text-end">
                                     <label for="date" class="form-label">Date</label>
-                                    <input class="form-control" type="date" id="date" name="date">
+                                    <input class="form-control @error('date') is-invalid @enderror" type="date" id="date" name="date" value="{{ old('date') }}">
+                                    @error('date')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
                                 </td>
                             </tr>
                             <tr>
                                 <td>
                                     <label for="vendor" class="form-label">Payment From:</label>
-                                    <select class="form-select" id="vendor" name="vendor">
-                                        <option selected>Select</option>
+                                    <select class="form-select @error('vendor') is-invalid @enderror" id="vendor" name="vendor">
+                                        <option value="">Select</option>
                                         @foreach ($vendors as $vendor)
-                                            <option value="{{ $vendor->id }}">{{ $vendor->full_name }}</option>
+                                            <option value="{{ $vendor->id }}" {{ old('vendor') == $vendor->id ? 'selected' : '' }}>{{ $vendor->full_name }}</option>
                                         @endforeach
                                     </select>
+                                    @error('vendor')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
                                 </td>
                                 <td>
                                     <label for="remark" class="form-label">Remarks</label>
-                                    <textarea class="form-control" id="remark" name="remark" rows="2"></textarea>
+                                    <textarea class="form-control @error('remark') is-invalid @enderror" id="remark" name="remark" rows="2">{{ old('remark') }}</textarea>
+                                    @error('remark')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
                                 </td>
                             </tr>
                             <tr>
                                 <td>
                                     <label for="amount" class="form-label">Amount</label>
-                                    <input type="number" class="form-control" id="amount" value="0" name="amount">
+                                    <input type="number" class="form-control @error('amount') is-invalid @enderror" id="amount" name="amount" value="{{ old('amount', 0) }}">
+                                    @error('amount')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
                                 </td>
                             </tr>
                             <tr>
                                 <td>
                                     <label for="discount" class="form-label">Discount</label>
-                                    <input type="number" class="form-control" id="discount" name="discount" value="0">
+                                    <input type="number" class="form-control @error('discount') is-invalid @enderror" id="discount" name="discount" value="{{ old('discount', 0) }}">
+                                    @error('discount')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
                                 </td>
                             </tr>
                             <tr>
                                 <td>
                                     <label for="round_off" class="form-label">Round off</label>
-                                    <input type="text" class="form-control" id="round_off" name="round_off" value="0">
+                                    <input type="number" class="form-control @error('round_off') is-invalid @enderror" id="round_off" name="round_off" value="{{ old('round_off', 0) }}">
+                                    @error('round_off')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
                                 </td>
                             </tr>
                             <tr>
@@ -82,25 +103,31 @@
                                 <td>
                                     <label for="payment_method" class="form-label">Payment Method</label>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="radio" id="cash" name="payment_method" value="cash" checked>
+                                        <input class="form-check-input" type="radio" id="cash" name="payment_method" value="cash" {{ old('payment_method', 'cash') == 'cash' ? 'checked' : '' }}>
                                         <label class="form-check-label" for="cash">Cash</label>
                                     </div>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="radio" id="cheque" name="payment_method" value="cheque">
+                                        <input class="form-check-input" type="radio" id="cheque" name="payment_method" value="cheque" {{ old('payment_method') == 'cheque' ? 'checked' : '' }}>
                                         <label class="form-check-label" for="cheque">Cheque</label>
                                     </div>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="radio" id="online_bank" name="payment_method" value="online bank">
+                                        <input class="form-check-input" type="radio" id="online_bank" name="payment_method" value="online bank" {{ old('payment_method') == 'online bank' ? 'checked' : '' }}>
                                         <label class="form-check-label" for="online_bank">Online Bank</label>
                                     </div>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="radio" id="other" name="payment_method" value="other">
+                                        <input class="form-check-input" type="radio" id="other" name="payment_method" value="other" {{ old('payment_method') == 'other' ? 'checked' : '' }}>
                                         <label class="form-check-label" for="other">Other</label>
                                     </div>
+                                    @error('payment_method')
+                                        <div class="invalid-feedback d-block">{{ $message }}</div>
+                                    @enderror
                                 </td>
                                 <td>
                                     <label for="signature" class="form-label">Signature:</label>
-                                    <input type="text" class="form-control" id="signature" name="signature">
+                                    <input type="text" class="form-control @error('signature') is-invalid @enderror" id="signature" name="signature" value="{{ old('signature') }}">
+                                    @error('signature')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
                                 </td>
                             </tr>
                         </table>
@@ -117,7 +144,6 @@
 @endsection
 
 @section('script')
-
 <script>
     $(document).ready(function() {
         function calculateGrandTotal() {
@@ -135,5 +161,4 @@
         });
     });
 </script>
-
 @endsection
