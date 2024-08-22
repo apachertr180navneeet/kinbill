@@ -212,13 +212,22 @@
                     id: userId
                 },
                 success: function(response) {
-                    if (response.success) {
+                    if (response.success == true) {
                         setFlash("success", response.message);
                         $('#editModal').modal('hide');
                         $('#editModal').find('input, textarea, select').val('');
                         table.ajax.reload();
                     } else {
-                        setFlash("error", response.message);
+                        // Clear previous errors
+                        $('#editModal').find('.error-text').text('');
+
+                        // Display new errors
+                        for (let field in response.success) {
+                            let $field = $(`#edit${field}`); // Adjust the selector if necessary
+                            if ($field.length) {
+                                $field.siblings('.error-text').text(response.errors[field][0]);
+                            }
+                        }
                     }
                 },
                 error: function() {

@@ -77,7 +77,7 @@ class ReceiptBookVoucherController extends Controller
         $rules = [
             'date' => 'required|date',
             'receipt' => 'required|string|max:255',
-            'customer' => 'required|exists:customers,id',
+            'customer' => 'required|exists:users,id',
             'amount' => 'required|numeric|min:0',
             'discount' => 'required|numeric|min:0',
             'round_off' => 'required|numeric|min:0',

@@ -72,7 +72,7 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel1">User Edit</h5>
+                <h5 class="modal-title" id="exampleModalLabel1">Variation Edit</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -155,7 +155,7 @@
                 type: 'POST',
                 data: data,
                 success: function(response) {
-                    if (response.success) {
+                    if (response.success != false) {
                         setFlash("success", response.message);
                         $('#addModal').modal('hide');
                         $('#addModal').find('input').val('');
@@ -212,15 +212,25 @@
                     id: userId
                 },
                 success: function(response) {
-                    if (response.success) {
+                    if (response.success == true) {
                         setFlash("success", response.message);
                         $('#editModal').modal('hide');
                         $('#editModal').find('input, textarea, select').val('');
                         table.ajax.reload();
                     } else {
-                        setFlash("error", response.message);
+                        // Clear previous errors
+                        $('#editModal').find('.error-text').text('');
+
+                        // Display new errors
+                        for (let field in response.errors) {
+                            let $field = $(`#edit${field}`); // Adjust the selector if necessary
+                            if ($field.length) {
+                                $field.siblings('.error-text').text(response.errors[field][0]);
+                            }
+                        }
                     }
                 },
+
                 error: function() {
                     setFlash("error", "An unexpected error occurred.");
                 }

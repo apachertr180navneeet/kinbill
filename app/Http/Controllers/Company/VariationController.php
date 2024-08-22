@@ -127,19 +127,29 @@ class VariationController extends Controller
     // Update user data
     public function update(Request $request)
     {
-        $request->validate([
-            'name' => 'required|string',
-            'code' => 'required|string',
-            'id' => 'required|integer|exists:variations,id', // Adjust as needed
-        ]);
+        // Validation rules
+        $rules = [
+            'name' => 'required|string|max:255',
+            'code' => 'required|max:255',
+        ];
+
+        // Validate the request data
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors(),
+            ]);
+        }
 
         $user = Variation::find($request->id);
         if ($user) {
             $user->update($request->all());
-            return response()->json(['success' => true , 'message' => 'User Update Successfully']);
+            return response()->json(['success' => true , 'message' => 'Variation Update Successfully']);
         }
 
-        return response()->json(['success' => false, 'message' => 'User not found']);
+        return response()->json(['success' => false, 'message' => 'Variation not found']);
     }
 
 }

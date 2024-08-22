@@ -77,7 +77,7 @@ class PaymentBookController extends Controller
         $validatedData = $request->validate([
             'date' => 'required|date',
             'payment' => 'required|string|max:255',
-            'vendor' => 'required|exists:vendors,id',
+            'vendor' => 'required|exists:users,id',
             'amount' => 'required|numeric|min:0',
             'discount' => 'required|numeric|min:0',
             'round_off' => 'required|numeric',

@@ -133,6 +133,23 @@ class TaxController extends Controller
             'id' => 'required|integer|exists:taxes,id', // Adjust as needed
         ]);
 
+        // Validation rules
+        $rules = [
+            'name' => 'required|string',
+            'rate' => 'required|string',
+            'id' => 'required|integer|exists:taxes,id', // Adjust as needed
+        ];
+
+        // Validate the request data
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors(),
+            ]);
+        }
+
         $user = Tax::find($request->id);
         if ($user) {
             $user->update($request->all());
