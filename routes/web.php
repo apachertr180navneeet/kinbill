@@ -18,7 +18,8 @@ use App\Http\Controllers\Company\{
     SalesBookController,
     ReceiptBookVoucherController,
     PaymentBookController,
-    PurchesReportController
+    PurchesReportController,
+    SalesReportController
 };
 
 /*
@@ -191,8 +192,16 @@ Route::prefix('company')->name('company.')->group(function () {
         });
 
 
-        // Payment Book Management Routes
+        // Payment Report Management Routes
         Route::prefix('purches-report')->name('purches.report.')->controller(PurchesReportController::class)->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('all', 'getall')->name('getall');
+            Route::get('/print/{id}', 'print')->name('print'); // Print route
+        });
+
+
+        // Sales Report Management Routes
+        Route::prefix('sales-report')->name('sales.report.')->controller(SalesReportController::class)->group(function () {
             Route::get('/', 'index')->name('index');
             Route::get('all', 'getall')->name('getall');
             Route::get('/print/{id}', 'print')->name('print'); // Print route
