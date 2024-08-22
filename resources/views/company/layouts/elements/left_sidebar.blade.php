@@ -75,6 +75,8 @@
                 @foreach([
                     ['route' => 'company.purches.report.index', 'text' => 'Purchase Report'],
                     ['route' => 'company.sales.report.index', 'text' => 'Sales Report'],
+                    ['route' => 'company.receipt.report.index', 'text' => 'Receipt Book Report'],
+                    ['route' => 'company.payment.report.index', 'text' => 'Payment Book Report'],
                 ] as $reportmenu)
                     <li class="menu-item {{ request()->routeIs($reportmenu['route']) ? 'active' : '' }}">
                         <a href="{{ route($reportmenu['route']) }}" class="menu-link">
