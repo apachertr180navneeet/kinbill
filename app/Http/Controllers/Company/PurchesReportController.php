@@ -60,8 +60,6 @@ class PurchesReportController extends Controller
         ->select('purches_books.*', 'users.full_name as vendor_name', 'users.city as vendor_city', 'users.state as vendor_state', 'users.gst_no as vendor_gst_no', 'users.phone as vendor_phone')
         ->find($id);
 
-        //dd($purchaseReport);
-
         return view('company.purches_report.print', compact('purchaseReport'));
     }
 }
