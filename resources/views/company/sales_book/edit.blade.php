@@ -121,7 +121,7 @@
                                 <label for="total_tax" class="form-label text-end">Total Tax</label>
                             </div>
                             <div class="col-md-3 mb-3">
-                                <input type="text" class="form-control" id="total_tax" value="{{ number_format($salesBook->total_tax, 2) }}" name="total_tax" min="0" readonly>
+                                <input type="text" class="form-control" id="total_tax" value="{{ number_format((float)$salesBook->total_tax, 2) }}" name="total_tax" readonly>
                             </div>
                             <div class="col-md-3 mb-3"></div>
                         </div>
@@ -132,7 +132,7 @@
                                 <label for="other_expense" class="form-label text-end">Other Expense(+)</label>
                             </div>
                             <div class="col-md-3 mb-3">
-                                <input type="number" class="form-control" id="other_expense" value="{{ number_format($salesBook->other_expense, 2) }}" min="0" name="other_expense">
+                                <input type="number" class="form-control" id="other_expense" value="{{ number_format((float)$salesBook->other_expense, 2) }}" min="0" name="other_expense">
                             </div>
                         </div>
                         <!-- Discount -->
@@ -142,7 +142,7 @@
                                 <label for="discount" class="form-label text-end">Discount(-)</label>
                             </div>
                             <div class="col-md-3 mb-3">
-                                <input type="number" class="form-control" id="discount" name="discount" min="0" value="{{ number_format($salesBook->discount, 2) }}">
+                                <input type="number" class="form-control" id="discount" name="discount" min="0" value="{{ number_format( (float)$salesBook->discount, 2) }}">
                             </div>
                         </div>
                         <!-- Round Off -->
@@ -152,7 +152,7 @@
                                 <label for="round_off" class="form-label text-end">Round Off(-/+)</label>
                             </div>
                             <div class="col-md-3 mb-3">
-                                <input type="text" class="form-control" id="round_off" name="round_off" value="{{ number_format($salesBook->round_off, 2) }}" step="any">
+                                <input type="text" class="form-control" id="round_off" name="round_off" value="{{ number_format( (float)$salesBook->round_off, 2) }}" step="any">
                             </div>
                         </div>
                         <!-- Grand Total -->
@@ -162,7 +162,7 @@
                                 <label for="grand_total" class="form-label text-end">Grand Total</label>
                             </div>
                             <div class="col-md-3 mb-3">
-                                <input type="text" class="form-control" id="grand_total" name="grand_total" value="{{ number_format($salesBook->grand_total, 2) }}" min="0" readonly>
+                                <input type="text" class="form-control" id="grand_total" name="grand_total" value="{{ number_format( (float)$salesBook->grand_total, 2) }}" min="0" readonly>
                             </div>
                         </div>
 
