@@ -96,6 +96,7 @@ class CustomerController extends Controller
             'address' => 'nullable|string',
             'city' => 'required|string|max:100',
             'state' => 'required|string',
+            'gst' => 'required|string',
         ];
 
         // Validate the request data
@@ -108,9 +109,7 @@ class CustomerController extends Controller
             ]);
         }
 
-        $user = Auth::user();
 
-        $compId = $user->company_id;
         // Save the User data
         $dataUser = [
             'full_name' => $request->full_name,
@@ -121,6 +120,7 @@ class CustomerController extends Controller
             'zipcode' => $request->zipcode,
             'role' => $request->role,
             'company_id' => $compId,
+            'gst_no' =>  $request->gst,
             'password' => Hash::make('12345678'),
         ];
         User::create($dataUser);
@@ -148,6 +148,7 @@ class CustomerController extends Controller
             'address' => 'nullable|string',
             'city' => 'required|string|max:100',
             'state' => 'required|string',
+            'gst_no' => 'required|string',
             'id' => 'required|integer|exists:users,id', // Adjust as needed
         ]);
 

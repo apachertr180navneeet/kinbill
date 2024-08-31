@@ -76,6 +76,11 @@
                         <small class="error-text text-danger"></small>
                     </div>
                     <div class="col-md-12 mb-3">
+                        <label for="gst" class="form-label">GST No.</label>
+                        <input type="text" id="gst" class="form-control" placeholder="" />
+                        <small class="error-text text-danger"></small>
+                    </div>
+                    <div class="col-md-12 mb-3">
                         <input type="hidden" id="role" value="customer">
                     </div>
                 </div>
@@ -127,6 +132,11 @@
                     <div class="col-md-12 mb-3">
                         <label for="zipcode" class="form-label">Pincode</label>
                         <input type="text" id="editzipcode" class="form-control" placeholder="" />
+                        <small class="error-text text-danger"></small>
+                    </div>
+                    <div class="col-md-12 mb-3">
+                        <label for="gst" class="form-label">GST No.</label>
+                        <input type="text" id="editgst" class="form-control" placeholder="" />
                         <small class="error-text text-danger"></small>
                     </div>
                     <div class="col-md-12 mb-3">
@@ -201,6 +211,7 @@
                 state: $('#state').val(),
                 role: $('#role').val(),
                 zipcode: $('#zipcode').val(),
+                gst: $('#gst').val(),
                 _token: $('meta[name="csrf-token"]').attr('content') // CSRF token
             };
 
@@ -253,6 +264,7 @@
                     $('#editphone').val(data.phone);
                     $('#editcity').val(data.city);
                     $('#editstate').val(data.state);
+                    $('#editgst').val(data.gst_no);
                     $('#editzipcode').val(data.zipcode);
 
                     // Open the modal
@@ -279,6 +291,7 @@
                     city: $('#editcity').val(),
                     state: $('#editstate').val(),
                     zipcode: $('#editzipcode').val(),
+                    gst_no: $('#editgst').val(),
                     _token: $('meta[name="csrf-token"]').attr('content'), // CSRF token
                     id: userId // Ensure userId is in scope or adjust accordingly
                 },
