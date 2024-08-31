@@ -36,7 +36,7 @@ class VendorController extends Controller
 
         $compId = $user->company_id;
 
-        $items = User::where('role', 'vendor')->get();
+        $items = User::where('role', 'vendor')->where('company_id', $compId)->get();
 
         return response()->json(['data' => $items]);
     }

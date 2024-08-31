@@ -83,10 +83,10 @@
                                     <p class="mb-0">Grand Total:</p>
                                 </td>
                                 <td class="px-4 py-5">
-                                    <p class="fw-medium mb-2">₹{{ number_format(floatval($salesReport->other_expense ?? 0), 2) }}</p>
-                                    <p class="fw-medium mb-2">₹{{ number_format(floatval($salesReport->discount ?? 0), 2) }}</p>
-                                    <p class="fw-medium mb-2">₹{{ number_format(floatval($salesReport->round_off ?? 0), 2) }}</p>
-                                    <p class="fw-medium mb-0">₹{{ number_format(floatval($salesReport->grand_total ?? 0), 2) }}</p>
+                                    <p class="fw-medium mb-2">₹{{ number_format(floatval($purchaseReport->other_expense ?? 0), 2) }}</p>
+                                    <p class="fw-medium mb-2">₹{{ number_format(floatval($purchaseReport->discount ?? 0), 2) }}</p>
+                                    <p class="fw-medium mb-2">₹{{ number_format(floatval($purchaseReport->round_off ?? 0), 2) }}</p>
+                                    <p class="fw-medium mb-0">₹{{ number_format(floatval($purchaseReport->grand_total ?? 0), 2) }}</p>
                                 </td>
                             </tr>
                         </tbody>

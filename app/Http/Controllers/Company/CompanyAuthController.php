@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Company;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Models\User;
+use App\Models\{User,Company};
 use Carbon\Carbon;
 use Illuminate\Support\Str;
 use Mail, DB, Hash, Validator, Session, File,Exception;
@@ -64,7 +64,15 @@ class CompanyAuthController extends Controller
                         }
                     ]))
                 {
-                    return redirect()->route("company.dashboard")->with("success", "Welcome to your dashboard.");
+                    $user = auth()->user();
+
+                    $companyExists = Company::where('id', $user->company_id)->first();
+                    if ($companyExists->status == 'active'){
+                        return redirect()->route("company.dashboard")->with("success", "Welcome to your dashboard.");
+                    } else {
+                        return back()->with("error","Company is diactivated by admin");
+                    }
+
                 }
                 return back()->with("error","Invalid credentials");
             }else{
