@@ -22,6 +22,7 @@
                                 <tr>
                                     <th>Name</th>
                                     <th>Variation</th>
+                                    <th>HSN/HAC</th>
                                     <th>Status</th>
                                     <th>Action</th>
                                 </tr>
@@ -72,6 +73,11 @@
                                 <option value="{{ $tax->id }}">{{ $tax->rate }}</option>
                             @endforeach
                         </select>
+                        <small class="error-text text-danger"></small>
+                    </div>
+                    <div class="col-md-12 mb-3">
+                        <label for="hsn_hac" class="form-label">HSN/HAC</label>
+                        <input type="text" id="hsn_hac" class="form-control" placeholder="Enter HSN/HAC" />
                         <small class="error-text text-danger"></small>
                     </div>
                 </div>
@@ -125,6 +131,12 @@
                         </select>
                         <small class="error-text text-danger"></small>
                     </div>
+                    <div class="col-md-12 mb-3">
+                        <input type="hidden" id="compid">
+                        <label for="hsn_hac" class="form-label">HSN/HAC</label>
+                        <input type="text" id="edithsn_hac" class="form-control" placeholder="Enter HSN/HAC" />
+                        <small class="error-text text-danger"></small>
+                    </div>
                 </div>
             </div>
             <div class="modal-footer">
@@ -150,6 +162,9 @@
                 },
                 {
                     data: "variation_name",
+                },
+                {
+                    data: "hsn_hac",
                 },
                 {
                     data: "status",
@@ -186,6 +201,7 @@
                 name: $('#name').val(),
                 description: $('#description').val(),
                 variation_id: $('#variation_id').val(),
+                hsn_hac : $('#hsn_hac').val(),
                 tax_id: $('#tax_id').val(),
                 _token: $('meta[name="csrf-token"]').attr('content') // CSRF token
             };
@@ -236,6 +252,7 @@
                     $('#editname').val(data.name);
                     $('#editdescription').val(data.description);
                     $('#editvariation_id').val(data.variation_id);
+                    $('#edithsn_hac').val(data.hsn_hac);
                     $('#edittax_id').val(data.tax_id);
 
                     // Open the modal
@@ -259,6 +276,7 @@
                     name: $('#editname').val(),
                     description: $('#editdescription').val(),
                     variation_id: $('#editvariation_id').val(),
+                    hsn_hac: $('#edithsn_hac').val(),
                     tax_id: $('#edittax_id').val(),
                     id: userId // Ensure userId is in scope or adjust accordingly
                 },

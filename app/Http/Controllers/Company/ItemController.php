@@ -100,7 +100,8 @@ class ItemController extends Controller
             'name' => 'required|string',
             'description' => 'required',
             'variation_id' => 'required',
-            'tax_id' => 'required'
+            'tax_id' => 'required',
+            'hsn_hac' => 'required'
         ];
 
         // Validate the request data
@@ -122,6 +123,7 @@ class ItemController extends Controller
             'description' => $request->description,
             'variation_id' => $request->variation_id,
             'tax_id' => $request->tax_id,
+            'hsn_hac' => $request->hsn_hac,
             'company_id' => $compId
         ];
         Item::create($dataUser);
@@ -147,6 +149,7 @@ class ItemController extends Controller
             'description' => 'required',
             'variation_id' => 'required',
             'id' => 'required|integer|exists:items,id', // Adjust as needed
+            'hsn_hac' => 'required',
         ]);
 
         $user = Item::find($request->id);
