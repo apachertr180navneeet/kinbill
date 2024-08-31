@@ -45,7 +45,7 @@
                             </div>
                             <!-- weight Field -->
                             <div class="col-md-6 mb-3">
-                                <label for="weight" class="form-label">Weight</label>
+                                <label for="weight" class="form-label">Delivery Location</label>
                                 <input type="text" class="form-control" id="weight" name="weight" value="{{ $salesBook->item_weight }}">
                             </div>
                         </div>
