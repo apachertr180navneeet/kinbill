@@ -36,7 +36,7 @@ class CustomerController extends Controller
 
         $compId = $user->company_id;
 
-        $items = User::where('role', 'customer')->get();
+        $items = User::where('role', 'customer')->where('company_id', $compId)->get();
 
         return response()->json(['data' => $items]);
     }
