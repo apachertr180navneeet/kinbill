@@ -16,6 +16,7 @@ return new class extends Migration
             $table->integer('company_id');
             $table->integer('variation_id');
             $table->string('name');
+            $table->string('hsn_hac');
             $table->text('description');
             $table->enum('status', ['active', 'inactive'])->default('active');
             $table->timestamps();

@@ -18,11 +18,11 @@ return new class extends Migration
             $table->unsignedBigInteger('customer_id')->nullable();
             $table->unsignedBigInteger('company_id')->nullable();
             $table->string('item_weight');
-            $table->decimal('total_tax', $precision = 15, $scale = 2);
-            $table->decimal('other_expense', $precision = 15, $scale = 2);
-            $table->decimal('discount', $precision = 15, $scale = 2);
-            $table->decimal('round_off', $precision = 15, $scale = 2);
-            $table->decimal('grand_total', $precision = 15, $scale = 2);
+            $table->decimal('total_tax', $precision = 8, $scale = 2);
+            $table->decimal('other_expense', $precision = 8, $scale = 2);
+            $table->decimal('discount', $precision = 8, $scale = 2);
+            $table->decimal('round_off', $precision = 8, $scale = 2);
+            $table->decimal('grand_total', $precision = 8, $scale = 2);
             $table->enum('status', ['active', 'inactive'])->default('active');
             $table->timestamps();
             $table->softDeletes();

@@ -60,18 +60,27 @@
                         <small class="error-text text-danger"></small>
                     </div>
                     <div class="col-md-12 mb-3">
-                        <label for="city" class="form-label">City</label>
-                        <input type="text" id="city" class="form-control" placeholder="" />
+                        <label for="state" class="form-label">State</label>
+                        <select class="form-select" id="state">
+                            <option selected>Select  State</option>
+                            @foreach ($states as $state)
+                                <option value="{{$state->state_name}}" data-id="{{$state->state_id}}">{{$state->state_name}}</option>
+                            @endforeach
+                        </select>
                         <small class="error-text text-danger"></small>
                     </div>
                     <div class="col-md-12 mb-3">
-                        <label for="state" class="form-label">State</label>
-                        <input type="text" id="state" class="form-control" placeholder="" />
+                        <label for="city" class="form-label">City</label>
+                        <select class="form-select" id="city">
+                            <option selected>Select  City</option>
+                        </select>
                         <small class="error-text text-danger"></small>
                     </div>
                     <div class="col-md-12 mb-3">
                         <label for="zipcode" class="form-label">Pincode</label>
-                        <input type="text" id="zipcode" class="form-control" placeholder="" />
+                        <select class="form-select" id="zipcode">
+                            <option selected>Select  Pincode</option>
+                        </select>
                         <small class="error-text text-danger"></small>
                     </div>
                     <div class="col-md-12 mb-3">
@@ -117,18 +126,27 @@
                         <small class="error-text text-danger"></small>
                     </div>
                     <div class="col-md-12 mb-3">
-                        <label for="city" class="form-label">City</label>
-                        <input type="text" id="editcity" class="form-control" placeholder="" />
+                        <label for="state" class="form-label">State</label>
+                        <select class="form-select" id="editstate">
+                            <option selected>Select  State</option>
+                            @foreach ($states as $state)
+                                <option value="{{$state->state_name}}" data-id="{{$state->state_id}}">{{$state->state_name}}</option>
+                            @endforeach
+                        </select>
                         <small class="error-text text-danger"></small>
                     </div>
                     <div class="col-md-12 mb-3">
-                        <label for="state" class="form-label">State</label>
-                        <input type="text" id="editstate" class="form-control" placeholder="" />
+                        <label for="city" class="form-label">City</label>
+                        <select class="form-select" id="editcity">
+                            <option selected>Select  City</option>
+                        </select>
                         <small class="error-text text-danger"></small>
                     </div>
                     <div class="col-md-12 mb-3">
                         <label for="zipcode" class="form-label">Pincode</label>
-                        <input type="text" id="editzipcode" class="form-control" placeholder="" />
+                        <select class="form-select" id="editzipcode">
+                            <option selected>Select  Pincode</option>
+                        </select>
                         <small class="error-text text-danger"></small>
                     </div>
                     <div class="col-md-12 mb-3">
@@ -150,242 +168,301 @@
 @endsection @section('script')
 <script>
     $(document).ready(function () {
-        // Initialize DataTable
-        const table = $("#ItemTable").DataTable({
-            processing: true,
-            ajax: {
-                url: "{{ route('company.vendor.getall') }}",
+    // Initialize DataTable
+    const table = $("#ItemTable").DataTable({
+        processing: true,
+        ajax: {
+            url: "{{ route('company.vendor.getall') }}", // URL to fetch all vendor data
+        },
+        columns: [
+            { data: "full_name" }, // Column for vendor's full name
+            { data: "gst_no" }, // Column for vendor's GST number
+            {
+                data: "status", // Column for status (Active/Inactive)
+                render: (data, type, row) => {
+                    // Conditionally display status badge based on the 'status' field
+                    return row.status === "active"
+                        ? '<span class="badge bg-label-success me-1">Active</span>'
+                        : '<span class="badge bg-label-danger me-1">Inactive</span>';
+                },
             },
-            columns: [
-                {
-                    data: "full_name",
+            {
+                data: "action", // Column for action buttons (Activate/Deactivate, Delete, Edit)
+                render: (data, type, row) => {
+                    // Generate action buttons based on row status
+                    const statusButton = row.status === "inactive"
+                        ? `<button type="button" class="btn btn-sm btn-success" onclick="updateUserStatus(${row.id}, 'active')">Activate</button>`
+                        : `<button type="button" class="btn btn-sm btn-danger" onclick="updateUserStatus(${row.id}, 'inactive')">Deactivate</button>`;
+
+                    const deleteButton = `<button type="button" class="btn btn-sm btn-danger" onclick="deleteUser(${row.id})">Delete</button>`;
+                    const editButton = `<button type="button" class="btn btn-sm btn-warning" onclick="editUser(${row.id})">Edit</button>`;
+
+                    // Return combined buttons as HTML string
+                    return `${statusButton} ${deleteButton} ${editButton}`;
                 },
-                {
-                    data: "gst_no",
-                },
-                {
-                    data: "status",
-                    render: (data, type, row) => {
-                        const statusBadge = row.status === "active" ?
-                            '<span class="badge bg-label-success me-1">Active</span>' :
-                            '<span class="badge bg-label-danger me-1">Inactive</span>';
-                        return statusBadge;
-                    },
-                },
-                {
-                    data: "action",
-                    render: (data, type, row) => {
-                        const statusButton = row.status === "inactive"
-                            ? `<button type="button" class="btn btn-sm btn-success" onclick="updateUserStatus(${row.id}, 'active')">Activate</button>`
-                            : `<button type="button" class="btn btn-sm btn-danger" onclick="updateUserStatus(${row.id}, 'inactive')">Deactivate</button>`;
+            },
+        ],
+    });
 
-                        const deleteButton = `<button type="button" class="btn btn-sm btn-danger" onclick="deleteUser(${row.id})">Delete</button>`;
-                        const editButton = `<button type="button" class="btn btn-sm btn-warning" onclick="editUser(${row.id})">Edit</button>`;
+    // Handle 'Add Vendor' form submission via AJAX
+    $('#AddItem').click(function (e) {
+        e.preventDefault(); // Prevent default form submission behavior
 
-                        return `${statusButton} ${deleteButton} ${editButton}`;
-                    },
-                },
+        // Collect form data
+        let data = {
+            full_name: $('#name').val(),
+            email: $('#email').val(),
+            phone: $('#phone').val(),
+            city: $('#city').val(),
+            state: $('#state').val(),
+            zipcode: $('#zipcode').val(),
+            gst: $('#gst').val(),
+            role: $('#role').val(),
+            _token: $('meta[name="csrf-token"]').attr('content') // CSRF token for security
+        };
 
-            ],
-        });
+        // Clear previous validation error messages
+        $('.error-text').text('');
 
-        // Handle form submission via AJAX
-        $('#AddItem').click(function(e) {
-            e.preventDefault();
-
-            // Collect form data
-            let data = {
-                full_name: $('#name').val(),
-                email: $('#email').val(),
-                phone: $('#phone').val(),
-                address: $('#address').val(),
-                city: $('#city').val(),
-                state: $('#state').val(),
-                zipcode: $('#zipcode').val(),
-                gst: $('#gst').val(),
-                role: $('#role').val(),
-                _token: $('meta[name="csrf-token"]').attr('content') // CSRF token
-            };
-
-
-            // Clear previous validation error messages
-            $('.error-text').text('');
-
-            $.ajax({
-                url: '{{ route('company.vendor.store') }}', // Adjust the route as necessary
-                type: 'POST',
-                data: data,
-                success: function(response) {
-                    if (response.success) {
-                        setFlash("success", response.message);
-                        $('#addModal').modal('hide'); // Close the modal
-                        $('#addModal').find('input, textarea, select').val(''); // Reset form fields
-                        table.ajax.reload(); // Reload DataTable
-                    } else {
-                        // Display validation errors
-                        if (response.errors) {
-                            for (let field in response.errors) {
-                                let $field = $(`#${field}`);
-                                if ($field.length) {
-                                    $field.siblings('.error-text').text(response.errors[field][0]);
-                                }
-                            }
-                        } else {
-                            setFlash("error", response.message);
-                        }
-                    }
-                },
-                error: function(xhr) {
-                    setFlash("error", "An unexpected error occurred.");
-                }
-            });
-        });
-
-        // Define editUser function
-        function editUser(userId) {
-            const url = '{{ route("company.vendor.get", ":userid") }}'.replace(":userid", userId);
-            $.ajax({
-                url: url, // Update this URL to match your route
-                method: 'GET',
-                success: function(data) {
-                    console.log(data);
-                    // Populate modal fields with the retrieved data
-                    $('#compid').val(data.id);
-                    $('#editname').val(data.full_name);
-                    $('#editemail').val(data.email);
-                    $('#editphone').val(data.phone);
-                    $('#editcity').val(data.city);
-                    $('#editstate').val(data.state);
-                    $('#editgst').val(data.gst_no);
-                    $('#editzipcode').val(data.zipcode);
-
-                    // Open the modal
-                    $('#editModal').modal('show');
-                    setFlash("success", 'Item found successfully.');
-                },
-                error: function(xhr) {
-                    setFlash("error", "Item not found. Please try again later.");
-                }
-            });
-        }
-
-        // Handle form submission
-        $('#EditComapany').on('click', function() {
-            const userId = $('#compid').val(); // Ensure userId is available in the scope
-            $.ajax({
-                url: '{{ route('company.vendor.update') }}', // Update this URL to match your route
-                method: 'POST',
-                data: {
-                    full_name: $('#editname').val(),
-                    email: $('#editemail').val(),
-                    phone: $('#editphone').val(),
-                    address: $('#editaddress').val(),
-                    city: $('#editcity').val(),
-                    state: $('#editstate').val(),
-                    gst_no: $('#editgst').val(),
-                    zipcode: $('#editzipcode').val(),
-                    _token: $('meta[name="csrf-token"]').attr('content'), // CSRF token
-                    id: userId // Ensure userId is in scope or adjust accordingly
-                },
-                success: function(response) {
-                    if (response.success) {
-                        setFlash("success", response.message);
-                        $('#editModal').modal('hide'); // Close the modal
-                        $('#editModal').find('input, textarea, select').val(''); // Reset form fields
-                        table.ajax.reload(); // Reload DataTable
-                    } else {
-                        console.error('Error updating Item data:', response.message);
-                    }
-                },
-                error: function(xhr) {
-                    console.error('Error updating Item data:', xhr);
-                }
-            });
-        });
-
-        // Update user status
-        function updateUserStatus(userId, status) {
-            const message = status === "active" ? "Item will be able to log in after activation." : "Item will not be able to log in after deactivation.";
-
-            Swal.fire({
-                title: "Are you sure?",
-                text: message,
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#3085d6",
-                cancelButtonColor: "#d33",
-                confirmButtonText: "Okay",
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    $.ajax({
-                        type: "POST",
-                        url: "{{ route('company.vendor.status') }}",
-                        data: { userId, status, _token: $('meta[name="csrf-token"]').attr('content') },
-                        success: function (response) {
-                            console.log(response);
-                            if (response.success == true) {
-                                const successMessage = status === "active" ? "Item activated successfully." : "Item deactivated successfully.";
-                                setFlash("success", successMessage);
-                            } else {
-                                setFlash("error", "There was an issue changing the status. Please contact your system administrator.");
-                            }
-                            table.ajax.reload(); // Reload DataTable
-                        },
-                        error: function () {
-                            setFlash("error", "There was an issue processing your request. Please try again later.");
-                        },
-                    });
+        // Send data via AJAX POST request
+        $.ajax({
+            url: '{{ route('company.vendor.store') }}', // URL to store vendor data
+            type: 'POST',
+            data: data,
+            success: function (response) {
+                if (response.success) {
+                    setFlash("success", response.message); // Show success message
+                    $('#addModal').modal('hide'); // Close modal after successful save
+                    $('#addModal').find('input, textarea, select').val(''); // Reset form fields
+                    table.ajax.reload(); // Reload DataTable to reflect new data
                 } else {
-                    table.ajax.reload(); // Reload DataTable
-                }
-            });
-        };
-
-        // Delete user
-        function deleteUser(userId) {
-            Swal.fire({
-                title: "Are you sure?",
-                text: "Do you want to delete this Item?",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#3085d6",
-                cancelButtonColor: "#d33",
-                confirmButtonText: "Yes",
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    const url = '{{ route("company.vendor.destroy", ":userId") }}'.replace(":userId", userId);
-                    $.ajax({
-                        type: "DELETE",
-                        url,
-                        data: { _token: $('meta[name="csrf-token"]').attr('content') },
-                        success: function (response) {
-                            if (response.success) {
-                                setFlash("success", "User deleted successfully.");
-                            } else {
-                                setFlash("error", "There was an issue deleting the user. Please contact your system administrator.");
+                    // Display validation errors if any
+                    if (response.errors) {
+                        for (let field in response.errors) {
+                            let $field = $(`#${field}`);
+                            if ($field.length) {
+                                $field.siblings('.error-text').text(response.errors[field][0]);
                             }
-                            table.ajax.reload(); // Reload DataTable
-                        },
-                        error: function () {
-                            setFlash("error", "There was an issue processing your request. Please try again later.");
-                        },
-                    });
+                        }
+                    } else {
+                        setFlash("error", response.message); // Show error message
+                    }
                 }
-            });
-        };
+            },
+            error: function (xhr) {
+                setFlash("error", "An unexpected error occurred."); // Handle general errors
+            }
+        });
+    });
 
-         // Flash message function using Toast.fire
-         function setFlash(type, message) {
-            Toast.fire({
-                icon: type,
-                title: message
-            });
-        }
+    // Function to handle editing vendor
+    function editUser(userId) {
+        const url = '{{ route("company.vendor.get", ":userid") }}'.replace(":userid", userId); // Build URL with user ID
+        $.ajax({
+            url: url, // Fetch vendor data
+            method: 'GET',
+            success: function (data) {
+                // Populate the 'Edit Vendor' modal with retrieved data
+                $('#compid').val(data.id);
+                $('#editname').val(data.full_name);
+                $('#editemail').val(data.email);
+                $('#editphone').val(data.phone);
+                $('#editcity').val(data.city);
+                $('#editstate').val(data.state);
+                $('#editgst').val(data.gst_no);
+                $('#editzipcode').val(data.zipcode);
 
-        // Expose functions to global scope
+                // Show edit modal
+                $('#editModal').modal('show');
+                setFlash("success", 'Vendor found successfully.');
+            },
+            error: function (xhr) {
+                setFlash("error", "Vendor not found. Please try again later."); // Handle errors
+            }
+        });
+    }
+
+    // Handle 'Edit Vendor' form submission
+    $('#EditComapany').on('click', function () {
+        const userId = $('#compid').val(); // Get the vendor ID from the hidden input field
+        $.ajax({
+            url: '{{ route('company.vendor.update') }}', // URL to update vendor data
+            method: 'POST',
+            data: {
+                full_name: $('#editname').val(),
+                email: $('#editemail').val(),
+                phone: $('#editphone').val(),
+                city: $('#editcity').val(),
+                state: $('#editstate').val(),
+                gst_no: $('#editgst').val(),
+                zipcode: $('#editzipcode').val(),
+                _token: $('meta[name="csrf-token"]').attr('content'), // CSRF token
+                id: userId // Vendor ID
+            },
+            success: function (response) {
+                if (response.success) {
+                    setFlash("success", response.message); // Show success message
+                    $('#editModal').modal('hide'); // Close modal after successful update
+                    $('#editModal').find('input, textarea, select').val(''); // Reset form fields
+                    table.ajax.reload(); // Reload DataTable to reflect updated data
+                } else {
+                    console.error('Error updating vendor data:', response.message); // Handle errors
+                }
+            },
+            error: function (xhr) {
+                console.error('Error updating vendor data:', xhr); // Handle AJAX errors
+            }
+        });
+    });
+
+    // Function to update vendor status
+    function updateUserStatus(userId, status) {
+        const message = status === "active"
+            ? "Vendor will be able to log in after activation."
+            : "Vendor will not be able to log in after deactivation.";
+
+        // Confirmation dialog before changing status
+        Swal.fire({
+            title: "Are you sure?",
+            text: message,
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Okay",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Send AJAX request to update status
+                $.ajax({
+                    type: "POST",
+                    url: "{{ route('company.vendor.status') }}", // URL to update vendor status
+                    data: { userId, status, _token: $('meta[name="csrf-token"]').attr('content') },
+                    success: function (response) {
+                        if (response.success) {
+                            const successMessage = status === "active" ? "Vendor activated successfully." : "Vendor deactivated successfully.";
+                            setFlash("success", successMessage); // Show success message
+                        } else {
+                            setFlash("error", "There was an issue changing the status. Please contact your system administrator.");
+                        }
+                        table.ajax.reload(); // Reload DataTable to reflect status change
+                    },
+                    error: function () {
+                        setFlash("error", "There was an issue processing your request. Please try again later.");
+                    }
+                });
+            } else {
+                table.ajax.reload(); // Reload DataTable if action is canceled
+            }
+        });
+    }
+
+    // Function to delete vendor
+    function deleteUser(userId) {
+        // Confirmation dialog before deletion
+        Swal.fire({
+            title: "Are you sure?",
+            text: "Do you want to delete this vendor?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const url = '{{ route("company.vendor.destroy", ":userId") }}'.replace(":userId", userId); // Build delete URL with vendor ID
+                $.ajax({
+                    type: "DELETE",
+                    url: url, // Send delete request
+                    data: { _token: $('meta[name="csrf-token"]').attr('content') },
+                    success: function (response) {
+                        if (response.success) {
+                            setFlash("success", "Vendor deleted successfully."); // Show success message
+                        } else {
+                            setFlash("error", "There was an issue deleting the vendor. Please contact your system administrator.");
+                        }
+                        table.ajax.reload(); // Reload DataTable to reflect deletion
+                    },
+                    error: function () {
+                        setFlash("error", "There was an issue processing your request. Please try again later.");
+                    }
+                });
+            }
+        });
+    }
+
+    // Flash message function using Toast
+    function setFlash(type, message) {
+        Toast.fire({
+            icon: type, // Show icon based on type (success, error)
+            title: message // Message to display
+        });
+    }
+
+    // Expose functions to global scope so they can be accessed in the HTML
         window.updateUserStatus = updateUserStatus;
         window.deleteUser = deleteUser;
         window.editUser = editUser;
+    });
+
+    // Event handling for dynamic state and city selection
+    $(document).ready(function () {
+        // Trigger when state is changed in the 'Add Vendor' modal
+        $('#state').on('change', function () {
+            let stateId = $('#state').find(':selected').attr('data-id');
+            fetchCities(stateId, $('#city')); // Fetch cities based on selected state
+        });
+
+        // Trigger when city is changed in the 'Add Vendor' modal
+        $('#city').on('change', function () {
+            let cityId = $('#city').find(':selected').attr('data-id');
+            fetchPincodes(cityId, $('#zipcode')); // Fetch pincodes based on selected city
+        });
+
+        // Trigger when state is changed in the 'Edit Vendor' modal
+        $('#editstate').on('change', function () {
+            let stateId = $('#editstate').find(':selected').attr('data-id');
+            fetchCities(stateId, $('#editcity')); // Fetch cities based on selected state
+        });
+
+        // Trigger when city is changed in the 'Edit Vendor' modal
+        $('#editcity').on('change', function () {
+            let cityId = $('#editcity').find(':selected').attr('data-id');
+            fetchPincodes(cityId, $('#editzipcode')); // Fetch pincodes based on selected city
+        });
+
+        // Function to fetch cities based on stateId
+        function fetchCities(stateId, cityElement) {
+            if (stateId) {
+                $.ajax({
+                    url: '{{ route("ajax.getCities", "") }}/' + stateId, // Fetch cities based on state ID
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function (data) {
+                        cityElement.empty().append('<option selected>Select City</option>');
+                        $.each(data, function (key, value) {
+                            cityElement.append('<option value="' + value.city_name + '" data-id="' + value.id + '">' + value.city_name + '</option>');
+                        });
+                    }
+                });
+            }
+        }
+
+        // Function to fetch pincodes based on cityId
+        function fetchPincodes(cityId, zipcodeElement) {
+            if (cityId) {
+                $.ajax({
+                    url: '{{ route("ajax.getPincodes", "") }}/' + cityId, // Fetch pincodes based on city ID
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function (datapincode) {
+                        zipcodeElement.empty().append('<option selected>Select Pincode</option>');
+                        $.each(datapincode, function (keypincode, valuepincode) {
+                            zipcodeElement.append('<option value="' + valuepincode.pincode + '">' + valuepincode.pincode + '</option>');
+                        });
+                    }
+                });
+            }
+        }
     });
 
 </script>

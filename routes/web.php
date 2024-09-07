@@ -24,6 +24,11 @@ use App\Http\Controllers\Company\{
     PaymentBookReportController
 };
 
+
+use App\Http\Controllers\Ajax\{
+    LocationController
+};
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -224,6 +229,24 @@ Route::prefix('company')->name('company.')->group(function () {
             Route::get('/print/{id}', 'print')->name('print'); // Print route
         });
 
+    });
+});
+
+/*
+|--------------------------------------------------------------------------
+| Ajax Routes
+|--------------------------------------------------------------------------
+|
+| Routes for Ajax functionalities, prefixed with 'ajax' and named with 'ajax.'
+|
+*/
+
+Route::prefix('ajax')->name('ajax.')->group(function () {
+
+    // Company Authentication Routes
+    Route::controller(LocationController::class)->group(function () {
+        Route::get('/getCities/{state}', 'getCities')->name('getCities');
+        Route::get('/getPincodes/{city}', 'getPincodes')->name('getPincodes');
     });
 });
 

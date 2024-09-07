@@ -15,6 +15,12 @@ class Item extends Model
         'company_id', 'variation_id', 'name', 'description', 'tax_id', 'hsn_hac' // Add all the attributes you want to be mass assignable
     ];
 
+    // Define the relationship with the Tax model
+    public function tax()
+    {
+        return $this->belongsTo(Tax::class, 'tax_id');
+    }
+
     // Define the relationship
     public function variation()
     {

@@ -25,7 +25,7 @@
                             <!-- Date Field -->
                             <div class="col-md-6 mb-3">
                                 <label for="date" class="form-label">Date</label>
-                                <input class="form-control" type="date" id="date" name="date" value="{{ old('date') }}">
+                                <input class="form-control" type="date" id="date" name="date" value="{{ old('date', $currentDate) }}" readonly>
                                 @error('date')
                                     <div class="text-danger">{{ $message }}</div>
                                 @enderror
@@ -33,7 +33,7 @@
                             <!-- Invoice Field -->
                             <div class="col-md-6 mb-3">
                                 <label for="invoice" class="form-label">Invoice</label>
-                                <input type="text" class="form-control" id="invoice" name="invoice" value="{{ old('invoice') }}">
+                                <input type="text" class="form-control" id="invoice" name="invoice" value="{{ old('invoice', $invoiceNumber) }}" readonly>
                                 @error('invoice')
                                     <div class="text-danger">{{ $message }}</div>
                                 @enderror
@@ -71,7 +71,7 @@
                                 <select class="form-select" id="item">
                                     <option selected>Select</option>
                                     @foreach ($items as $item)
-                                        <option value="{{ $item->id }}" data-tax="{{ $item->tax_rate }}" data-variation="{{ $item->variation_name }}">{{ $item->name }}</option>
+                                        <option value="{{ $item->id }}" data-tax="{{ $item->tax->rate }}" data-variation="{{ $item->variation->name }}">{{ $item->name }}</option>
                                     @endforeach
                                 </select>
                                 <div id="item_error" class="text-danger"></div>

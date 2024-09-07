@@ -21,6 +21,7 @@
                             <thead>
                                 <tr>
                                     <th>Company Name</th>
+                                    <th>Short Code</th>
                                     <th>Location</th>
                                     <th>Status</th>
                                     <th>Action</th>
@@ -47,6 +48,11 @@
                     <div class="col-md-12 mb-3">
                         <label for="name" class="form-label">Name</label>
                         <input type="text" id="name" class="form-control" placeholder="Enter Name" />
+                        <small class="error-text text-danger"></small>
+                    </div>
+                    <div class="col-md-12 mb-3">
+                        <label for="short_code" class="form-label">Short Code</label>
+                        <input type="text" id="short_code" class="form-control" placeholder="Enter Short Code" />
                         <small class="error-text text-danger"></small>
                     </div>
                     <div class="col-md-12 mb-3">
@@ -109,6 +115,12 @@
                         <small class="error-text text-danger"></small>
                     </div>
                     <div class="col-md-12 mb-3">
+                        <input type="hidden" id="compid">
+                        <label for="short_code" class="form-label">Short Code</label>
+                        <input type="text" id="editshortcode" class="form-control" placeholder="Enter Name" />
+                        <small class="error-text text-danger"></small>
+                    </div>
+                    <div class="col-md-12 mb-3">
                         <label for="email" class="form-label">Email</label>
                         <input type="email" id="editemail" class="form-control" placeholder="xxxx@xxx.xx" />
                         <small class="error-text text-danger"></small>
@@ -158,6 +170,7 @@
         // Initialize DataTable
         const table = $("#companyTable").DataTable({
             processing: true,
+            ordering: false,
             ajax: {
                 url: "{{ route('admin.company.allcompany') }}",
             },
@@ -168,6 +181,9 @@
                         const url = '{{ route("admin.company.show", ":userId") }}'.replace(":userId", row.id);
                         return `<a href="${url}">${row.name}</a>`;
                     },
+                },
+                {
+                    data: "short_code",
                 },
                 {
                     data: "city",
@@ -211,6 +227,7 @@
                 name: $('#name').val(),
                 email: $('#email').val(),
                 phone: $('#phone').val(),
+                short_code: $('#short_code').val(),
                 address: $('#address').val(),
                 city: $('#city').val(),
                 type: $('#type').val(),
@@ -267,6 +284,7 @@
                     $('#editcity').val(data.city);
                     $('#edittype').val(data.type);
                     $('#editgstin').val(data.gstin);
+                    $('editshortcode').val(data.short_code);
 
                     // Open the modal
                     $('#editModal').modal('show');
@@ -293,6 +311,7 @@
                     city: $('#editcity').val(),
                     type: $('#edittype').val(),
                     gstin: $('#editgstin').val(),
+                    short_code: $('#editshortcode').val(),
                     id: userId // Ensure userId is in scope or adjust accordingly
                 },
                 success: function(response) {
