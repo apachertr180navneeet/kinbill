@@ -60,6 +60,8 @@ class PurchesBookController extends Controller
         $authenticatedUser = Auth::user();
         $companyId = $authenticatedUser->company_id;
 
+        $companyUserState = $authenticatedUser->state;
+
         // Fetch the company details for the authenticated user's company
         $companyDetails = Company::find($companyId);
         $companyShortCode = $companyDetails->short_code;
@@ -94,7 +96,8 @@ class PurchesBookController extends Controller
             'vendors' => $activeVendors,
             'items' => $companyItems,
             'invoiceNumber' => $finalInvoiceNumber,
-            'currentDate' => $currentDate
+            'currentDate' => $currentDate,
+            'companyUserState' => $companyUserState
         ]);
     }
 

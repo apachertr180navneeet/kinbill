@@ -13,6 +13,7 @@
             </h5>
         </div>
     </div>
+    <input type="hidden" name="companyUserState" id="companyUserState" value="{{ $companyUserState }}">
     <form role="form" action="{{ route('company.purches.book.store') }}" method="post" id="coustomer_add" enctype="multipart/form-data">
         @csrf
         <div class="row">
@@ -44,7 +45,7 @@
                                 <select class="form-select" id="vendor" name="vendor">
                                     <option selected>Select</option>
                                     @foreach ($vendors as $vendor)
-                                        <option value="{{ $vendor->id }}" {{ old('vendor') == $vendor->id ? 'selected' : '' }}>{{ $vendor->full_name }}</option>
+                                        <option value="{{ $vendor->id }}" {{ old('vendor') == $vendor->id ? 'selected' : '' }} data-state="{{ $vendor->state }}">{{ $vendor->full_name }}</option>
                                     @endforeach
                                 </select>
                                 @error('vendor')
@@ -122,13 +123,13 @@
                             <div class="col-md-3 mb-3">
                                 <label for="total_tax" class="form-label text-end">Total Tax</label>
                             </div>
+                            <div class="col-md-3 mb-3"></div>
                             <div class="col-md-3 mb-3">
                                 <input type="number" class="form-control" id="total_tax" value="0" name="total_tax" min="0" readonly>
                                 @error('total_tax')
                                     <div class="text-danger">{{ $message }}</div>
                                 @enderror
                             </div>
-                            <div class="col-md-3 mb-3"></div>
                         </div>
                         <!-- Other Expenses -->
                         <div class="row">
