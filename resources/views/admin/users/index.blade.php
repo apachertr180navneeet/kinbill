@@ -67,13 +67,27 @@
                         <small class="error-text text-danger"></small>
                     </div>
                     <div class="col-md-12 mb-3">
-                        <label for="city" class="form-label">City</label>
-                        <input type="text" id="city" class="form-control" placeholder="" />
+                        <label for="state" class="form-label">State</label>
+                        <select class="form-select" id="state">
+                            <option selected>Select  State</option>
+                            @foreach ($states as $state)
+                                <option value="{{$state->state_name}}" data-id="{{$state->state_id}}">{{$state->state_name}}</option>
+                            @endforeach
+                        </select>
                         <small class="error-text text-danger"></small>
                     </div>
                     <div class="col-md-12 mb-3">
-                        <label for="state" class="form-label">State</label>
-                        <input type="text" id="state" class="form-control" placeholder="" />
+                        <label for="city" class="form-label">City</label>
+                        <select class="form-select" id="city">
+                            <option selected>Select  City</option>
+                        </select>
+                        <small class="error-text text-danger"></small>
+                    </div>
+                    <div class="col-md-12 mb-3">
+                        <label for="zipcode" class="form-label">Pincode</label>
+                        <select class="form-select" id="zipcode">
+                            <option selected>Select  Pincode</option>
+                        </select>
                         <small class="error-text text-danger"></small>
                     </div>
                     <div class="col-md-12 mb-3">
@@ -117,20 +131,34 @@
                         <small class="error-text text-danger"></small>
                     </div>
                     <div class="col-md-12 mb-3">
-                        <label for="city" class="form-label">City</label>
-                        <input type="text" id="editcity" class="form-control" placeholder="" />
-                        <small class="error-text text-danger"></small>
-                    </div>
-                    <div class="col-md-12 mb-3">
                         <label for="state" class="form-label">State</label>
-                        <input type="text" id="editstate" class="form-control" placeholder="" />
+                        <select class="form-select" id="editstate">
+                            <option selected>Select  State</option>
+                            @foreach ($states as $state)
+                                <option value="{{$state->state_name}}" data-id="{{$state->state_id}}">{{$state->state_name}}</option>
+                            @endforeach
+                        </select>
                         <small class="error-text text-danger"></small>
                     </div>
                     <div class="col-md-12 mb-3">
+                        <label for="city" class="form-label">City</label>
+                        <select class="form-select" id="editcity">
+                            <option selected>Select  City</option>
+                        </select>
+                        <small class="error-text text-danger"></small>
+                    </div>
+                    <div class="col-md-12 mb-3">
+                        <label for="zipcode" class="form-label">Pincode</label>
+                        <select class="form-select" id="editzipcode">
+                            <option selected>Select  Pincode</option>
+                        </select>
+                        <small class="error-text text-danger"></small>
+                    </div>
+                    {{--  <div class="col-md-12 mb-3">
                         <label for="password" class="form-label">Password</label>
                         <input type="text" id="editpassword" class="form-control" placeholder="" />
                         <small class="error-text text-danger"></small>
-                    </div>
+                    </div>  --}}
                 </div>
             </div>
             <div class="modal-footer">
@@ -201,6 +229,7 @@
                 address: $('#address').val(),
                 city: $('#city').val(),
                 state: $('#state').val(),
+                zipcode: $('#zipcode').val(),
                 password: $('#password').val(),
                 _token: $('meta[name="csrf-token"]').attr('content') // CSRF token
             };
@@ -251,6 +280,7 @@
                     $('#editphone').val(data.phone);
                     $('#editcity').val(data.city);
                     $('#editstate').val(data.state);
+                    $('#editzipcode').val(data.zipcode);
                     $('#editpassword').val('');
 
                     $('#editModal').modal('show');
@@ -276,6 +306,7 @@
                     address: $('#editaddress').val(),
                     city: $('#editcity').val(),
                     state: $('#editstate').val(),
+                    zipcode: $('#editzipcode').val(),
                     id: userId
                 },
                 success: function(response) {
@@ -378,6 +409,66 @@
         window.editUser = editUser;
     });
 
+    // Event handling for dynamic state and city selection
+    $(document).ready(function () {
+        // Trigger when state is changed in the 'Add Vendor' modal
+        $('#state').on('change', function () {
+            let stateId = $('#state').find(':selected').attr('data-id');
+            fetchCities(stateId, $('#city')); // Fetch cities based on selected state
+        });
+
+        // Trigger when city is changed in the 'Add Vendor' modal
+        $('#city').on('change', function () {
+            let cityId = $('#city').find(':selected').attr('data-id');
+            fetchPincodes(cityId, $('#zipcode')); // Fetch pincodes based on selected city
+        });
+
+        // Trigger when state is changed in the 'Edit Vendor' modal
+        $('#editstate').on('change', function () {
+            let stateId = $('#editstate').find(':selected').attr('data-id');
+            fetchCities(stateId, $('#editcity')); // Fetch cities based on selected state
+        });
+
+        // Trigger when city is changed in the 'Edit Vendor' modal
+        $('#editcity').on('change', function () {
+            let cityId = $('#editcity').find(':selected').attr('data-id');
+            fetchPincodes(cityId, $('#editzipcode')); // Fetch pincodes based on selected city
+        });
+
+        // Function to fetch cities based on stateId
+        function fetchCities(stateId, cityElement) {
+            if (stateId) {
+                $.ajax({
+                    url: '{{ route("ajax.getCities", "") }}/' + stateId, // Fetch cities based on state ID
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function (data) {
+                        cityElement.empty().append('<option selected>Select City</option>');
+                        $.each(data, function (key, value) {
+                            cityElement.append('<option value="' + value.city_name + '" data-id="' + value.id + '">' + value.city_name + '</option>');
+                        });
+                    }
+                });
+            }
+        }
+
+        // Function to fetch pincodes based on cityId
+        function fetchPincodes(cityId, zipcodeElement) {
+            if (cityId) {
+                $.ajax({
+                    url: '{{ route("ajax.getPincodes", "") }}/' + cityId, // Fetch pincodes based on city ID
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function (datapincode) {
+                        zipcodeElement.empty().append('<option selected>Select Pincode</option>');
+                        $.each(datapincode, function (keypincode, valuepincode) {
+                            zipcodeElement.append('<option value="' + valuepincode.pincode + '">' + valuepincode.pincode + '</option>');
+                        });
+                    }
+                });
+            }
+        }
+    });
 
 </script>
 @endsection

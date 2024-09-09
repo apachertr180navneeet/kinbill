@@ -6,7 +6,10 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\{
     User,
-    Company
+    Company,
+    city,
+    State,
+    Pincode
 };
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -21,7 +24,9 @@ class CompanyController extends Controller
      */
     public function index()
     {
-        return view('admin.company.index');
+        $states = State::all();
+        // Pass the company and comId to the view
+        return view('admin.company.index', compact('states'));
     }
 
     /**
@@ -105,7 +110,7 @@ class CompanyController extends Controller
 
         // Save the company data
         $company = Company::create($request->only([
-            'name', 'email', 'phone', 'address', 'city', 'type','gstin','short_code'
+            'name', 'email', 'phone', 'address', 'city', 'type','gstin','short_code','state','zipcode'
         ]));
 
         return response()->json([

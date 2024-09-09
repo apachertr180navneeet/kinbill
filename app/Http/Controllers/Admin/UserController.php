@@ -6,7 +6,10 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\{
         User,
-        Company
+        Company,
+        city,
+        State,
+        Pincode
     };
 use Mail, DB, Hash, Validator, Session, File,Exception,Redirect;
 
@@ -39,8 +42,10 @@ class UserController extends Controller
             return Redirect::back()->withErrors(['error' => 'Company not found.']);
         }
 
+        $states = State::all();
         // Pass the company and comId to the view
-        return view('admin.users.index', compact('comId', 'company'));
+        // Pass the company and comId to the view
+        return view('admin.users.index', compact('comId', 'company','states'));
     }
 
     /**
