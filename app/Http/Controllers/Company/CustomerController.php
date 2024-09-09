@@ -7,7 +7,10 @@ use Illuminate\Http\Request;
 use App\Models\{
         User,
         Variation,
-        Item
+        Item,
+        city,
+        State,
+        Pincode
     };
 use Mail, DB, Hash, Validator, Session, File, Exception, Redirect, Auth;
 
@@ -20,8 +23,9 @@ class CustomerController extends Controller
      */
     public function index(Request $request)
     {
+        $states = State::all();
         // Pass the company and comId to the view
-        return view('company.customer.index');
+        return view('company.customer.index', compact('states'));
     }
 
     /**
