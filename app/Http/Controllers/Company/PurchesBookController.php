@@ -13,6 +13,18 @@ use Exception;
 
 class PurchesBookController extends Controller
 {
+    public function getLastDigit($str) {
+        // Use regular expression to find all digits in the string
+        preg_match_all('/\d/', $str, $matches);
+
+        // If there are digits found, return the last one
+        if (!empty($matches[0])) {
+            return end($matches[0]);
+        }
+
+        // Return null or a message if no digits are found
+        return null;
+    }
     /**
      * Display the purchase book index page.
      *
@@ -60,11 +72,11 @@ class PurchesBookController extends Controller
         $authenticatedUser = Auth::user();
         $companyId = $authenticatedUser->company_id;
 
-        $companyUserState = $authenticatedUser->state;
 
         // Fetch the company details for the authenticated user's company
         $companyDetails = Company::find($companyId);
         $companyShortCode = $companyDetails->short_code;
+        $companyState = $companyDetails->state;
 
         // Fetch all active vendors associated with the user's company
         $activeVendors = User::where([
@@ -80,9 +92,11 @@ class PurchesBookController extends Controller
 
         // Get the maximum invoice number for the company's purchases
         $latestInvoiceNumber = PurchesBook::where('company_id', $companyId)->max('invoice_number');
-
+        $lastDigit = $this->getLastDigit($latestInvoiceNumber);
         // Generate the next invoice number by incrementing the latest invoice or default to 1
-        $nextInvoiceNumber = $latestInvoiceNumber ? $latestInvoiceNumber + 1 : 1;
+        $lastDigit = (int) $lastDigit; // Convert to integer
+        $nextInvoiceNumber = $lastDigit ? $lastDigit + 1 : 1;
+
 
         // Format the invoice number to have 5 digits, with leading zeros if necessary
         $formattedInvoiceNumber = sprintf('%05d', $nextInvoiceNumber);
@@ -97,7 +111,7 @@ class PurchesBookController extends Controller
             'items' => $companyItems,
             'invoiceNumber' => $finalInvoiceNumber,
             'currentDate' => $currentDate,
-            'companyUserState' => $companyUserState
+            'companyState' => $companyState
         ]);
     }
 
@@ -109,7 +123,9 @@ class PurchesBookController extends Controller
             'invoice' => 'required|string|max:255',
             'vendor' => 'required|exists:users,id',
             'transport' => 'required|string|max:255',
-            'total_tax' => 'required|numeric|min:0',
+            'igst' => 'required|numeric|min:0',
+            'cgst' => 'required|numeric|min:0',
+            'sgst' => 'required|numeric|min:0',
             'other_expense' => 'required|numeric|min:0',
             'discount' => 'required|numeric|min:0',
             'round_off' => 'required|numeric',
@@ -141,11 +157,16 @@ class PurchesBookController extends Controller
                 'invoice_number' => $request->invoice,
                 'vendor_id' => $request->vendor,
                 'transport' => $request->transport,
-                'total_tax' => $request->total_tax,
+                'igst' => $request->igst,
+                'cgst' => $request->cgst,
+                'sgst' => $request->sgst,
                 'other_expense' => $request->other_expense,
                 'discount' => $request->discount,
                 'round_off' => $request->round_off,
                 'grand_total' => $request->grand_total,
+                'amount_before_tax' => $request->amount_before_tax,
+                'given_amount' => $request->given_amount,
+                'remaining_blance' => $request->remaining_blance,
             ]);
 
             // Initialize an array to store the purchase book items
@@ -183,7 +204,7 @@ class PurchesBookController extends Controller
             DB::commit();
 
             // Fetch the last inserted PurchesBook and its items in array format
-            $lastPurchesBook = PurchesBook::with('purchesBookItems')->find($purchesBook->id);
+            $lastPurchesBook = PurchesBook::with('purchesbookitem')->find($purchesBook->id);
 
             // Redirect with success message and last inserted data
             return redirect()->route('company.purches.book.index')
@@ -193,7 +214,7 @@ class PurchesBookController extends Controller
         } catch (\Exception $e) {
             // Rollback the transaction on error
             DB::rollback();
-
+            dd($e);
             // Redirect with an error message
             return redirect()->back()->with('error', 'An error occurred while saving the purchase book entry.');
         }
@@ -241,6 +262,11 @@ class PurchesBookController extends Controller
         $user = Auth::user();
         $compId = $user->company_id;
 
+        // Fetch the company details for the authenticated user's company
+        $companyDetails = Company::find($compId);
+        $companyShortCode = $companyDetails->short_code;
+        $companyState = $companyDetails->state;
+
         $purchaseBook = PurchesBook::with('purchesbookitem.item.variation')->find($id);
 
         // Fetch all active vendors for the user's company
@@ -256,7 +282,7 @@ class PurchesBookController extends Controller
             ->select('items.*', 'variations.name as variation_name', 'taxes.rate as tax_rate')
             ->get();
 
-        return view('company.purches_book.edit', compact('purchaseBook', 'vendors', 'items'));
+        return view('company.purches_book.edit', compact('purchaseBook', 'vendors', 'items','companyState'));
     }
 
     public function update(Request $request, $id)
@@ -271,7 +297,9 @@ class PurchesBookController extends Controller
             'rates' => 'required|array|min:1',
             'taxes' => 'required|array|min:1',
             'totalAmounts' => 'required|array|min:1',
-            'total_tax' => 'required|numeric|min:0',
+            'igst' => 'required|numeric|min:0',
+            'cgst' => 'required|numeric|min:0',
+            'sgst' => 'required|numeric|min:0',
             'grand_total' => 'required|numeric|min:0',
         ], [
             'items.required' => 'No items provided. Please add items to the purchase book.',
@@ -297,11 +325,16 @@ class PurchesBookController extends Controller
         $purchaseBook->invoice_number = $request->invoice;
         $purchaseBook->vendor_id = $request->vendor;
         $purchaseBook->transport = $request->transport;
-        $purchaseBook->total_tax = $request->total_tax;
+        $purchaseBook->igst = $request->igst;
+        $purchaseBook->cgst = $request->cgst;
+        $purchaseBook->sgst = $request->sgst;
         $purchaseBook->other_expense = $request->other_expense;
         $purchaseBook->discount = $request->discount;
         $purchaseBook->round_off = $request->round_off;
         $purchaseBook->grand_total = $request->grand_total;
+        $purchaseBook->amount_before_tax = $request->amount_before_tax;
+        $purchaseBook->given_amount = $request->given_amount;
+        $purchaseBook->remaining_blance = $request->remaining_blance;
 
         // Delete existing items to reattach with updated quantities
         $purchaseBook->purchesbookitem()->delete();

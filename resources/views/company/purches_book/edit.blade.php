@@ -9,17 +9,18 @@
     <div class="row">
         <div class="col-md-6 text-start">
             <h5 class="py-2 mb-2">
-                <span class="text-primary fw-light">Edit Purchase Book</span>
+                <span class="text-primary fw-light">View Purchase Book</span>
             </h5>
         </div>
     </div>
+    <input type="hidden" name="companyState" id="companyState" value="{{ $companyState }}">
     <form role="form" action="{{ route('company.purches.book.update', $purchaseBook->id) }}" method="post" id="purchase_edit" enctype="multipart/form-data">
         @csrf
         @method('PUT')
         <div class="row">
             <div class="col-xl-12 col-lg-12">
                 <div class="card mb-4">
-                    <h5 class="card-header">Edit Purchase</h5>
+                    <h5 class="card-header">View Purchase</h5>
                     <div class="card-body">
                         <!-- Purchase details form -->
                         <div class="row">
@@ -41,7 +42,7 @@
                                 <select class="form-select" id="vendor" name="vendor" required>
                                     <option selected disabled>Select</option>
                                     @foreach ($vendors as $vendor)
-                                        <option value="{{ $vendor->id }}" {{ $vendor->id == $purchaseBook->vendor_id ? 'selected' : '' }}>{{ $vendor->full_name }}</option>
+                                        <option value="{{ $vendor->id }}" {{ $vendor->id == $purchaseBook->vendor_id ? 'selected' : '' }} data-state="{{ $vendor->state }}">{{ $vendor->full_name }}</option>
                                     @endforeach
                                 </select>
                                 <div id="vendor-error" class="text-danger"></div>
@@ -57,7 +58,7 @@
 
                     <div class="card-body">
                         <!-- Item details form -->
-                        <div class="row">
+                        {{--  <div class="row">
                             <!-- Item Selection -->
                             <div class="col-md-3 mb-3">
                                 <label for="item" class="form-label">Item</label>
@@ -85,7 +86,7 @@
                             <div class="col-md-3 mb-3 d-flex align-items-end">
                                 <button type="button" class="btn btn-info" id="addItem">Add Item</button>
                             </div>
-                        </div>
+                        </div>  --}}
 
                         <!-- Items Table -->
                         <table class="table table-bordered mt-4" id="itemsTable">
@@ -98,7 +99,7 @@
                                     <th>Rate</th>
                                     <th>Tax</th>
                                     <th>Total Amount</th>
-                                    <th>Action</th>
+                                    {{--  <th>Action</th>  --}}
                                 </tr>
                             </thead>
                             <tbody>
@@ -111,7 +112,7 @@
                                         <td>{{ number_format($item->rate, 2, '.', '') ?? '0.00' }}<input type="hidden" name="rates[]" value="{{ number_format($item->rate, 2, '.', '') }}"></td>
                                         <td>{{ number_format($item->tax, 2, '.', '') ?? '0.00' }}<input type="hidden" name="taxes[]" value="{{ number_format($item->tax, 2, '.', '') }}"></td>
                                         <td>{{ number_format($item->amount, 2, '.', '') ?? '0.00' }}<input type="hidden" name="totalAmounts[]" value="{{ number_format($item->amount, 2, '.', '') }}"></td>
-                                        <td><button type="button" class="btn btn-danger btn-sm removeItem">Remove</button></td>
+                                        {{--  <td><button type="button" class="btn btn-danger btn-sm removeItem">Remove</button></td>  --}}
                                     </tr>
                                 @endforeach
                             </tbody>
@@ -120,64 +121,137 @@
 
                     <!-- Summary fields -->
                     <div class="card-body">
-                        <!-- Total Tax -->
+                        <!-- amount_before_tax Tax -->
                         <div class="row">
-                            <div class="col-md-6 mb-3 text-end">
-                                <label for="total_tax" class="form-label">Total Tax</label>
-                            </div>
+                            <div class="col-md-3 mb-3"></div>
                             <div class="col-md-3 mb-3">
-                                <input type="text" class="form-control" id="total_tax" value="{{ number_format($purchaseBook->total_tax, 2, '.', '') }}" name="total_tax" readonly>
+                                <label for="amount_before_tax" class="form-label text-end">Amount Before Tax</label>
+                            </div>
+                            <div class="col-md-2 mb-3"></div>
+                            <div class="col-md-4 mb-3">
+                                <input type="number" class="form-control" id="amount_before_tax" value="{{ number_format($purchaseBook->amount_before_tax, 2, '.', '') }}" name="amount_before_tax" min="0" readonly>
+                                @error('amount_before_tax')
+                                    <div class="text-danger">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                        <!-- IGST Tax -->
+                        <div class="row">
+                            <div class="col-md-3 mb-3"></div>
+                            <div class="col-md-3 mb-3">
+                                <label for="igst" class="form-label text-end">IGST</label>
+                            </div>
+                            <div class="col-md-2 mb-3"></div>
+                            <div class="col-md-4 mb-3">
+                                <input type="number" class="form-control" id="igst" value="{{ number_format($purchaseBook->igst, 2, '.', '') }}" name="igst" min="0" readonly>
+                                @error('igst')
+                                    <div class="text-danger">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                        <!-- CGST/SGST Tax -->
+                        <div class="row">
+                            <div class="col-md-3 mb-3"></div>
+                            <div class="col-md-3 mb-3">
+                                <label for="igst" class="form-label text-end">CGST/SGST</label>
+                            </div>
+                            <div class="col-md-2 mb-3"></div>
+                            <div class="col-md-2 mb-3">
+                                <input type="number" class="form-control" id="cgst" value="{{ number_format($purchaseBook->sgst, 2, '.', '') }}" name="cgst" min="0" readonly>
+                                @error('igst')
+                                    <div class="text-danger">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <div class="col-md-2 mb-3">
+                                <input type="number" class="form-control" id="sgst" value="{{ number_format($purchaseBook->cgst, 2, '.', '') }}" name="sgst" min="0" readonly>
+                                @error('igst')
+                                    <div class="text-danger">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
                         <!-- Other Expenses -->
                         <div class="row">
-                            <div class="col-md-6 mb-3 text-end">
+                            <div class="col-md-3 mb-3"></div>
+                            <div class="col-md-3 mb-3">
                                 <label for="other_expense" class="form-label">Other Expense(+)</label>
                             </div>
-                            <div class="col-md-3 mb-3">
+                            <div class="col-md-2 mb-3"></div>
+                            <div class="col-md-4 mb-3">
                                 <input type="number" class="form-control" id="other_expense" value="{{ number_format($purchaseBook->other_expense, 2, '.', '') }}" min="0" name="other_expense">
                                 <div id="other_expense-error" class="text-danger"></div>
                             </div>
                         </div>
                         <!-- Discount -->
                         <div class="row">
-                            <div class="col-md-6 mb-3 text-end">
+                            <div class="col-md-3 mb-3"></div>
+                            <div class="col-md-3 mb-3">
                                 <label for="discount" class="form-label">Discount(-)</label>
                             </div>
-                            <div class="col-md-3 mb-3">
+                            <div class="col-md-2 mb-3"></div>
+                            <div class="col-md-4 mb-3">
                                 <input type="number" class="form-control" id="discount" name="discount" min="0" value="{{ number_format($purchaseBook->discount, 2, '.', '') }}">
                                 <div id="discount-error" class="text-danger"></div>
                             </div>
                         </div>
                         <!-- Round Off -->
                         <div class="row">
-                            <div class="col-md-6 mb-3 text-end">
+                            <div class="col-md-3 mb-3"></div>
+                            <div class="col-md-3 mb-3">
                                 <label for="round_off" class="form-label">Round Off(-/+)</label>
                             </div>
-                            <div class="col-md-3 mb-3">
+                            <div class="col-md-2 mb-3"></div>
+                            <div class="col-md-4 mb-3">
                                 <input type="number" class="form-control" id="round_off" name="round_off" value="{{ number_format($purchaseBook->round_off, 2, '.', '') }}" step="any">
                                 <div id="round_off-error" class="text-danger"></div>
                             </div>
                         </div>
-                        <!-- Grand Total -->
+                        <!-- Total Invoice value -->
                         <div class="row">
-                            <div class="col-md-6 mb-3 text-end">
-                                <label for="grand_total" class="form-label">Grand Total</label>
-                            </div>
+                            <div class="col-md-3 mb-3"></div>
                             <div class="col-md-3 mb-3">
+                                <label for="grand_total" class="form-label">Total Invoice value</label>
+                            </div>
+                            <div class="col-md-2 mb-3"></div>
+                            <div class="col-md-4 mb-3">
                                 <input type="text" class="form-control" id="grand_total" name="grand_total" value="{{ number_format($purchaseBook->grand_total, 2, '.', '') }}" readonly>
+                            </div>
+                        </div>
+                        <!-- Given Amount -->
+                        <div class="row">
+                            <div class="col-md-3 mb-3"></div>
+                            <div class="col-md-5 mb-3">
+                                <label for="given_amount" class="form-label text-end">Given Amount</label>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <input type="number" class="form-control" id="given_amount" name="given_amount" value="{{ number_format($purchaseBook->given_amount, 2, '.', '') }}" min="0">
+                                @error('given_amount')
+                                    <div class="text-danger">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                        <!-- Remaining Balance -->
+                        <div class="row">
+                            <div class="col-md-3 mb-3"></div>
+                            <div class="col-md-5 mb-3">
+                                <label for="remaining_blance" class="form-label text-end">Remaining Balance </label>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <input type="number" class="form-control" id="remaining_blance" name="remaining_blance" value="{{ number_format($purchaseBook->remaining_blance, 2, '.', '') }}" min="0" readonly>
+                                @error('remaining_blance')
+                                    <div class="text-danger">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
                     </div>
 
                     <!-- Save button -->
-                    <div class="card-body">
+                    {{--  <div class="card-body">
                         <div class="row">
                             <div class="col-md-12 text-end">
                                 <button type="submit" class="btn btn-primary">Save</button>
                             </div>
                         </div>
-                    </div>
+                    </div>  --}}
                 </div>
             </div>
         </div>
@@ -189,7 +263,8 @@
 <script>
     $(document).ready(function() {
         let itemsTableBody = $("#itemsTable tbody");
-
+        const companyStateValue = $('#companyState').val();
+        const selectedState = $('#vendor option:selected').data('state');
         // Add Item Button Click
         $("#addItem").click(function() {
             let item = $("#item").val();
@@ -261,8 +336,27 @@
             let finalTotal = grandTotal + totalTax + otherExpense - discount + roundOff;
 
             // Update the total_tax and grand_total fields with two decimal places
-            $("#total_tax").val(totalTax.toFixed(2));
+            if (companyStateValue === selectedState) {
+                $('#igst').val(totalTax.toFixed(2));
+            } else {
+                var cgst = totalTax / 2;
+                $('#cgst').val(cgst.toFixed(2));
+                $('#sgst').val(cgst.toFixed(2));
+            }
             $("#grand_total").val(finalTotal.toFixed(2));
+        }
+
+        // Update remaining balance when given amount changes
+        $('#given_amount').on('input', function() {
+            updateRemainingBalance();
+        });
+
+        // Function to update remaining balance
+        function updateRemainingBalance() {
+            const givenAmount = parseFloat($('#given_amount').val()) || 0;
+            const calculatedTotalMain = $('#grand_total').val();
+            const remainingBalance = calculatedTotalMain - givenAmount;
+            $('#remaining_blance').val(remainingBalance.toFixed(2));
         }
 
         // Update totals on input changes

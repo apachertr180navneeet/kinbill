@@ -13,7 +13,7 @@
             </h5>
         </div>
     </div>
-    <input type="hidden" name="companyUserState" id="companyUserState" value="{{ $companyUserState }}">
+    <input type="hidden" name="companyState" id="companyState" value="{{ $companyState }}">
     <form role="form" action="{{ route('company.purches.book.store') }}" method="post" id="coustomer_add" enctype="multipart/form-data">
         @csrf
         <div class="row">
@@ -117,16 +117,50 @@
 
                     <!-- Summary fields -->
                     <div class="card-body">
+                        <!-- amount_before_tax Tax -->
                         <div class="row">
-                            <!-- Total Tax -->
                             <div class="col-md-3 mb-3"></div>
                             <div class="col-md-3 mb-3">
-                                <label for="total_tax" class="form-label text-end">Total Tax</label>
+                                <label for="amount_before_tax" class="form-label text-end">Amount Before Tax</label>
                             </div>
+                            <div class="col-md-2 mb-3"></div>
+                            <div class="col-md-4 mb-3">
+                                <input type="number" class="form-control" id="amount_before_tax" value="0" name="amount_before_tax" min="0" readonly>
+                                @error('amount_before_tax')
+                                    <div class="text-danger">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                        <!-- IGST Tax -->
+                        <div class="row">
                             <div class="col-md-3 mb-3"></div>
                             <div class="col-md-3 mb-3">
-                                <input type="number" class="form-control" id="total_tax" value="0" name="total_tax" min="0" readonly>
-                                @error('total_tax')
+                                <label for="igst" class="form-label text-end">IGST</label>
+                            </div>
+                            <div class="col-md-2 mb-3"></div>
+                            <div class="col-md-4 mb-3">
+                                <input type="number" class="form-control" id="igst" value="0" name="igst" min="0" readonly>
+                                @error('igst')
+                                    <div class="text-danger">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                        <!-- CGST/SGST Tax -->
+                        <div class="row">
+                            <div class="col-md-3 mb-3"></div>
+                            <div class="col-md-3 mb-3">
+                                <label for="igst" class="form-label text-end">CGST/SGST</label>
+                            </div>
+                            <div class="col-md-2 mb-3"></div>
+                            <div class="col-md-2 mb-3">
+                                <input type="number" class="form-control" id="cgst" value="0" name="cgst" min="0" readonly>
+                                @error('igst')
+                                    <div class="text-danger">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <div class="col-md-2 mb-3">
+                                <input type="number" class="form-control" id="sgst" value="0" name="sgst" min="0" readonly>
+                                @error('igst')
                                     <div class="text-danger">{{ $message }}</div>
                                 @enderror
                             </div>
@@ -134,10 +168,10 @@
                         <!-- Other Expenses -->
                         <div class="row">
                             <div class="col-md-3 mb-3"></div>
-                            <div class="col-md-6 mb-3">
+                            <div class="col-md-5 mb-3">
                                 <label for="other_expense" class="form-label text-end">Other Expense(+)</label>
                             </div>
-                            <div class="col-md-3 mb-3">
+                            <div class="col-md-4 mb-3">
                                 <input type="number" class="form-control" id="other_expense" value="0" min="0" name="other_expense">
                                 @error('other_expense')
                                     <div class="text-danger">{{ $message }}</div>
@@ -147,10 +181,10 @@
                         <!-- Discount -->
                         <div class="row">
                             <div class="col-md-3 mb-3"></div>
-                            <div class="col-md-6 mb-3">
+                            <div class="col-md-5 mb-3">
                                 <label for="discount" class="form-label text-end">Discount(-)</label>
                             </div>
-                            <div class="col-md-3 mb-3">
+                            <div class="col-md-4 mb-3">
                                 <input type="number" class="form-control" id="discount" name="discount" min="0" value="0">
                                 @error('discount')
                                     <div class="text-danger">{{ $message }}</div>
@@ -160,25 +194,51 @@
                         <!-- Round Off -->
                         <div class="row">
                             <div class="col-md-3 mb-3"></div>
-                            <div class="col-md-6 mb-3">
+                            <div class="col-md-5 mb-3">
                                 <label for="round_off" class="form-label text-end">Round Off(-/+)</label>
                             </div>
-                            <div class="col-md-3 mb-3">
+                            <div class="col-md-4 mb-3">
                                 <input type="text" class="form-control" id="round_off" name="round_off" value="0" step="any">
                                 @error('round_off')
                                     <div class="text-danger">{{ $message }}</div>
                                 @enderror
                             </div>
                         </div>
-                        <!-- Grand Total -->
+                        <!-- Total Invoice value -->
                         <div class="row">
                             <div class="col-md-3 mb-3"></div>
-                            <div class="col-md-6 mb-3">
-                                <label for="grand_total" class="form-label text-end">Grand Total</label>
+                            <div class="col-md-5 mb-3">
+                                <label for="grand_total" class="form-label text-end">Total Invoice value </label>
                             </div>
-                            <div class="col-md-3 mb-3">
+                            <div class="col-md-4 mb-3">
                                 <input type="number" class="form-control" id="grand_total" name="grand_total" value="0" min="0" readonly>
                                 @error('grand_total')
+                                    <div class="text-danger">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                        <!-- Given Amount -->
+                        <div class="row">
+                            <div class="col-md-3 mb-3"></div>
+                            <div class="col-md-5 mb-3">
+                                <label for="given_amount" class="form-label text-end">Given Amount</label>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <input type="number" class="form-control" id="given_amount" name="given_amount" value="0" min="0">
+                                @error('given_amount')
+                                    <div class="text-danger">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                        <!-- Remaining Balance -->
+                        <div class="row">
+                            <div class="col-md-3 mb-3"></div>
+                            <div class="col-md-5 mb-3">
+                                <label for="remaining_blance" class="form-label text-end">Remaining Balance </label>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <input type="number" class="form-control" id="remaining_blance" name="remaining_blance" value="0" min="0" readonly>
+                                @error('remaining_blance')
                                     <div class="text-danger">{{ $message }}</div>
                                 @enderror
                             </div>
@@ -205,6 +265,8 @@
         let itemCount = 0;
         let totalTax = 0;
         let grandTotal = 0;
+        let amountBeforeTax = 0;
+
 
         // Function to update the grand total field
         function updateGrandTotal() {
@@ -213,6 +275,14 @@
             const roundOff = parseFloat($('#round_off').val()) || 0;
             const calculatedTotal = grandTotal + otherExpense - discount + roundOff;
             $('#grand_total').val(calculatedTotal.toFixed(2));
+        }
+
+        // Function to update remaining balance
+        function updateRemainingBalance() {
+            const givenAmount = parseFloat($('#given_amount').val()) || 0;
+            const calculatedTotalMain = $('#grand_total').val();
+            const remainingBalance = calculatedTotalMain - givenAmount;
+            $('#remaining_blance').val(remainingBalance.toFixed(2));
         }
 
         // Add item to the table
@@ -230,8 +300,11 @@
                 const totalWithTax = totalAmount + tax;
 
                 itemCount++;
+                amountBeforeTax += totalAmount;
                 totalTax += tax; // Update total tax
                 grandTotal += totalWithTax;
+
+                $('#amount_before_tax').val(amountBeforeTax.toFixed(2));
 
                 const row = `
                     <tr>
@@ -239,16 +312,26 @@
                         <td>${item}<input type="hidden" name="items[]" value="${itemId}"></td>
                         <td>${qty}<input type="hidden" name="quantities[]" value="${qty}"></td>
                         <td>${variation}</td>
-                        <td>${totalAmount.toFixed(2)}<input type="hidden" name="rates[]" value="${totalAmount.toFixed(2)}"></td>
+                        <td>${amountPerUnit.toFixed(2)}<input type="hidden" name="rates[]" value="${amountPerUnit.toFixed(2)}"></td>
                         <td>${tax.toFixed(2)}<input type="hidden" name="taxes[]" value="${tax.toFixed(2)}"></td>
-                        <td>${totalWithTax.toFixed(2)}<input type="hidden" name="totalAmounts[]" value="${totalWithTax.toFixed(2)}"></td>
+                        <td>${totalAmount.toFixed(2)}<input type="hidden" name="totalAmounts[]" value="${totalAmount.toFixed(2)}"></td>
                         <td><button type="button" class="btn btn-danger btn-sm removeItem">Remove</button></td>
                     </tr>
                 `;
                 $('#itemsTable tbody').append(row);
 
+                var companyStateValue = $('#companyState').val();
+                var selectedState = $('#vendor option:selected').data('state');
+
+
                 // Update the total tax and grand total fields
-                $('#total_tax').val(totalTax.toFixed(2));
+                if (companyStateValue == selectedState) {
+                    $('#igst').val(totalTax.toFixed(2));
+                } else {
+                    var cgst = totalTax / 2;
+                    $('#cgst').val(cgst.toFixed(2));
+                    $('#sgst').val(cgst.toFixed(2));
+                }
                 updateGrandTotal();
 
                 // Clear the input fields after adding the item
@@ -266,7 +349,9 @@
             const amountToRemove = parseFloat($(this).closest('tr').find('input[name="totalAmounts[]"]').val());
 
             totalTax -= taxToRemove; // Subtract the removed tax from total tax
-            grandTotal -= amountToRemove; // Subtract the removed amount from grand total
+            grandTotal -= amountToRemove + taxToRemove; // Subtract the removed amount from grand total
+            amountBeforeTax -= amountToRemove; // Subtract the removed amount from grand total
+
 
             $(this).closest('tr').remove();
             itemCount--;
@@ -287,6 +372,11 @@
         // Listen to changes in other expenses, discount, and round off fields to update grand total
         $('#other_expense, #discount, #round_off').on('input', function() {
             updateGrandTotal();
+        });
+
+        // Update remaining balance when given amount changes
+        $('#given_amount').on('input', function() {
+            updateRemainingBalance();
         });
 
         // Validate before form submission
@@ -327,6 +417,6 @@
             this.value = this.value.replace(/[^0-9.-]/g, '');
         });
     });
-
 </script>
+
 @endsection
