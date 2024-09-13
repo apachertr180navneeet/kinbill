@@ -8,10 +8,24 @@ use App\Models\{User, Company, Tax, Item, SalesBook, SalesBookItem, StockReport}
 use Illuminate\Support\Facades\{Auth, DB, Mail, Hash, Validator, Session};
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Redirect;
+use Carbon\Carbon;
 use Exception;
 
 class SalesBookController extends Controller
 {
+    public function getLastDigit($str) {
+        // Use regular expression to find all digits in the string
+        preg_match_all('/\d/', $str, $matches);
+
+        // If there are digits found, return the last one
+        if (!empty($matches[0])) {
+            return end($matches[0]);
+        }
+
+        // Return null or a message if no digits are found
+        return null;
+    }
+
     /**
      * Display the sales book index page.
      *
@@ -59,6 +73,27 @@ class SalesBookController extends Controller
         $user = Auth::user();
         $compId = $user->company_id;
 
+        // Fetch the company details for the authenticated user's company
+        $companyDetails = Company::find($compId);
+        $companyShortCode = $companyDetails->short_code;
+        $companyState = $companyDetails->state;
+
+
+        // Get the maximum invoice number for the company's purchases
+        $latestInvoiceNumber = SalesBook::where('company_id', $compId)->max('dispatch_number');
+        $lastDigit = $this->getLastDigit($latestInvoiceNumber);
+        // Generate the next invoice number by incrementing the latest invoice or default to 1
+        $lastDigit = (int) $lastDigit; // Convert to integer
+        $nextInvoiceNumber = $lastDigit ? $lastDigit + 1 : 1;
+
+
+        // Format the invoice number to have 5 digits, with leading zeros if necessary
+        $formattedInvoiceNumber = sprintf('%05d', $nextInvoiceNumber);
+        $finalInvoiceNumber = $companyShortCode . '-SB' . '-' . $formattedInvoiceNumber;
+
+        // Get the current date
+        $currentDate = Carbon::now()->toDateString(); // Y-m-d format
+
         // Fetch all active vendors for the user's company
         $customers = User::where('role', 'customer')
             ->where('company_id', $compId)
@@ -66,14 +101,20 @@ class SalesBookController extends Controller
             ->get();
 
         // Fetch all items with their variations and tax details for the user's company
-        $items = Item::join('variations', 'items.variation_id', '=', 'variations.id')
+        $companyItems = Item::join('variations', 'items.variation_id', '=', 'variations.id')
             ->join('taxes', 'items.tax_id', '=', 'taxes.id')
             ->where('items.company_id', $compId)
             ->select('items.*', 'variations.name as variation_name', 'taxes.rate as tax_rate')
             ->get();
 
         // Pass the vendors and items data to the view for adding a new sales book
-        return view('company.sales_book.add', compact('customers', 'items'));
+        return view('company.sales_book.add', [
+            'customers' => $customers,
+            'items' => $companyItems,
+            'invoiceNumber' => $finalInvoiceNumber,
+            'currentDate' => $currentDate,
+            'companyState' => $companyState
+        ]);
     }
 
     public function store(Request $request)
@@ -83,8 +124,7 @@ class SalesBookController extends Controller
             'date' => 'required|date',
             'dispatch' => 'required|string|max:255',
             'customer' => 'required|exists:users,id',
-            'weight' => 'required|numeric',
-            'total_tax' => 'required|numeric',
+            'weight' => 'required',
             'other_expense' => 'required|numeric',
             'discount' => 'required|numeric',
             'round_off' => 'required|numeric',
@@ -111,11 +151,16 @@ class SalesBookController extends Controller
                 'dispatch_number' => $request->dispatch,
                 'customer_id' => $request->customer,
                 'item_weight' => $request->weight,
-                'total_tax' => $request->total_tax,
+                'igst' => $request->igst,
+                'cgst' => $request->cgst,
+                'sgst' => $request->sgst,
+                'amount_before_tax' => $request->amount_before_tax,
                 'other_expense' => $request->other_expense,
                 'discount' => $request->discount,
                 'round_off' => $request->round_off,
                 'grand_total' => $request->grand_total,
+                'recived_amount' => $request->received_amount,
+                'balance_amount' => $request->balance_amount,
             ]);
 
             // Save each item in the sales_book_items table
@@ -199,6 +244,7 @@ class SalesBookController extends Controller
         $compId = $user->company_id;
 
         $salesBook = SalesBook::with('salesbookitem.item.variation')->find($id);
+
 
         // Fetch all active vendors for the user's company
         $customers = User::where('role', 'customer')

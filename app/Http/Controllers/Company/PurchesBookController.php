@@ -100,7 +100,7 @@ class PurchesBookController extends Controller
 
         // Format the invoice number to have 5 digits, with leading zeros if necessary
         $formattedInvoiceNumber = sprintf('%05d', $nextInvoiceNumber);
-        $finalInvoiceNumber = $companyShortCode . '-' . $formattedInvoiceNumber;
+        $finalInvoiceNumber = $companyShortCode . '-PB' . '-' . $formattedInvoiceNumber;
 
         // Get the current date
         $currentDate = Carbon::now()->toDateString(); // Y-m-d format
