@@ -63,7 +63,7 @@
                                     <th>Rate</th>
                                     <th>Tax</th>
                                     <th>Total Amount</th>
-                                    <th>Action</th>
+                                    {{--  <th>Action</th>  --}}
                                 </tr>
                             </thead>
                             <tbody>
@@ -77,7 +77,7 @@
                                         <td>{{ number_format(floatval($item->rate ?? 0), 2) }}<input type="hidden" name="rates[]" value="{{ number_format(floatval($item->rate ?? 0), 2) }}"></td>
                                         <td>{{ number_format(floatval($item->tax ?? 0), 2) }}<input type="hidden" name="taxes[]" value="{{ number_format(floatval($item->tax ?? 0), 2) }}"></td>
                                         <td>{{ number_format(floatval($item->amount ?? 0), 2) }}<input type="hidden" name="totalAmounts[]" value="{{ number_format(floatval($item->amount ?? 0), 2) }}"></td>
-                                        <td><button type="button" class="btn btn-danger btn-sm removeItem">Remove</button></td>
+                                        {{--  <td><button type="button" class="btn btn-danger btn-sm removeItem">Remove</button></td>  --}}
                                     </tr>
                                 @endforeach
                             </tbody>

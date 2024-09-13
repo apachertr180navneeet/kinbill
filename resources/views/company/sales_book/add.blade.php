@@ -243,12 +243,13 @@
 @section('script')
 <script>
     $(document).ready(function() {
+        // Variables for tracking totals
         let itemCount = 0;
         let totalTax = 0;
         let grandTotal = 0;
         let amountBeforeTax = 0;
 
-        // Function to update the grand total field
+        // Function to update the grand total field based on other expenses, discounts, and round off values
         function updateGrandTotal() {
             const otherExpense = parseFloat($('#other_expense').val()) || 0;
             const discount = parseFloat($('#discount').val()) || 0;
@@ -257,14 +258,13 @@
             $('#grand_total').val(calculatedTotal.toFixed(2));
         }
 
-        // Function to update remaining balance
+        // Function to update remaining balance based on received amount and grand total
         function updateRemainingBalance() {
             const givenAmount = parseFloat($('#received_amount').val()) || 0;
-            const calculatedTotalMain = $('#grand_total').val();
+            const calculatedTotalMain = parseFloat($('#grand_total').val()) || 0;
             const remainingBalance = calculatedTotalMain - givenAmount;
             $('#balance_amount').val(remainingBalance.toFixed(2));
         }
-
 
         // Add item to the table
         $('#addItem').on('click', function() {
@@ -275,18 +275,22 @@
             const qty = parseInt($('#qty').val());
             const amountPerUnit = parseFloat($('#amount').val());
 
+            // Check if the item ID, quantity, and amount per unit are valid
             if (itemId && !isNaN(qty) && !isNaN(amountPerUnit)) {
                 const totalAmount = qty * amountPerUnit;
                 const tax = totalAmount * (taxRate / 100);
                 const totalWithTax = totalAmount + tax;
 
+                // Update item count, amounts, and taxes
                 itemCount++;
                 amountBeforeTax += totalAmount;
-                totalTax += tax; // Update total tax
+                totalTax += tax;
                 grandTotal += totalWithTax;
 
+                // Update amount before tax in the form
                 $('#amount_before_tax').val(amountBeforeTax.toFixed(2));
 
+                // Generate a new row for the item in the table
                 const row = `
                     <tr>
                         <td>${itemCount}</td>
@@ -301,22 +305,23 @@
                 `;
                 $('#itemsTable tbody').append(row);
 
-                // Update the total tax and grand total fields
-                var companyStateValue = $('#companyState').val();
-                var selectedState = $('#customer option:selected').data('state');
+                // Determine tax display based on company and customer states
+                const companyStateValue = $('#companyState').val();
+                const selectedState = $('#customer option:selected').data('state');
 
-
-                // Update the total tax and grand total fields
+                // If company and customer states are the same, apply IGST; otherwise, apply CGST and SGST
                 if (companyStateValue == selectedState) {
                     $('#igst').val(totalTax.toFixed(2));
                 } else {
-                    var cgst = totalTax / 2;
+                    const cgst = totalTax / 2;
                     $('#cgst').val(cgst.toFixed(2));
                     $('#sgst').val(cgst.toFixed(2));
                 }
+
+                // Update grand total
                 updateGrandTotal();
 
-                // Clear the input fields after adding the item
+                // Clear input fields after adding item
                 $('#item').val('').trigger('change');
                 $('#qty').val('');
                 $('#amount').val('');
@@ -325,67 +330,90 @@
             }
         });
 
-        // Remove item from the table
+        // Remove item from the table and update totals
         $(document).on('click', '.removeItem', function() {
             const taxToRemove = parseFloat($(this).closest('tr').find('input[name="taxes[]"]').val());
             const amountToRemove = parseFloat($(this).closest('tr').find('input[name="totalAmounts[]"]').val());
 
-            totalTax -= taxToRemove; // Subtract the removed tax from total tax
-            grandTotal -= amountToRemove; // Subtract the removed amount from grand total
+            // Subtract the tax and amount from total values
+            totalTax -= taxToRemove;
+            grandTotal -= amountToRemove;
 
+            // Remove the row and update the item count and serial numbers
             $(this).closest('tr').remove();
             itemCount--;
             updateSNo();
 
-            // Update the total tax and grand total fields after removal
+            // Update tax and grand total after removing an item
             $('#total_tax').val(totalTax.toFixed(2));
             updateGrandTotal();
         });
 
-        // Update S. No. after item removal
+        // Update serial numbers after item removal
         function updateSNo() {
             $('#itemsTable tbody tr').each(function(index) {
                 $(this).find('td:first').text(index + 1);
             });
         }
 
-        // Listen to changes in other expenses, discount, and round off fields to update grand total
+        // Listen to changes in other expenses, discount, and round off fields to update the grand total and remaining balance
         $('#other_expense, #discount, #round_off').on('input', function() {
             updateGrandTotal();
             updateRemainingBalance();
         });
 
-         // Update remaining balance when given amount changes
-         $('#received_amount').on('input', function() {
+        // Update remaining balance when the received amount changes
+        $('#received_amount').on('input', function() {
             updateRemainingBalance();
         });
 
-        // Validation on form submission
+        // Form submission validation to ensure at least one item is added
         $('#coustomer_add').on('submit', function(e) {
-            // Check if the items table is empty
             if ($('#itemsTable tbody tr').length === 0) {
-                e.preventDefault(); // Prevent form submission
+                e.preventDefault();
                 setFlash('error', 'Please add at least one item to the sales book.');
                 return false;
             }
+        });
 
-            // Additional validation checks can be added here if needed
+        // Flash message function using Toast for displaying messages
+        function setFlash(type, message) {
+            Toast.fire({
+                icon: type,
+                title: message
+            });
+        }
+
+        // AJAX call to check stock availability for the selected item and quantity
+        $('#qty').on('input', function() {
+            const itemId = $('#item').val();
+            const qty = $(this).val();
+
+            if (itemId && qty > 0) {
+                $.ajax({
+                    url: '{{ route("ajax.checkStock") }}',  // Define your route here
+                    method: 'POST',
+                    data: {
+                        item_id: itemId,
+                        quantity: qty,
+                        _token: '{{ csrf_token() }}'  // CSRF token for security
+                    },
+                    success: function(response) {
+                        if (response.stock_available) {
+                            $('#addItem').prop('disabled', false).text('Add Item');
+                        } else {
+                            $('#addItem').prop('disabled', true).text('Out of Stock');
+                        }
+                    },
+                    error: function(xhr) {
+                        alert('An error occurred.');
+                    }
+                });
+            } else {
+                $('#addItem').prop('disabled', true).text('Add Item');
+            }
         });
     });
-
-    // Flash message function using Toast.fire
-    function setFlash(type, message) {
-        Toast.fire({
-            icon: type,
-            title: message
-        });
-    }
-
-    {{--  $(document).ready(function(){
-        $('#round_off').on('input', function() {
-            this.value = this.value.replace(/[^0-9.-]/g, '');
-        });
-    });  --}}
 </script>
 
 @endsection

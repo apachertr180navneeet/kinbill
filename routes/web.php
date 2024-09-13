@@ -247,6 +247,7 @@ Route::prefix('ajax')->name('ajax.')->group(function () {
     Route::controller(LocationController::class)->group(function () {
         Route::get('/getCities/{state}', 'getCities')->name('getCities');
         Route::get('/getPincodes/{city}', 'getPincodes')->name('getPincodes');
+        Route::post('/check-stock', 'checkStock')->name('checkStock');
     });
 });
 

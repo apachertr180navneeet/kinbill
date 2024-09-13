@@ -11,7 +11,8 @@ use App\Models\{
     Item,
     city,
     State,
-    Pincode
+    Pincode,
+    StockReport
 };
 
 class LocationController extends Controller
@@ -26,5 +27,17 @@ class LocationController extends Controller
     {
         $pincodes = Pincode::where('city_id', $city)->get();
         return response()->json($pincodes);
+    }
+
+    public function checkStock(Request $request)
+    {
+        $item = StockReport::where('item_id',$request->item_id)->first();
+
+        // Assuming the item model has a 'stock' column for available stock
+        if ($item && $item->quantity >= $request->quantity) {
+            return response()->json(['stock_available' => true]);
+        } else {
+            return response()->json(['stock_available' => false]);
+        }
     }
 }
