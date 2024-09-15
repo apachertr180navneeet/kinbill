@@ -114,7 +114,6 @@ class PurchesBookController extends Controller
             'companyState' => $companyState
         ]);
     }
-
     public function store(Request $request)
     {
         // Validate the request data
@@ -219,9 +218,6 @@ class PurchesBookController extends Controller
             return redirect()->back()->with('error', 'An error occurred while saving the purchase book entry.');
         }
     }
-
-
-
     public function destroy($id)
     {
         try {
@@ -377,6 +373,36 @@ class PurchesBookController extends Controller
         $purchaseBook->save();
 
         return redirect()->route('company.purches.book.index')->with('success', 'Purchase book updated successfully.');
+    }
+
+    public function preturn($id)
+    {
+        // Get the authenticated user and their company ID
+        $user = Auth::user();
+        $compId = $user->company_id;
+
+        // Fetch the company details for the authenticated user's company
+        $companyDetails = Company::find($compId);
+        $companyShortCode = $companyDetails->short_code;
+        $companyState = $companyDetails->state;
+
+        $purchaseBook = PurchesBook::with('purchesbookitem.item.variation')->find($id);
+
+
+        // Fetch all active vendors for the user's company
+        $vendors = User::where('role', 'vendor')
+            ->where('company_id', $compId)
+            ->where('status', 'active')
+            ->get();
+
+        // Fetch all items with their variations and tax details for the user's company
+        $items = Item::join('variations', 'items.variation_id', '=', 'variations.id')
+            ->join('taxes', 'items.tax_id', '=', 'taxes.id')
+            ->where('items.company_id', $compId)
+            ->select('items.*', 'variations.name as variation_name', 'taxes.rate as tax_rate')
+            ->get();
+
+        return view('company.purches_book.preturn', compact('purchaseBook', 'vendors', 'items','companyState'));
     }
 
 

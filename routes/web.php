@@ -161,6 +161,7 @@ Route::prefix('company')->name('company.')->group(function () {
             Route::delete('/delete/{id}', 'destroy')->name('destroy');
             Route::get('/edit/{id}', 'edit')->name('edit'); // Edit route
             Route::put('/update/{id}', 'update')->name('update'); // Update route
+            Route::get('/p-return/{id}', 'preturn')->name('preturn'); // Edit route
         });
 
         // Sales Book Management Routes
