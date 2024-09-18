@@ -123,7 +123,32 @@ class CompanyController extends Controller
 public function getCompany($id)
 {
     $user = Company::find($id);
-    return response()->json($user);
+
+    if (!$user) {
+        return response()->json(['error' => 'User not found'], 404);
+    }
+
+    // Retrieve state data based on state name from user
+    $stateData = State::where('state_name', $user->state)->first();
+
+    // Retrieve city data based on city name from user
+    $cityData = City::where('city_name', $user->city)->first();
+
+
+    // Retrieve cities based on state id
+    $cities = City::where('state_id', $stateData->state_id ?? null)->get(); // Safeguard in case state data is not found
+
+    // Retrieve pincodes based on city id
+    $pincodes = Pincode::where('city_id', $cityData->id ?? null)->get(); // Safeguard in case city data is not found
+
+    return response()->json([
+        'company' => $user,
+        'state' => $stateData,
+        'city' => $cityData,
+        'cities' => $cities,
+        'pincodes' => $pincodes
+    ]);
+
 }
 
 // Update user data

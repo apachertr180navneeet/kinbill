@@ -122,7 +122,7 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel1">Company Add</h5>
+                <h5 class="modal-title" id="exampleModalLabel1">Edit Company</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -133,62 +133,70 @@
                         <input type="text" id="editname" class="form-control" placeholder="Enter Name" />
                         <small class="error-text text-danger"></small>
                     </div>
+
                     <div class="col-md-12 mb-3">
-                        <input type="hidden" id="compid">
                         <label for="short_code" class="form-label">Short Code</label>
-                        <input type="text" id="editshortcode" class="form-control" placeholder="Enter Name" />
+                        <input type="text" id="editshortcode" class="form-control" placeholder="Enter Short Code" />
                         <small class="error-text text-danger"></small>
                     </div>
+
                     <div class="col-md-12 mb-3">
                         <label for="email" class="form-label">Email</label>
                         <input type="email" id="editemail" class="form-control" placeholder="xxxx@xxx.xx" />
                         <small class="error-text text-danger"></small>
                     </div>
+
                     <div class="col-md-12 mb-3">
                         <label for="phone" class="form-label">Phone</label>
-                        <input type="text" id="editphone" class="form-control" placeholder="" />
+                        <input type="text" id="editphone" class="form-control" placeholder="Enter Phone" />
                         <small class="error-text text-danger"></small>
                     </div>
+
                     <div class="col-md-12 mb-3">
                         <label for="address" class="form-label">Address</label>
                         <textarea class="form-control" id="editaddress" rows="3"></textarea>
                         <small class="error-text text-danger"></small>
                     </div>
+
                     <div class="col-md-12 mb-3">
                         <label for="state" class="form-label">State</label>
                         <select class="form-select" id="editstate">
-                            <option selected>Select  State</option>
+                            <option selected>Select State</option>
                             @foreach ($states as $state)
-                                <option value="{{$state->state_name}}" data-id="{{$state->state_id}}">{{$state->state_name}}</option>
+                                <option value="{{ $state->state_name }}" data-id="{{ $state->state_id }}">{{ $state->state_name }}</option>
                             @endforeach
                         </select>
                         <small class="error-text text-danger"></small>
                     </div>
+
                     <div class="col-md-12 mb-3">
                         <label for="city" class="form-label">City</label>
                         <select class="form-select" id="editcity">
-                            <option selected>Select  City</option>
+                            <option selected>Select City</option>
                         </select>
                         <small class="error-text text-danger"></small>
                     </div>
+
                     <div class="col-md-12 mb-3">
                         <label for="zipcode" class="form-label">Pincode</label>
                         <select class="form-select" id="editzipcode">
-                            <option selected>Select  Pincode</option>
+                            <option selected>Select Pincode</option>
                         </select>
                         <small class="error-text text-danger"></small>
                     </div>
+
                     <div class="col-md-12 mb-3">
                         <label for="gstin" class="form-label">GSTIN</label>
-                        <input type="text" id="editgstin" class="form-control" placeholder="" />
+                        <input type="text" id="editgstin" class="form-control" placeholder="Enter GSTIN" />
                         <small class="error-text text-danger"></small>
                     </div>
+
                     <div class="col-md-12 mb-3">
                         <label for="type" class="form-label">Type</label>
                         <select id="edittype" class="form-select form-select">
-                            <option value="">select</option>
-                            <option value="type1">type1</option>
-                            <option value="type2">type2</option>
+                            <option value="">Select Type</option>
+                            <option value="type1">Type 1</option>
+                            <option value="type2">Type 2</option>
                         </select>
                         <small class="error-text text-danger"></small>
                     </div>
@@ -202,15 +210,16 @@
     </div>
 </div>
 
+
 @endsection @section('script')
 <script>
     $(document).ready(function () {
-        // Initialize DataTable
+        // Initialize DataTable for companies
         const table = $("#companyTable").DataTable({
             processing: true,
             ordering: false,
             ajax: {
-                url: "{{ route('admin.company.allcompany') }}",
+                url: "{{ route('admin.company.allcompany') }}", // URL to fetch data
             },
             columns: [
                 {
@@ -220,14 +229,10 @@
                         return `<a href="${url}">${row.name}</a>`;
                     },
                 },
-                {
-                    data: "short_code",
-                },
+                { data: "short_code" },
                 {
                     data: "city",
-                    render: (data, type, row) => {
-                        return `<a href="#">${row.city}</a>`;
-                    },
+                    render: (data, type, row) => `<a href="#">${row.city}</a>`,
                 },
                 {
                     data: "status",
@@ -241,10 +246,12 @@
                 {
                     data: "action",
                     render: (data, type, row) => {
+                        // Status button to toggle activation
                         const statusButton = row.status === "inactive"
                             ? `<button type="button" class="btn btn-sm btn-success" onclick="updateUserStatus(${row.id}, 'active')">Activate</button>`
                             : `<button type="button" class="btn btn-sm btn-danger" onclick="updateUserStatus(${row.id}, 'inactive')">Deactivate</button>`;
 
+                        // Other action buttons: delete, edit, and add user
                         const deleteButton = `<button type="button" class="btn btn-sm btn-danger" onclick="deleteUser(${row.id})">Delete</button>`;
                         const editButton = `<button type="button" class="btn btn-sm btn-warning" onclick="editUser(${row.id})">Edit</button>`;
                         const viewButton = `<a href="{{ route('admin.user.index') }}?id=${row.id}" class="btn btn-sm btn-info">Add User</a>`;
@@ -252,16 +259,15 @@
                         return `${statusButton} ${deleteButton} ${editButton} ${viewButton}`;
                     },
                 },
-
             ],
         });
 
-        // Handle form submission via AJAX
-        $('#AddComapany').click(function(e) {
-            e.preventDefault();
+        // Handle form submission via AJAX for adding a company
+        $('#AddComapany').click(function (e) {
+            e.preventDefault(); // Prevent form from submitting normally
 
             // Collect form data
-            let data = {
+            const data = {
                 name: $('#name').val(),
                 email: $('#email').val(),
                 phone: $('#phone').val(),
@@ -272,80 +278,96 @@
                 zipcode: $('#zipcode').val(),
                 type: $('#type').val(),
                 gstin: $('#gstin').val(),
-                _token: $('meta[name="csrf-token"]').attr('content') // CSRF token
+                _token: $('meta[name="csrf-token"]').attr('content'), // CSRF token for security
             };
 
             // Clear previous validation error messages
             $('.error-text').text('');
 
+            // AJAX call to submit form data
             $.ajax({
-                url: '{{ route('admin.company.store') }}', // Adjust the route as necessary
+                url: '{{ route('admin.company.store') }}', // Adjust route as necessary
                 type: 'POST',
                 data: data,
-                success: function(response) {
+                success: function (response) {
                     if (response.success) {
-                        setFlash("success", response.message);
-                        $('#addModal').modal('hide'); // Close the modal
+                        setFlash("success", response.message); // Show success message
+                        $('#addModal').modal('hide'); // Close modal
                         $('#addModal').find('input, textarea, select').val(''); // Reset form fields
                         table.ajax.reload(); // Reload DataTable
                     } else {
                         // Display validation errors
                         if (response.errors) {
                             for (let field in response.errors) {
-                                let $field = $(`#${field}`);
-                                if ($field.length) {
-                                    $field.siblings('.error-text').text(response.errors[field][0]);
-                                }
+                                $(`#${field}`).siblings('.error-text').text(response.errors[field][0]);
                             }
                         } else {
                             setFlash("error", response.message);
                         }
                     }
                 },
-                error: function(xhr) {
+                error: function () {
                     setFlash("error", "An unexpected error occurred.");
-                }
+                },
             });
         });
 
-        // Define editUser function
+        // Define editUser function to populate modal with user data for editing
         function editUser(userId) {
-            const url = '{{ route("admin.company.get", ":userid") }}'.replace(":userid", userId);
-            $.ajax({
-                url: url, // Update this URL to match your route
-                method: 'GET',
-                success: function(data) {
-                    // Populate modal fields with the retrieved data
-                    $('#compid').val(data.id);
-                    $('#editname').val(data.name);
-                    $('#editemail').val(data.email);
-                    $('#editphone').val(data.phone);
-                    $('#editaddress').val(data.address);
-                    $('#editcity').val(data.city);
-                    $('#editstate').val(data.state);
-                    $('#editzipcode').val(data.zipcode);
-                    $('#edittype').val(data.type);
-                    $('#editgstin').val(data.gstin);
-                    $('#editshortcode').val(data.short_code);
+            const url = '{{ route("admin.company.get", ":userid") }}'.replace(":userid", userId); // Generate the correct URL
 
-                    // Open the modal
+            // AJAX request to fetch company data
+            $.ajax({
+                url: url,
+                method: 'GET',
+                success: function (data) {
+                    const company = data.company;
+                    const cities = data.cities;
+                    const pincodes = data.pincodes;
+
+                    // Populate the modal fields with the retrieved company data
+                    $('#compid').val(company.id);
+                    $('#editname').val(company.name);
+                    $('#editemail').val(company.email);
+                    $('#editphone').val(company.phone);
+                    $('#editaddress').val(company.address);
+                    $('#editstate').val(company.state);
+                    $('#editshortcode').val(company.short_code);
+                    $('#editgstin').val(company.gstin);
+                    $('#edittype').val(company.type);
+
+                    // Populate city dropdown
+                    $('#editcity').empty().append('<option selected>Select City</option>');
+                    cities.forEach(city => {
+                        $('#editcity').append(`<option value="${city.city_name}" ${company.city === city.city_name ? 'selected' : ''}>${city.city_name}</option>`);
+                    });
+
+                    // Populate pincode dropdown
+                    $('#editzipcode').empty().append('<option selected>Select Pincode</option>');
+                    pincodes.forEach(pincode => {
+                        $('#editzipcode').append(`<option value="${pincode.pincode}" ${company.zipcode === pincode.pincode ? 'selected' : ''}>${pincode.pincode}</option>`);
+                    });
+
+                    // Show the modal for editing
                     $('#editModal').modal('show');
-                    setFlash("success", 'Company found successfully.');
                 },
-                error: function(xhr) {
-                    setFlash("error", "Company not found. Please try again later.");
-                }
+                error: function () {
+                    setFlash("error", "Error retrieving company data. Please try again later.");
+                },
             });
         }
 
-        // Handle form submission
-        $('#EditComapany').on('click', function() {
-            const userId = $('#compid').val(); // Ensure userId is available in the scope
+        // Handle form submission for editing a company
+        $('#EditComapany').on('click', function () {
+            const userId = $('#compid').val(); // Get user ID
+
+            // AJAX request to update company details
             $.ajax({
-                url: '{{ route('admin.company.update') }}', // Update this URL to match your route
+                url: '{{ route('admin.company.update') }}', // Adjust the route accordingly
                 method: 'POST',
                 data: {
                     _token: $('meta[name="csrf-token"]').attr('content'),
+                    id: userId,
                     name: $('#editname').val(),
                     email: $('#editemail').val(),
                     phone: $('#editphone').val(),
@@ -356,27 +378,23 @@
                     type: $('#edittype').val(),
                     gstin: $('#editgstin').val(),
                     short_code: $('#editshortcode').val(),
-                    id: userId // Ensure userId is in scope or adjust accordingly
                 },
-                success: function(response) {
+                success: function (response) {
                     if (response.success) {
-                        // Optionally, refresh the page or update the table with new data
-                        //table.ajax.reload();
                         setFlash("success", response.message);
-                        $('#editModal').modal('hide'); // Close the modal
-                        $('#editModal').find('input, textarea, select').val(''); // Reset form fields
+                        $('#editModal').modal('hide'); // Close modal after successful edit
                         table.ajax.reload(); // Reload DataTable
                     } else {
-                        console.error('Error updating company data:', response.message);
+                        setFlash("error", response.message);
                     }
                 },
-                error: function(xhr) {
-                    console.error('Error updating company data:', xhr);
-                }
+                error: function () {
+                    setFlash("error", "Error updating company data.");
+                },
             });
         });
 
-        // Update user status
+        // Function to update user status (active/inactive)
         function updateUserStatus(userId, status) {
             const message = status === "active" ? "Company will be able to log in after activation." : "Company will not be able to log in after deactivation.";
 
@@ -387,34 +405,27 @@
                 showCancelButton: true,
                 confirmButtonColor: "#3085d6",
                 cancelButtonColor: "#d33",
-                confirmButtonText: "Okay",
+                confirmButtonText: "Yes",
             }).then((result) => {
                 if (result.isConfirmed) {
+                    // AJAX request to update status
                     $.ajax({
                         type: "POST",
                         url: "{{ route('admin.company.status') }}",
                         data: { userId, status, _token: $('meta[name="csrf-token"]').attr('content') },
                         success: function (response) {
-                            console.log(response);
-                            if (response.success == true) {
-                                const successMessage = status === "active" ? "Company activated successfully." : "Company deactivated successfully.";
-                                setFlash("success", successMessage);
-                            } else {
-                                setFlash("error", "There was an issue changing the status. Please contact your system administrator.");
-                            }
+                            setFlash("success", status === "active" ? "Company activated successfully." : "Company deactivated successfully.");
                             table.ajax.reload(); // Reload DataTable
                         },
                         error: function () {
-                            setFlash("error", "There was an issue processing your request. Please try again later.");
+                            setFlash("error", "Error changing company status.");
                         },
                     });
-                } else {
-                    table.ajax.reload(); // Reload DataTable
                 }
             });
-        };
+        }
 
-        // Delete user
+        // Function to delete a user
         function deleteUser(userId) {
             Swal.fire({
                 title: "Are you sure?",
@@ -427,28 +438,26 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     const url = '{{ route("admin.company.destroy", ":userId") }}'.replace(":userId", userId);
+
+                    // AJAX request to delete user
                     $.ajax({
                         type: "DELETE",
-                        url,
+                        url: url,
                         data: { _token: $('meta[name="csrf-token"]').attr('content') },
                         success: function (response) {
-                            if (response.success) {
-                                setFlash("success", "User deleted successfully.");
-                            } else {
-                                setFlash("error", "There was an issue deleting the user. Please contact your system administrator.");
-                            }
+                            setFlash("success", "Company deleted successfully.");
                             table.ajax.reload(); // Reload DataTable
                         },
                         error: function () {
-                            setFlash("error", "There was an issue processing your request. Please try again later.");
+                            setFlash("error", "Error deleting company.");
                         },
                     });
                 }
             });
-        };
+        }
 
-         // Flash message function using Toast.fire
-         function setFlash(type, message) {
+        // Helper function to show flash messages
+        function setFlash(type, message) {
             Toast.fire({
                 icon: type,
                 title: message
@@ -463,63 +472,64 @@
 
     // Event handling for dynamic state and city selection
     $(document).ready(function () {
-        // Trigger when state is changed in the 'Add Vendor' modal
+        // Fetch cities when state is selected in 'Add Vendor' modal
         $('#state').on('change', function () {
-            let stateId = $('#state').find(':selected').attr('data-id');
-            fetchCities(stateId, $('#city')); // Fetch cities based on selected state
+            const stateId = $('#state').find(':selected').attr('data-id');
+            fetchCities(stateId, $('#city'));
         });
 
-        // Trigger when city is changed in the 'Add Vendor' modal
+        // Fetch pincodes when city is selected in 'Add Vendor' modal
         $('#city').on('change', function () {
-            let cityId = $('#city').find(':selected').attr('data-id');
-            fetchPincodes(cityId, $('#zipcode')); // Fetch pincodes based on selected city
+            const cityId = $('#city').find(':selected').attr('data-id');
+            fetchPincodes(cityId, $('#zipcode'));
         });
 
-        // Trigger when state is changed in the 'Edit Vendor' modal
+        // Fetch cities when state is selected in 'Edit Vendor' modal
         $('#editstate').on('change', function () {
-            let stateId = $('#editstate').find(':selected').attr('data-id');
-            fetchCities(stateId, $('#editcity')); // Fetch cities based on selected state
+            const stateId = $('#editstate').find(':selected').attr('data-id');
+            fetchCities(stateId, $('#editcity'));
         });
 
-        // Trigger when city is changed in the 'Edit Vendor' modal
+        // Fetch pincodes when city is selected in 'Edit Vendor' modal
         $('#editcity').on('change', function () {
-            let cityId = $('#editcity').find(':selected').attr('data-id');
-            fetchPincodes(cityId, $('#editzipcode')); // Fetch pincodes based on selected city
+            const cityId = $('#editcity').find(':selected').attr('data-id');
+            fetchPincodes(cityId, $('#editzipcode'));
         });
 
-        // Function to fetch cities based on stateId
+        // Function to fetch cities based on state ID
         function fetchCities(stateId, cityElement) {
             if (stateId) {
                 $.ajax({
-                    url: '{{ route("ajax.getCities", "") }}/' + stateId, // Fetch cities based on state ID
+                    url: '{{ route("ajax.getCities", "") }}/' + stateId,
                     type: 'GET',
                     dataType: 'json',
                     success: function (data) {
                         cityElement.empty().append('<option selected>Select City</option>');
-                        $.each(data, function (key, value) {
-                            cityElement.append('<option value="' + value.city_name + '" data-id="' + value.id + '">' + value.city_name + '</option>');
+                        data.forEach(city => {
+                            cityElement.append(`<option value="${city.city_name}" data-id="${city.id}">${city.city_name}</option>`);
                         });
-                    }
+                    },
                 });
             }
         }
 
-        // Function to fetch pincodes based on cityId
+        // Function to fetch pincodes based on city ID
         function fetchPincodes(cityId, zipcodeElement) {
             if (cityId) {
                 $.ajax({
-                    url: '{{ route("ajax.getPincodes", "") }}/' + cityId, // Fetch pincodes based on city ID
+                    url: '{{ route("ajax.getPincodes", "") }}/' + cityId,
                     type: 'GET',
                     dataType: 'json',
-                    success: function (datapincode) {
+                    success: function (data) {
                         zipcodeElement.empty().append('<option selected>Select Pincode</option>');
-                        $.each(datapincode, function (keypincode, valuepincode) {
-                            zipcodeElement.append('<option value="' + valuepincode.pincode + '">' + valuepincode.pincode + '</option>');
+                        data.forEach(pincode => {
+                            zipcodeElement.append(`<option value="${pincode.pincode}">${pincode.pincode}</option>`);
                         });
-                    }
+                    },
                 });
             }
         }
     });
+
 </script>
 @endsection

@@ -66,7 +66,7 @@
                             <tr>
                                 <td>
                                     <label for="amount" class="form-label">Amount</label>
-                                    <input type="number" class="form-control @error('amount') is-invalid @enderror" id="amount" name="amount" value="{{ old('amount', 0) }}">
+                                    <input type="text" class="form-control @error('amount') is-invalid @enderror" id="amount" name="amount" value="{{ old('amount', 0) }}">
                                     @error('amount')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
@@ -75,7 +75,7 @@
                             <tr>
                                 <td>
                                     <label for="discount" class="form-label">Discount</label>
-                                    <input type="number" class="form-control @error('discount') is-invalid @enderror" id="discount" name="discount" value="{{ old('discount', 0) }}">
+                                    <input type="text" class="form-control @error('discount') is-invalid @enderror" id="discount" name="discount" value="{{ old('discount', 0) }}">
                                     @error('discount')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
@@ -84,7 +84,7 @@
                             <tr>
                                 <td>
                                     <label for="round_off" class="form-label">Round off</label>
-                                    <input type="number" class="form-control @error('round_off') is-invalid @enderror" id="round_off" name="round_off" value="{{ old('round_off', 0) }}">
+                                    <input type="text" class="form-control @error('round_off') is-invalid @enderror" id="round_off" name="round_off" value="{{ old('round_off', 0) }}">
                                     @error('round_off')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
@@ -93,7 +93,7 @@
                             <tr>
                                 <td>
                                     <label for="grand_total" class="form-label">Net Total</label>
-                                    <input type="number" class="form-control" id="grand_total" name="grand_total" value="" readonly>
+                                    <input type="text" class="form-control" id="grand_total" name="grand_total" value="" readonly>
                                 </td>
                             </tr>
                         </table>

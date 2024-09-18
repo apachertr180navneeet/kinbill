@@ -11,19 +11,19 @@ use Carbon\Carbon;
 use App\Models\Notification;
 use App\Models\NotificationUser;
 
-class AdminUserController extends Controller 
+class AdminUserController extends Controller
 {
     //========================= User Member Funcations ========================//
-    
+
     public function index() {
         return view('admin.users.index');
     }
-    
+
     public function getallUser(Request $request) {
         $users = User::where('role', 'user')->orderBy('id', 'desc')->get();
         return response()->json(['data' => $users]);
     }
-   
+
     public function userStatus(Request $request) {
         try
         {
@@ -34,7 +34,7 @@ class AdminUserController extends Controller
             $user->save();
             return response()->json(['success' => true]);
 
-        }catch(Exception $e){ 
+        }catch(Exception $e){
             return response()->json(['success' => false,'message' => $e->getMessage()]);
         }
     }
@@ -42,6 +42,8 @@ class AdminUserController extends Controller
 
     public function profile(){
         $user = Auth::user();
+
+
         return view('web.auth.profile',compact('user'));
     }
 
@@ -60,6 +62,6 @@ class AdminUserController extends Controller
         }
     }
 
-    
+
 
 }

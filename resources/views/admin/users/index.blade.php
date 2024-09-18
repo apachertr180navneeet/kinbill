@@ -274,14 +274,30 @@
                 url: url,
                 method: 'GET',
                 success: function(data) {
-                    $('#compid').val(data.id);
-                    $('#editname').val(data.full_name);
-                    $('#editemail').val(data.email);
-                    $('#editphone').val(data.phone);
-                    $('#editcity').val(data.city);
-                    $('#editstate').val(data.state);
-                    $('#editzipcode').val(data.zipcode);
+                    const company = data.company;
+                    const cities = data.cities;
+                    const pincodes = data.pincodes;
+
+                    $('#compid').val(company.id);
+                    $('#editname').val(company.full_name);
+                    $('#editemail').val(company.email);
+                    $('#editphone').val(company.phone);
+                    $('#editcity').val(company.city);
+                    $('#editstate').val(company.state);
+                    $('#editzipcode').val(company.zipcode);
                     $('#editpassword').val('');
+
+                    // Populate city dropdown
+                    $('#editcity').empty().append('<option selected>Select City</option>');
+                    cities.forEach(city => {
+                        $('#editcity').append(`<option value="${city.city_name}" ${company.city === city.city_name ? 'selected' : ''}>${city.city_name}</option>`);
+                    });
+
+                    // Populate pincode dropdown
+                    $('#editzipcode').empty().append('<option selected>Select Pincode</option>');
+                    pincodes.forEach(pincode => {
+                        $('#editzipcode').append(`<option value="${pincode.pincode}" ${company.zipcode === pincode.pincode ? 'selected' : ''}>${pincode.pincode}</option>`);
+                    });
 
                     $('#editModal').modal('show');
                     setFlash("success", 'User found successfully.');

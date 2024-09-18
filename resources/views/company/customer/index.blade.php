@@ -157,9 +157,9 @@
                         <input type="text" id="editgst" class="form-control" placeholder="" />
                         <small class="error-text text-danger"></small>
                     </div>
-                    <div class="col-md-12 mb-3">
+                    {{--  <div class="col-md-12 mb-3">
                         <input type="hidden" id="role" value="customer">
-                    </div>
+                    </div>  --}}
                 </div>
             </div>
             <div class="modal-footer">
@@ -274,16 +274,32 @@
                 url: url, // Update this URL to match your route
                 method: 'GET',
                 success: function(data) {
-                    console.log(data);
+                    const user = data.user;
+                    const cities = data.cities;
+                    const pincodes = data.pincodes;
+
+
                     // Populate modal fields with the retrieved data
-                    $('#compid').val(data.id);
-                    $('#editname').val(data.full_name);
-                    $('#editemail').val(data.email);
-                    $('#editphone').val(data.phone);
-                    $('#editcity').val(data.city);
-                    $('#editstate').val(data.state);
-                    $('#editgst').val(data.gst_no);
-                    $('#editzipcode').val(data.zipcode);
+                    $('#compid').val(user.id);
+                    $('#editname').val(user.full_name);
+                    $('#editemail').val(user.email);
+                    $('#editphone').val(user.phone);
+                    $('#editcity').val(user.city);
+                    $('#editstate').val(user.state);
+                    $('#editgst').val(user.gst_no);
+                    $('#editzipcode').val(user.zipcode);
+
+                    // Populate city dropdown
+                    $('#editcity').empty().append('<option selected>Select City</option>');
+                    cities.forEach(city => {
+                        $('#editcity').append(`<option value="${city.city_name}" ${user.city === city.city_name ? 'selected' : ''}>${city.city_name}</option>`);
+                    });
+
+                    // Populate pincode dropdown
+                    $('#editzipcode').empty().append('<option selected>Select Pincode</option>');
+                    pincodes.forEach(pincode => {
+                        $('#editzipcode').append(`<option value="${pincode.pincode}" ${user.zipcode === pincode.pincode ? 'selected' : ''}>${pincode.pincode}</option>`);
+                    });
 
                     // Open the modal
                     $('#editModal').modal('show');

@@ -40,4 +40,33 @@ class LocationController extends Controller
             return response()->json(['stock_available' => false]);
         }
     }
+
+    // Method to get all states
+    public function getStates()
+    {
+        $states = State::all(); // Fetch all states from your database
+        return response()->json($states);
+    }
+
+    // Method to get cities by state
+    public function getCitiesByState($stateName)
+    {
+        $state = State::where('state_name', $stateName)->first();
+        if ($state) {
+            $cities = City::where('state_id', $state->state_id)->get(); // Fetch cities by state ID
+            return response()->json($cities);
+        }
+        return response()->json([], 404); // Return empty if state not found
+    }
+
+    // Method to get zip codes by city
+    public function getZipcodesByCity($cityName)
+    {
+        $city = City::where('city_name', $cityName)->first();
+        if ($city) {
+            $zipcodes = Pincode::where('city_id', $city->id)->get(); // Fetch zip codes by city ID
+            return response()->json($zipcodes);
+        }
+        return response()->json([], 404); // Return empty if city not found
+    }
 }

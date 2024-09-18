@@ -57,13 +57,13 @@
                             <tr>
                                 <td>
                                     <label for="amount" class="form-label">Amount</label>
-                                    <input type="number" class="form-control" id="amount" value="{{ $paymentBook->amount }}" name="amount">
+                                    <input type="text" class="form-control" id="amount" value="{{ $paymentBook->amount }}" name="amount">
                                 </td>
                             </tr>
                             <tr>
                                 <td>
                                     <label for="discount" class="form-label">Discount</label>
-                                    <input type="number" class="form-control" id="discount" name="discount" value="{{ $paymentBook->discount }}">
+                                    <input type="text" class="form-control" id="discount" name="discount" value="{{ $paymentBook->discount }}">
                                 </td>
                             </tr>
                             <tr>
@@ -75,7 +75,7 @@
                             <tr>
                                 <td>
                                     <label for="grand_total" class="form-label">Net Total</label>
-                                    <input type="number" class="form-control" id="grand_total" name="grand_total" value="{{ $paymentBook->grand_total }}" readonly>
+                                    <input type="text" class="form-control" id="grand_total" name="grand_total" value="{{ $paymentBook->grand_total }}" readonly>
                                 </td>
                             </tr>
                         </table>
