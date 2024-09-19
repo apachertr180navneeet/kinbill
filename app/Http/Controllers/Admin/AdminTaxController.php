@@ -1,18 +1,17 @@
 <?php
 
-namespace App\Http\Controllers\Company;
+namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\{
         User,
-        Variation,
-        Item,
+        Company,
         Tax
     };
 use Mail, DB, Hash, Validator, Session, File, Exception, Redirect, Auth;
 
-class ItemController extends Controller
+class AdminTaxController extends Controller
 {
     /**
      * Display the User index page.
@@ -21,14 +20,8 @@ class ItemController extends Controller
      */
     public function index(Request $request)
     {
-        $user = Auth::user();
-
-        $compId = $user->company_id;
-
-        $variation = Variation::where('company_id',$compId)->where('status','active')->orderBy('id', 'desc')->get();
-        $taxs = Tax::where('company_id',null)->where('status','active')->orderBy('id', 'desc')->get();
         // Pass the company and comId to the view
-        return view('company.item.index', compact('variation','taxs'));
+        return view('admin.tax.index');
     }
 
     /**
@@ -41,14 +34,10 @@ class ItemController extends Controller
     {
         $user = Auth::user();
 
-        $compId = $user->company_id;
+        $compId = null;
 
-        $items = Item::join('variations', 'items.variation_id', '=', 'variations.id')
-        ->where('items.company_id',$compId)
-        ->select('items.*', 'variations.name as variation_name')
-        ->get();
-
-        return response()->json(['data' => $items]);
+        $variation = Tax::where('company_id',$compId)->orderBy('id', 'desc')->get();
+        return response()->json(['data' => $variation]);
     }
 
     /**
@@ -60,7 +49,7 @@ class ItemController extends Controller
     public function status(Request $request)
     {
         try {
-            $User = Item::findOrFail($request->userId);
+            $User = Tax::findOrFail($request->userId);
             $User->status = $request->status;
             $User->save();
 
@@ -79,7 +68,7 @@ class ItemController extends Controller
     public function destroy($id)
     {
         try {
-            Item::where('id', $id)->delete();
+            Tax::where('id', $id)->delete();
 
             return response()->json([
                 'success' => true,
@@ -97,11 +86,8 @@ class ItemController extends Controller
     {
         // Validation rules
         $rules = [
-            'name' => 'required|string',
-            'description' => 'required',
-            'variation_id' => 'required',
-            'tax_id' => 'required',
-            'hsn_hac' => 'required'
+            'name' => 'required|string|max:255',
+            'rate' => 'required|max:255|unique:taxes',
         ];
 
         // Validate the request data
@@ -120,24 +106,20 @@ class ItemController extends Controller
         // Save the User data
         $dataUser = [
             'name' => $request->name,
-            'description' => $request->description,
-            'variation_id' => $request->variation_id,
-            'tax_id' => $request->tax_id,
-            'hsn_hac' => $request->hsn_hac,
-            'company_id' => $compId
+            'rate' => $request->rate,
         ];
-        Item::create($dataUser);
+        Tax::create($dataUser);
 
         return response()->json([
             'success' => true,
-            'message' => 'Item saved successfully!',
+            'message' => 'Tax saved successfully!',
         ]);
     }
 
     // Fetch user data
     public function get($id)
     {
-        $user = Item::find($id);
+        $user = Tax::find($id);
         return response()->json($user);
     }
 
@@ -146,13 +128,28 @@ class ItemController extends Controller
     {
         $request->validate([
             'name' => 'required|string',
-            'description' => 'required',
-            'variation_id' => 'required',
-            'id' => 'required|integer|exists:items,id', // Adjust as needed
-            'hsn_hac' => 'required',
+            'rate' => 'required|string',
+            'id' => 'required|integer|exists:taxes,id', // Adjust as needed
         ]);
 
-        $user = Item::find($request->id);
+        // Validation rules
+        $rules = [
+            'name' => 'required|string',
+            'rate' => 'required|string',
+            'id' => 'required|integer|exists:taxes,id', // Adjust as needed
+        ];
+
+        // Validate the request data
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors(),
+            ]);
+        }
+
+        $user = Tax::find($request->id);
         if ($user) {
             $user->update($request->all());
             return response()->json(['success' => true , 'message' => 'User Update Successfully']);

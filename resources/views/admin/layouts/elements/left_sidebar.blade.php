@@ -27,5 +27,13 @@
 			</a>
 		</li>
 
+
+        <li class="menu-item {{ request()->is('admin/tax') ? 'active' : ''}}">
+			<a href="{{ route('admin.tax.index') }}" class="menu-link">
+				<i class="menu-icon tf-icons bx bx-home-circle"></i>
+				<div data-i18n="Dashboard">Tax</div>
+			</a>
+		</li>
+
 	</ul>
 </aside>

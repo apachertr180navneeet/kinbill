@@ -5,7 +5,8 @@ use App\Http\Controllers\Web\HomeController;
 use App\Http\Controllers\Admin\{
     AdminAuthController,
     CompanyController,
-    UserController
+    UserController,
+    AdminTaxController
 };
 use App\Http\Controllers\Company\{
     CompanyAuthController,
@@ -98,6 +99,18 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::delete('delete/{id}', 'destroy')->name('destroy');
             Route::get('company/{id}', 'get')->name('get');
             Route::get('{id}', 'show')->name('show');
+            Route::post('update', 'update')->name('update');
+        });
+
+
+        // Admin Tax Management Routes
+        Route::prefix('tax')->name('tax.')->controller(AdminTaxController::class)->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('all', 'getall')->name('getall');
+            Route::post('store', 'store')->name('store');
+            Route::post('status', 'status')->name('status');
+            Route::delete('delete/{id}', 'destroy')->name('destroy');
+            Route::get('get/{id}', 'get')->name('get');
             Route::post('update', 'update')->name('update');
         });
 

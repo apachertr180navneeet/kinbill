@@ -13,7 +13,7 @@
             </h5>
         </div>
     </div>
-    <input type="text" name="companyState" id="companyState" value="{{ $companyState }}">
+    <input type="hidden" name="companyState" id="companyState" value="{{ $companyState }}">
     <form role="form" action="{{ route('company.sales.book.store') }}" method="post" id="coustomer_add" enctype="multipart/form-data">
         @csrf
         <div class="row">

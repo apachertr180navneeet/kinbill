@@ -28,7 +28,7 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label class="form-label">First Name*</label>
-                                    <input type="text" id="" name="first_name" class="form-control" placeholder="Enter First Name" value="{{old('first_name',$fullname['0'])}}" required>
+                                    <input type="text" id="" name="first_name" class="form-control" placeholder="Enter First Name" value="{{old('first_name',$fullname['0'] ?? '')}}" required>
                                     @error('first_name')
                                         <div class="text-danger">{{ $message }}</div>
                                     @enderror
@@ -37,7 +37,7 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label class="form-label">Last Name*</label>
-                                    <input type="text" name="last_name" class="form-control" placeholder="Enter Last Name" value="{{ old('last_name',$fullname['1'])}}" required>
+                                    <input type="text" name="last_name" class="form-control" placeholder="Enter Last Name" value="{{ old('last_name',$fullname['1'] ?? '')}}" required>
                                     @error('last_name')
                                         <div class="text-danger">{{ $message }}</div>
                                     @enderror
