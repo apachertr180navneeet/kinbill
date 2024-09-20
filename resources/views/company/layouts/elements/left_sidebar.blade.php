@@ -89,6 +89,14 @@
         </li>
 
 
+        <li class="menu-item {{ request()->routeIs('company.bank.and.cash.') ? 'active' : '' }}">
+            <a href="{{ route('company.bank.and.cash.index') }}" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-home-circle"></i>
+                <div data-i18n="Dashboard">Bank And Cash</div>
+            </a>
+        </li>
+
+
 
 
     </ul>

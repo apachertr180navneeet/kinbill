@@ -3,12 +3,12 @@
     <div class="row">
         <div class="col-md-6 text-start">
             <h5 class="py-2 mb-2">
-                <span class="text-primary fw-light">Item</span>
+                <span class="text-primary fw-light">Bank And Cash Mangement</span>
             </h5>
         </div>
         <div class="col-md-6 text-end">
             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addModal">
-                Add Item
+                Add Bank And Cash
             </button>
         </div>
     </div>
@@ -20,10 +20,12 @@
                         <table class="table table-bordered" id="ItemTable">
                             <thead>
                                 <tr>
-                                    <th>Name</th>
-                                    <th>Variation</th>
-                                    <th>HSN/HAC</th>
-                                    <th>Status</th>
+                                    <th>Date</th>
+                                    <th>Serial No.</th>
+                                    <th>Amount</th>
+                                    <th>Payment(Deposit,Withdraw)</th>
+                                    <th>Payment Type(Cash,Bank)</th>
+                                    <th>Description</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
@@ -45,39 +47,42 @@
             </div>
             <div class="modal-body">
                 <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="date" class="form-label">Date</label>
+                        <input type="Date" id="date" class="form-control" placeholder="Enter Date" />
+                        <small class="error-text text-danger"></small>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="serial_no" class="form-label">Serial No.</label>
+                        <input type="text" id="serial_no" class="form-control" placeholder="Enter Serial No." />
+                        <small class="error-text text-danger"></small>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="payment_take" class="form-label">Payment</label>
+                        <select id="payment_take" class="form-select form-select">
+                            <option value="">select</option>
+                            <option value="deposit">Deposit</option>
+                            <option value="withdraw">Withdraw</option>
+                        </select>
+                        <small class="error-text text-danger"></small>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="payment_type" class="form-label">Payment Type</label>
+                        <select id="payment_type" class="form-select form-select">
+                            <option value="">select</option>
+                            <option value="cash">Cash</option>
+                            <option value="bank">Bank</option>
+                        </select>
+                        <small class="error-text text-danger"></small>
+                    </div>
                     <div class="col-md-12 mb-3">
-                        <label for="name" class="form-label">Name</label>
-                        <input type="text" id="name" class="form-control" placeholder="Enter Name" />
+                        <label for="amount" class="form-label">Amount</label>
+                        <input type="text" id="amount" class="form-control" placeholder="Enter Amount" />
                         <small class="error-text text-danger"></small>
                     </div>
                     <div class="col-md-12 mb-3">
                         <label for="description" class="form-label">description</label>
                         <textarea class="form-control" id="description" rows="3"></textarea>
-                        <small class="error-text text-danger"></small>
-                    </div>
-                    <div class="col-md-12 mb-3">
-                        <label for="variation_id" class="form-label">variation</label>
-                        <select id="variation_id" class="form-select form-select">
-                            <option value="">select</option>
-                            @foreach ( $variation as $var )
-                                <option value="{{ $var->id }}">{{ $var->name }}</option>
-                            @endforeach
-                        </select>
-                        <small class="error-text text-danger"></small>
-                    </div>
-                    <div class="col-md-12 mb-3">
-                        <label for="tax_id" class="form-label">Tax</label>
-                        <select id="tax_id" class="form-select form-select">
-                            <option value="">select</option>
-                            @foreach ( $taxs as $tax )
-                                <option value="{{ $tax->id }}">{{ $tax->rate }}</option>
-                            @endforeach
-                        </select>
-                        <small class="error-text text-danger"></small>
-                    </div>
-                    <div class="col-md-12 mb-3">
-                        <label for="hsn_hac" class="form-label">HSN/HAC</label>
-                        <input type="text" id="hsn_hac" class="form-control" placeholder="Enter HSN/HAC" />
                         <small class="error-text text-danger"></small>
                     </div>
                 </div>
@@ -100,47 +105,50 @@
 
             <div class="modal-body">
                 <div class="row">
-                    <div class="col-md-12 mb-3">
-                        <input type="hidden" id="compid">
-                        <label for="name" class="form-label">Name</label>
-                        <input type="text" id="editname" class="form-control" placeholder="Enter Name" />
+                    <input type="hidden" name="id" value="" id="editid">
+                    <div class="col-md-6 mb-3">
+                        <label for="editdate" class="form-label">Date</label>
+                        <input type="Date" id="editdate" class="form-control" placeholder="Enter Date" />
                         <small class="error-text text-danger"></small>
                     </div>
-                    <div class="col-md-12 mb-3">
-                        <label for="description" class="form-label">description</label>
-                        <textarea class="form-control" id="editdescription" rows="3"></textarea>
+                    <div class="col-md-6 mb-3">
+                        <label for="edit_serial_no" class="form-label">Serial No.</label>
+                        <input type="text" id="edit_serial_no" class="form-control" placeholder="Enter Serial No." />
                         <small class="error-text text-danger"></small>
                     </div>
-                    <div class="col-md-12 mb-3">
-                        <label for="variation_id" class="form-label">variation</label>
-                        <select id="editvariation_id" class="form-select form-select">
+                    <div class="col-md-6 mb-3">
+                        <label for="edit_payment_take" class="form-label">Payment</label>
+                        <select id="edit_payment_take" class="form-select form-select">
                             <option value="">select</option>
-                            @foreach ( $variation as $var )
-                                <option value="{{ $var->id }}">{{ $var->name }}</option>
-                            @endforeach
+                            <option value="deposit">Deposit</option>
+                            <option value="withdraw">Withdraw</option>
+                        </select>
+                        <small class="error-text text-danger"></small>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="edit_payment_type" class="form-label">Payment Type</label>
+                        <select id="edit_payment_type" class="form-select form-select">
+                            <option value="">select</option>
+                            <option value="cash">Cash</option>
+                            <option value="bank">Bank</option>
                         </select>
                         <small class="error-text text-danger"></small>
                     </div>
                     <div class="col-md-12 mb-3">
-                        <label for="tax_id" class="form-label">Tax</label>
-                        <select id="edittax_id" class="form-select form-select">
-                            <option value="">select</option>
-                            @foreach ( $taxs as $tax )
-                                <option value="{{ $tax->id }}">{{ $tax->rate }}</option>
-                            @endforeach
-                        </select>
+                        <label for="edit_amount" class="form-label">Amount</label>
+                        <input type="text" id="edit_amount" class="form-control" placeholder="Enter Amount" />
                         <small class="error-text text-danger"></small>
                     </div>
                     <div class="col-md-12 mb-3">
-                        <label for="hsn_hac" class="form-label">HSN/HAC</label>
-                        <input type="text" id="edithsn_hac" class="form-control" placeholder="Enter HSN/HAC" />
+                        <label for="edit_description" class="form-label">description</label>
+                        <textarea class="form-control" id="edit_description" rows="3"></textarea>
                         <small class="error-text text-danger"></small>
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" id="EditComapany">Save</button>
+                <button type="button" class="btn btn-primary" id="EditBankAndCash">Save</button>
             </div>
         </div>
     </div>
@@ -153,38 +161,34 @@
         const table = $("#ItemTable").DataTable({
             processing: true,
             ajax: {
-                url: "{{ route('company.item.getall') }}",
+                url: "{{ route('company.bank.and.cash.getall') }}",
             },
             columns: [
                 {
-                    data: "name",
+                    data: "date",
                 },
                 {
-                    data: "variation_name",
+                    data: "serial_no",
                 },
                 {
-                    data: "hsn_hac",
+                    data: "amount",
                 },
                 {
-                    data: "status",
-                    render: (data, type, row) => {
-                        const statusBadge = row.status === "active" ?
-                            '<span class="badge bg-label-success me-1">Active</span>' :
-                            '<span class="badge bg-label-danger me-1">Inactive</span>';
-                        return statusBadge;
-                    },
+                    data: "payment_take",
+                },
+                {
+                    data: "payment_type",
+                },
+                {
+                    data: "description",
                 },
                 {
                     data: "action",
                     render: (data, type, row) => {
-                        const statusButton = row.status === "inactive"
-                            ? `<button type="button" class="btn btn-sm btn-success" onclick="updateUserStatus(${row.id}, 'active')">Activate</button>`
-                            : `<button type="button" class="btn btn-sm btn-danger" onclick="updateUserStatus(${row.id}, 'inactive')">Deactivate</button>`;
+                        const deleteButton = `<button type="button" class="btn btn-sm btn-danger" onclick="delete(${row.id})">Delete</button>`;
+                        const editButton = `<button type="button" class="btn btn-sm btn-warning" onclick="editbankcash(${row.id})">Edit</button>`;
 
-                        const deleteButton = `<button type="button" class="btn btn-sm btn-danger" onclick="deleteUser(${row.id})">Delete</button>`;
-                        const editButton = `<button type="button" class="btn btn-sm btn-warning" onclick="editUser(${row.id})">Edit</button>`;
-
-                        return `${statusButton} ${deleteButton} ${editButton}`;
+                        return `${deleteButton} ${editButton}`;
                     },
                 },
 
@@ -197,11 +201,12 @@
 
             // Collect form data
             let data = {
-                name: $('#name').val(),
+                date: $('#date').val(),
+                serial_no: $('#serial_no').val(),
+                amount: $('#amount').val(),
+                payment_take : $('#payment_take').val(),
+                payment_type: $('#payment_type').val(),
                 description: $('#description').val(),
-                variation_id: $('#variation_id').val(),
-                hsn_hac : $('#hsn_hac').val(),
-                tax_id: $('#tax_id').val(),
                 _token: $('meta[name="csrf-token"]').attr('content') // CSRF token
             };
 
@@ -210,7 +215,7 @@
             $('.error-text').text('');
 
             $.ajax({
-                url: '{{ route('company.item.store') }}', // Adjust the route as necessary
+                url: '{{ route('company.bank.and.cash.store') }}', // Adjust the route as necessary
                 type: 'POST',
                 data: data,
                 success: function(response) {
@@ -239,20 +244,21 @@
             });
         });
 
-        // Define editUser function
-        function editUser(userId) {
-            const url = '{{ route("company.item.get", ":userid") }}'.replace(":userid", userId);
+        // Define editbankcash function
+        function editbankcash(userId) {
+            const url = '{{ route("company.bank.and.cash.get", ":userid") }}'.replace(":userid", userId);
             $.ajax({
                 url: url, // Update this URL to match your route
                 method: 'GET',
                 success: function(data) {
                     // Populate modal fields with the retrieved data
-                    $('#compid').val(data.id);
-                    $('#editname').val(data.name);
-                    $('#editdescription').val(data.description);
-                    $('#editvariation_id').val(data.variation_id);
-                    $('#edithsn_hac').val(data.hsn_hac);
-                    $('#edittax_id').val(data.tax_id);
+                    $('#editid').val(data.id);
+                    $('#editdate').val(data.date);
+                    $('#edit_serial_no').val(data.serial_no);
+                    $('#edit_payment_take').val(data.payment_take);
+                    $('#edit_payment_type').val(data.payment_type);
+                    $('#edit_amount').val(data.amount);
+                    $('#edit_description').val(data.description);
 
                     // Open the modal
                     $('#editModal').modal('show');
@@ -265,18 +271,19 @@
         }
 
         // Handle form submission
-        $('#EditComapany').on('click', function() {
-            const userId = $('#compid').val(); // Ensure userId is available in the scope
+        $('#EditBankAndCash').on('click', function() {
+            const userId = $('#editid').val(); // Ensure userId is available in the scope
             $.ajax({
-                url: '{{ route('company.item.update') }}', // Update this URL to match your route
+                url: '{{ route('company.bank.and.cash.update') }}', // Update this URL to match your route
                 method: 'POST',
                 data: {
                     _token: $('meta[name="csrf-token"]').attr('content'),
-                    name: $('#editname').val(),
-                    description: $('#editdescription').val(),
-                    variation_id: $('#editvariation_id').val(),
-                    hsn_hac: $('#edithsn_hac').val(),
-                    tax_id: $('#edittax_id').val(),
+                    date: $('#editdate').val(),
+                    serial_no: $('#edit_serial_no').val(),
+                    payment_take: $('#edit_payment_take').val(),
+                    payment_type: $('#edit_payment_type').val(),
+                    amount: $('#edit_amount').val(),
+                    description: $('#edit_description').val(),
                     id: userId // Ensure userId is in scope or adjust accordingly
                 },
                 success: function(response) {
@@ -296,44 +303,6 @@
                 }
             });
         });
-
-        // Update user status
-        function updateUserStatus(userId, status) {
-            const message = status === "active" ? "Item will be able to log in after activation." : "Item will not be able to log in after deactivation.";
-
-            Swal.fire({
-                title: "Are you sure?",
-                text: message,
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#3085d6",
-                cancelButtonColor: "#d33",
-                confirmButtonText: "Okay",
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    $.ajax({
-                        type: "POST",
-                        url: "{{ route('company.item.status') }}",
-                        data: { userId, status, _token: $('meta[name="csrf-token"]').attr('content') },
-                        success: function (response) {
-                            console.log(response);
-                            if (response.success == true) {
-                                const successMessage = status === "active" ? "Item activated successfully." : "Item deactivated successfully.";
-                                setFlash("success", successMessage);
-                            } else {
-                                setFlash("error", "There was an issue changing the status. Please contact your system administrator.");
-                            }
-                            table.ajax.reload(); // Reload DataTable
-                        },
-                        error: function () {
-                            setFlash("error", "There was an issue processing your request. Please try again later.");
-                        },
-                    });
-                } else {
-                    table.ajax.reload(); // Reload DataTable
-                }
-            });
-        };
 
         // Delete user
         function deleteUser(userId) {
@@ -377,9 +346,8 @@
         }
 
         // Expose functions to global scope
-        window.updateUserStatus = updateUserStatus;
         window.deleteUser = deleteUser;
-        window.editUser = editUser;
+        window.editbankcash = editbankcash;
     });
 
 </script>

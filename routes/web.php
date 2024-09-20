@@ -22,7 +22,8 @@ use App\Http\Controllers\Company\{
     PurchesReportController,
     SalesReportController,
     ReceiptBookReportController,
-    PaymentBookReportController
+    PaymentBookReportController,
+    BankAndCashMangementController
 };
 
 
@@ -241,6 +242,18 @@ Route::prefix('company')->name('company.')->group(function () {
             Route::get('/', 'index')->name('index');
             Route::get('all', 'getall')->name('getall');
             Route::get('/print/{id}', 'print')->name('print'); // Print route
+        });
+
+
+        // Bank And Cash Management Routes
+        Route::prefix('bank-and-cash')->name('bank.and.cash.')->controller(BankAndCashMangementController::class)->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('all', 'getall')->name('getall');
+            Route::post('/store', 'store')->name('store');
+            Route::delete('/delete/{id}', 'destroy')->name('destroy');
+            Route::get('get/{id}', 'get')->name('get');
+            Route::post('update', 'update')->name('update');
+            Route::delete('delete/{id}','destroy')->name('destroy');
         });
 
     });
