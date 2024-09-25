@@ -54,7 +54,8 @@ class BankAndCashMangementController extends Controller
             'amount' => 'required',
             'payment_take' => 'required',
             'payment_type' => 'required',
-            'description' => 'required'
+            'description' => 'required',
+            'particular' => 'required'
         ];
 
         // Validate the request data
@@ -79,6 +80,7 @@ class BankAndCashMangementController extends Controller
             'payment_take' => $request->payment_take,
             'payment_type' => $request->payment_type,
             'description' => $request->description,
+            'particular' => $request->particular,
             'company_id' => $compId
         ];
         BankAndCash::create($dataUser);
@@ -106,6 +108,7 @@ class BankAndCashMangementController extends Controller
             'payment_take' => 'required',
             'payment_type' => 'required',
             'description' => 'required',
+            'particular' => 'required',
             'id' => 'required|integer|exists:bank_and_cashes,id', // Adjust as needed
         ]);
 

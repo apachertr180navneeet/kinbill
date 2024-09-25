@@ -42,6 +42,13 @@
             </ul>
         </li>
 
+        <li class="menu-item {{ request()->routeIs('company.bank.and.cash.') ? 'active' : '' }}">
+            <a href="{{ route('company.bank.and.cash.index') }}" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-home-circle"></i>
+                <div data-i18n="Dashboard">Bank And Cash</div>
+            </a>
+        </li>
+
         {{--  Process menu  --}}
         <li class="menu-item {{ request()->routeIs(['company.purches.book.*', 'company.sales.book.*', 'company.receipt.book.voucher.*', 'company.payment.book.*']) ? 'active open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
@@ -66,7 +73,7 @@
         </li>
 
          {{--  Report menu  --}}
-         <li class="menu-item {{ request()->routeIs(['company.purches.report.*', 'company.sales.report.*']) ? 'active open' : '' }}">
+         <li class="menu-item {{ request()->routeIs(['company.purches.report.*', 'company.sales.report.*', 'company.receipt.report.*', 'company.payment.report.*', 'company.payment.report.*']) ? 'active open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon tf-icons bx bx-home-circle"></i>
                 <div class="text-truncate" data-i18n="Master">Report</div>
@@ -77,6 +84,7 @@
                     ['route' => 'company.sales.report.index', 'text' => 'Sales Report'],
                     ['route' => 'company.receipt.report.index', 'text' => 'Receipt Book Report'],
                     ['route' => 'company.payment.report.index', 'text' => 'Payment Book Report'],
+                    ['route' => 'company.bank.and.cash.report.index', 'text' => 'Bank And Cash Report'],
                 ] as $reportmenu)
                     <li class="menu-item {{ request()->routeIs($reportmenu['route']) ? 'active' : '' }}">
                         <a href="{{ route($reportmenu['route']) }}" class="menu-link">
@@ -88,13 +96,6 @@
             </ul>
         </li>
 
-
-        <li class="menu-item {{ request()->routeIs('company.bank.and.cash.') ? 'active' : '' }}">
-            <a href="{{ route('company.bank.and.cash.index') }}" class="menu-link">
-                <i class="menu-icon tf-icons bx bx-home-circle"></i>
-                <div data-i18n="Dashboard">Bank And Cash</div>
-            </a>
-        </li>
 
 
 

@@ -22,6 +22,7 @@
                                 <tr>
                                     <th>Date</th>
                                     <th>Serial No.</th>
+                                    <th>Particular</th>
                                     <th>Amount</th>
                                     <th>Payment(Deposit,Withdraw)</th>
                                     <th>Payment Type(Cash,Bank)</th>
@@ -75,7 +76,12 @@
                         </select>
                         <small class="error-text text-danger"></small>
                     </div>
-                    <div class="col-md-12 mb-3">
+                    <div class="col-md-6 mb-3">
+                        <label for="particular" class="form-label">Particular</label>
+                        <input type="text" id="particular" class="form-control" placeholder="Enter Particular" />
+                        <small class="error-text text-danger"></small>
+                    </div>
+                    <div class="col-md-6 mb-3">
                         <label for="amount" class="form-label">Amount</label>
                         <input type="text" id="amount" class="form-control" placeholder="Enter Amount" />
                         <small class="error-text text-danger"></small>
@@ -134,7 +140,12 @@
                         </select>
                         <small class="error-text text-danger"></small>
                     </div>
-                    <div class="col-md-12 mb-3">
+                    <div class="col-md-6 mb-3">
+                        <label for="edit_particular" class="form-label">Particular</label>
+                        <input type="text" id="edit_particular" class="form-control" placeholder="Enter Amount" />
+                        <small class="error-text text-danger"></small>
+                    </div>
+                    <div class="col-md-6 mb-3">
                         <label for="edit_amount" class="form-label">Amount</label>
                         <input type="text" id="edit_amount" class="form-control" placeholder="Enter Amount" />
                         <small class="error-text text-danger"></small>
@@ -169,6 +180,9 @@
                 },
                 {
                     data: "serial_no",
+                },
+                {
+                    data: "particular",
                 },
                 {
                     data: "amount",
@@ -207,13 +221,13 @@
                 payment_take : $('#payment_take').val(),
                 payment_type: $('#payment_type').val(),
                 description: $('#description').val(),
+                particular: $('#particular').val(),
                 _token: $('meta[name="csrf-token"]').attr('content') // CSRF token
             };
 
 
             // Clear previous validation error messages
             $('.error-text').text('');
-
             $.ajax({
                 url: '{{ route('company.bank.and.cash.store') }}', // Adjust the route as necessary
                 type: 'POST',
@@ -259,6 +273,7 @@
                     $('#edit_payment_type').val(data.payment_type);
                     $('#edit_amount').val(data.amount);
                     $('#edit_description').val(data.description);
+                    $('#edit_particular').val(data.particular);
 
                     // Open the modal
                     $('#editModal').modal('show');
@@ -284,6 +299,7 @@
                     payment_type: $('#edit_payment_type').val(),
                     amount: $('#edit_amount').val(),
                     description: $('#edit_description').val(),
+                    particular: $('#edit_particular').val(),
                     id: userId // Ensure userId is in scope or adjust accordingly
                 },
                 success: function(response) {

@@ -23,7 +23,8 @@ use App\Http\Controllers\Company\{
     SalesReportController,
     ReceiptBookReportController,
     PaymentBookReportController,
-    BankAndCashMangementController
+    BankAndCashMangementController,
+    BankAndCashReportController
 };
 
 
@@ -254,6 +255,12 @@ Route::prefix('company')->name('company.')->group(function () {
             Route::get('get/{id}', 'get')->name('get');
             Route::post('update', 'update')->name('update');
             Route::delete('delete/{id}','destroy')->name('destroy');
+        });
+
+        // Sales Report Management Routes
+        Route::prefix('bank-and-cash-report')->name('bank.and.cash.report.')->controller(BankAndCashReportController::class)->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('all', 'getall')->name('getall');
         });
 
     });

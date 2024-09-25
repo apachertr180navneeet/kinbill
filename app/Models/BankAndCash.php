@@ -21,6 +21,6 @@ class BankAndCash extends Model
      * @var array
      */
     protected $fillable = [
-        'date', 'serial_no', 'amount', 'payment_take', 'payment_type', 'description', 'status', 'company_id' // Add all the attributes you want to be mass assignable
+        'date', 'serial_no', 'amount', 'payment_take', 'payment_type', 'description', 'status', 'company_id', 'particular' // Add all the attributes you want to be mass assignable
     ];
 }
