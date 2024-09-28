@@ -80,6 +80,11 @@
                         <input type="text" id="hsn_hac" class="form-control" placeholder="Enter HSN/HAC" />
                         <small class="error-text text-danger"></small>
                     </div>
+                    <div class="col-md-12 mb-3">
+                        <label for="opening_stock" class="form-label">Opening Stock</label>
+                        <input type="text" id="opening_stock" class="form-control" placeholder="Enter Opening Stock" />
+                        <small class="error-text text-danger"></small>
+                    </div>
                 </div>
             </div>
             <div class="modal-footer">
@@ -202,6 +207,7 @@
                 variation_id: $('#variation_id').val(),
                 hsn_hac : $('#hsn_hac').val(),
                 tax_id: $('#tax_id').val(),
+                opening_stock: $('#opening_stock').val(),
                 _token: $('meta[name="csrf-token"]').attr('content') // CSRF token
             };
 

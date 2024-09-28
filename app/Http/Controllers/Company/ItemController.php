@@ -8,7 +8,8 @@ use App\Models\{
         User,
         Variation,
         Item,
-        Tax
+        Tax,
+        StockReport
     };
 use Mail, DB, Hash, Validator, Session, File, Exception, Redirect, Auth;
 
@@ -101,7 +102,8 @@ class ItemController extends Controller
             'description' => 'required',
             'variation_id' => 'required',
             'tax_id' => 'required',
-            'hsn_hac' => 'required'
+            'hsn_hac' => 'required|unique:items,hsn_hac',
+            'opening_stock' => 'required',
         ];
 
         // Validate the request data
@@ -124,10 +126,15 @@ class ItemController extends Controller
             'variation_id' => $request->variation_id,
             'tax_id' => $request->tax_id,
             'hsn_hac' => $request->hsn_hac,
-            'company_id' => $compId
+            'company_id' =>  $compId
         ];
-        Item::create($dataUser);
+        $item = Item::create($dataUser);
+        $itemId = $item->id;
 
+        StockReport::create([
+            'item_id' => $itemId,
+            'quantity' => $request->opening_stock,
+        ]);
         return response()->json([
             'success' => true,
             'message' => 'Item saved successfully!',
@@ -150,6 +157,10 @@ class ItemController extends Controller
             'variation_id' => 'required',
             'id' => 'required|integer|exists:items,id', // Adjust as needed
             'hsn_hac' => 'required',
+            'hsn_hac' => [
+                'required',
+                Rule::unique('items', 'hsn_hac')->ignore($request->id), // Ensure account number is unique, ignoring the current record
+            ],
         ]);
 
         $user = Item::find($request->id);
