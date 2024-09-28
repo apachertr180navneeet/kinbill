@@ -24,8 +24,8 @@
                                     <th>Serial No.</th>
                                     <th>Particular</th>
                                     <th>Amount</th>
-                                    <th>Payment(Deposit,Withdraw)</th>
-                                    <th>Payment Type(Cash,Bank)</th>
+                                    <th>Deposit in</th>
+                                    <th>Withdraw  From</th>
                                     <th>Description</th>
                                     <th>Action</th>
                                 </tr>
@@ -43,7 +43,7 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel1">Item Add</h5>
+                <h5 class="modal-title" id="exampleModalLabel1">Contra Add</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -59,20 +59,22 @@
                         <small class="error-text text-danger"></small>
                     </div>
                     <div class="col-md-6 mb-3">
-                        <label for="payment_take" class="form-label">Payment</label>
-                        <select id="payment_take" class="form-select form-select">
-                            <option value="">select</option>
-                            <option value="deposit">Deposit</option>
-                            <option value="withdraw">Withdraw</option>
+                        <label for="deposite_in" class="form-label">Deposit in</label>
+                        <select id="deposite_in" class="form-select form-select">
+                            <option value="">Select</option>
+                            @foreach ($bankLists as $bankList)
+                                <option value="{{ $bankList->id }}">{{ $bankList->bank_name }}</option>
+                            @endforeach
                         </select>
                         <small class="error-text text-danger"></small>
                     </div>
                     <div class="col-md-6 mb-3">
-                        <label for="payment_type" class="form-label">Payment Type</label>
-                        <select id="payment_type" class="form-select form-select">
-                            <option value="">select</option>
-                            <option value="cash">Cash</option>
-                            <option value="bank">Bank</option>
+                        <label for="withdraw_in" class="form-label">Withdraw From</label>
+                        <select id="withdraw_in" class="form-select form-select">
+                            <option value="">Select</option>
+                            @foreach ($bankLists as $bankList)
+                                <option value="{{ $bankList->id }}">{{ $bankList->bank_name }}</option>
+                            @endforeach
                         </select>
                         <small class="error-text text-danger"></small>
                     </div>
@@ -105,7 +107,7 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel1">Item Add</h5>
+                <h5 class="modal-title" id="exampleModalLabel1">Contra Edit</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
@@ -123,20 +125,22 @@
                         <small class="error-text text-danger"></small>
                     </div>
                     <div class="col-md-6 mb-3">
-                        <label for="edit_payment_take" class="form-label">Payment</label>
-                        <select id="edit_payment_take" class="form-select form-select">
-                            <option value="">select</option>
-                            <option value="deposit">Deposit</option>
-                            <option value="withdraw">Withdraw</option>
+                        <label for="edit_deposite_in" class="form-label">Deposit in</label>
+                        <select id="edit_deposite_in" class="form-select form-select">
+                            <option value="">Select</option>
+                            @foreach ($bankLists as $bankList)
+                                <option value="{{ $bankList->id }}">{{ $bankList->bank_name }}</option>
+                            @endforeach
                         </select>
                         <small class="error-text text-danger"></small>
                     </div>
                     <div class="col-md-6 mb-3">
-                        <label for="edit_payment_type" class="form-label">Payment Type</label>
-                        <select id="edit_payment_type" class="form-select form-select">
-                            <option value="">select</option>
-                            <option value="cash">Cash</option>
-                            <option value="bank">Bank</option>
+                        <label for="edit_withdraw_in" class="form-label">Withdraw From</label>
+                        <select id="edit_withdraw_in" class="form-select form-select">
+                            <option value="">Select</option>
+                            @foreach ($bankLists as $bankList)
+                                <option value="{{ $bankList->id }}">{{ $bankList->bank_name }}</option>
+                            @endforeach
                         </select>
                         <small class="error-text text-danger"></small>
                     </div>
@@ -188,10 +192,10 @@
                     data: "amount",
                 },
                 {
-                    data: "payment_take",
+                    data: "deposite_bank_name",
                 },
                 {
-                    data: "payment_type",
+                    data: "withdraw_bank_name",
                 },
                 {
                     data: "description",
@@ -218,8 +222,8 @@
                 date: $('#date').val(),
                 serial_no: $('#serial_no').val(),
                 amount: $('#amount').val(),
-                payment_take : $('#payment_take').val(),
-                payment_type: $('#payment_type').val(),
+                deposite_in : $('#deposite_in').val(),
+                withdraw_in: $('#withdraw_in').val(),
                 description: $('#description').val(),
                 particular: $('#particular').val(),
                 _token: $('meta[name="csrf-token"]').attr('content') // CSRF token
@@ -264,13 +268,27 @@
             $.ajax({
                 url: url, // Update this URL to match your route
                 method: 'GET',
-                success: function(data) {
+                success: function(response) {
+                    const data = response.bankCash;
+                    const banks = response.banks;
+
                     // Populate modal fields with the retrieved data
                     $('#editid').val(data.id);
                     $('#editdate').val(data.date);
                     $('#edit_serial_no').val(data.serial_no);
-                    $('#edit_payment_take').val(data.payment_take);
-                    $('#edit_payment_type').val(data.payment_type);
+                    // Populate Deposit In dropdown and select the current value
+                    let depositOptions = '<option value="">Select</option>';
+                    banks.forEach(bank => {
+                        depositOptions += `<option value="${bank.id}" ${bank.id == data.deposite_in ? 'selected' : ''}>${bank.bank_name}</option>`;
+                    });
+                    $('#edit_deposite_in').html(depositOptions);
+
+                    // Populate Withdraw From dropdown and select the current value
+                    let withdrawOptions = '<option value="">Select</option>';
+                    banks.forEach(bank => {
+                        withdrawOptions += `<option value="${bank.id}" ${bank.id == data.withdraw_in ? 'selected' : ''}>${bank.bank_name}</option>`;
+                    });
+                    $('#edit_withdraw_in').html(withdrawOptions);
                     $('#edit_amount').val(data.amount);
                     $('#edit_description').val(data.description);
                     $('#edit_particular').val(data.particular);
@@ -295,8 +313,8 @@
                     _token: $('meta[name="csrf-token"]').attr('content'),
                     date: $('#editdate').val(),
                     serial_no: $('#edit_serial_no').val(),
-                    payment_take: $('#edit_payment_take').val(),
-                    payment_type: $('#edit_payment_type').val(),
+                    deposite_in: $('#edit_deposite_in').val(),
+                    withdraw_in: $('#edit_withdraw_in').val(),
                     amount: $('#edit_amount').val(),
                     description: $('#edit_description').val(),
                     particular: $('#edit_particular').val(),

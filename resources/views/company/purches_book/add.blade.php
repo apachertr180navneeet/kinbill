@@ -326,11 +326,11 @@
 
                 // Update the total tax and grand total fields
                 if (companyStateValue == selectedState) {
-                    $('#igst').val(totalTax.toFixed(2));
-                } else {
                     var cgst = totalTax / 2;
                     $('#cgst').val(cgst.toFixed(2));
                     $('#sgst').val(cgst.toFixed(2));
+                } else {
+                    $('#igst').val(totalTax.toFixed(2));
                 }
                 updateGrandTotal();
 

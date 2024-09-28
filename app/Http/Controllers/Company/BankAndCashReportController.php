@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Company;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\{User, BankAndCash};
+use App\Models\{User, BankAndCash, Bank};
 use Illuminate\Support\Facades\{Auth, DB, Mail, Hash, Validator, Session};
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Redirect;

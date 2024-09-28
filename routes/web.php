@@ -13,6 +13,7 @@ use App\Http\Controllers\Company\{
     VariationController,
     TaxController,
     ItemController,
+    BankController,
     VendorController,
     CustomerController,
     PurchesBookController,
@@ -154,7 +155,7 @@ Route::prefix('company')->name('company.')->group(function () {
         });
 
         // Resource Management Routes (Variation, Tax, Item, Vendor, Customer)
-        foreach (['variation', 'tax', 'item', 'vendor', 'customer'] as $resource) {
+        foreach (['variation', 'tax', 'item', 'vendor', 'customer','bank'] as $resource) {
             Route::prefix($resource)->name("$resource.")->group(function () use ($resource) {
                 $controller = "App\Http\Controllers\Company\\" . ucfirst($resource) . "Controller";
                 Route::get('/', [$controller, 'index'])->name('index');

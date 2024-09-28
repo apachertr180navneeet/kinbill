@@ -19,7 +19,7 @@
         </li>
 
         {{--  Master Menu  --}}
-        <li class="menu-item {{ request()->routeIs('company.variation.*') || request()->routeIs('company.tax.*') || request()->routeIs('company.item.*') || request()->routeIs('company.vendor.*') || request()->routeIs('company.customer.*') ? 'active open' : '' }}">
+        <li class="menu-item {{ request()->routeIs('company.variation.*') || request()->routeIs('company.tax.*') || request()->routeIs('company.item.*') || request()->routeIs('company.vendor.*') || request()->routeIs('company.customer.*') || request()->routeIs('company.bank.*')  ? 'active open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon tf-icons bx bx-home-circle"></i>
                 <div class="text-truncate" data-i18n="Master">Master</div>
@@ -27,7 +27,7 @@
             <ul class="menu-sub">
                 @foreach([
                     ['route' => 'company.variation.index', 'text' => 'Variation'],
-                    //['route' => 'company.tax.index', 'text' => 'Tax'],
+                    ['route' => 'company.bank.index', 'text' => 'Bank'],
                     ['route' => 'company.item.index', 'text' => 'Item'],
                     ['route' => 'company.vendor.index', 'text' => 'Vendor'],
                     ['route' => 'company.customer.index', 'text' => 'Customer'],

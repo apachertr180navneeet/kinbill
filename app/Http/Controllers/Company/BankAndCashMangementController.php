@@ -7,7 +7,9 @@ use Illuminate\Http\Request;
 
 use App\Models\{
     User,
-    BankAndCash
+    BankAndCash,
+    Bank
+
 };
 use Mail, DB, Hash, Validator, Session, File, Exception, Redirect, Auth;
 
@@ -24,7 +26,9 @@ class BankAndCashMangementController extends Controller
 
         $compId = $user->company_id;
 
-        return view('company.bankandcash.index');
+        $bankLists = Bank::where('company_id',$compId)->get();
+
+        return view('company.bankandcash.index',compact('bankLists'));
     }
 
     /**
@@ -39,7 +43,15 @@ class BankAndCashMangementController extends Controller
 
         $compId = $user->company_id;
 
-        $bankandcash = BankAndCash::where('company_id',$compId)->get();
+        $bankandcash = BankAndCash::where('bank_and_cashes.company_id', $compId)
+            ->leftJoin('banks as deposite_bank', 'deposite_bank.id', '=', 'bank_and_cashes.deposite_in') // Join for deposite_in
+            ->leftJoin('banks as withdraw_bank', 'withdraw_bank.id', '=', 'bank_and_cashes.withdraw_in') // Join for withdraw_in
+            ->select(
+                'bank_and_cashes.*',
+                'deposite_bank.bank_name as deposite_bank_name',  // Select the name of the bank for deposite_in
+                'withdraw_bank.bank_name as withdraw_bank_name'   // Select the name of the bank for withdraw_in
+            )
+            ->get();
 
         return response()->json(['data' => $bankandcash]);
     }
@@ -52,8 +64,8 @@ class BankAndCashMangementController extends Controller
             'date' => 'required',
             'serial_no' => 'required|string|unique:bank_and_cashes',
             'amount' => 'required',
-            'payment_take' => 'required',
-            'payment_type' => 'required',
+            'deposite_in' => 'required',
+            'withdraw_in' => 'required',
             'description' => 'required',
             'particular' => 'required'
         ];
@@ -77,8 +89,8 @@ class BankAndCashMangementController extends Controller
             'date' => $request->date,
             'serial_no' => $request->serial_no,
             'amount' => $request->amount,
-            'payment_take' => $request->payment_take,
-            'payment_type' => $request->payment_type,
+            'deposite_in' => $request->deposite_in,
+            'withdraw_in' => $request->withdraw_in,
             'description' => $request->description,
             'particular' => $request->particular,
             'company_id' => $compId
@@ -94,8 +106,14 @@ class BankAndCashMangementController extends Controller
     // Fetch user data
     public function get($id)
     {
-        $user = BankAndCash::find($id);
-        return response()->json($user);
+        $bankCash = BankAndCash::find($id);
+        // Fetch the list of banks (assuming you have a Bank model)
+        $banks = Bank::all();
+
+        return response()->json([
+            'bankCash' => $bankCash,
+            'banks' => $banks
+        ]);
     }
 
     // Update user data
@@ -105,8 +123,8 @@ class BankAndCashMangementController extends Controller
             'date' => 'required',
             'serial_no' => 'required|string',
             'amount' => 'required',
-            'payment_take' => 'required',
-            'payment_type' => 'required',
+            'deposite_in' => 'required',
+            'withdraw_in' => 'required',
             'description' => 'required',
             'particular' => 'required',
             'id' => 'required|integer|exists:bank_and_cashes,id', // Adjust as needed
