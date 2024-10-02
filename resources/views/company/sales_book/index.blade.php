@@ -47,6 +47,7 @@
         // Base URL for the edit route
         const baseUrl = "{{ route('company.sales.book.edit', ['id' => ':id']) }}";
         const printBaseUrl = "{{ route('company.sales.report.print', ['id' => ':id']) }}";
+        const sReturnbaseUrl = "{{ route('company.sales.book.sreturn', ['id' => ':id']) }}";
 
         const table = $('#variationTable').DataTable({
             processing: true,
@@ -65,7 +66,8 @@
                         const deleteButton = `<button type="button" class="btn btn-sm btn-danger" onclick="deleteSales(${data})">Delete</button>`;
                         const editButton = `<a href="${baseUrl.replace(':id', data)}" class="btn btn-sm btn-info">View</a>`;
                         const printButton = `<a href="${printBaseUrl.replace(':id', data)}" class="btn btn-sm btn-info">Print</a>`;
-                        return `${deleteButton} ${editButton} ${printButton}`;
+                        const sReturnButton = `<a href="${sReturnbaseUrl.replace(':id', data)}" class="btn btn-sm btn-success">S-Return</a>`;
+                        return `${deleteButton} ${editButton} ${printButton} ${sReturnButton}`;
                     },
                 },
             ],

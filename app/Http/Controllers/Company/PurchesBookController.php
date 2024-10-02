@@ -363,6 +363,7 @@ class PurchesBookController extends Controller
                     'rate' => $amount,
                     'tax' => $tax,
                     'amount' => $total,
+                    'purches_book_id' => $id,
                 ]);
             } else {
                 // Handle the case where the item does not exist
@@ -386,7 +387,7 @@ class PurchesBookController extends Controller
         $companyShortCode = $companyDetails->short_code;
         $companyState = $companyDetails->state;
 
-        $purchaseBook = PurchesBook::with('purchesbookitem.item.variation')->find($id);
+        $purchaseBook = PurchesBook::with('purchesbookitem.item.variation','purchesbookitem.item.tax')->find($id);
 
 
         // Fetch all active vendors for the user's company
@@ -405,5 +406,57 @@ class PurchesBookController extends Controller
         return view('company.purches_book.preturn', compact('purchaseBook', 'vendors', 'items','companyState'));
     }
 
+    public function preturn_update(Request $request, $id)
+    {
+        DB::beginTransaction();
+        try {
+            // Loop through each item in the request and update the stock and purchase book
+            foreach ($request->items as $index => $itemId) {
+                $quantity = $request->quantities[$index];
+                $amount = $request->rates[$index];
+                $tax = $request->taxes[$index];
+                $total = $request->totalAmounts[$index];
+
+                // Retrieve the item and validate its existence
+                $item = Item::find($itemId);
+                if (!$item) {
+                    return redirect()->back()->withInput()->withErrors(["Item with ID $itemId does not exist."]);
+                }
+
+                // Find the existing PurchesBookItem entry
+                $existingPurchesBookItem = PurchesBookItem::where('item_id', $itemId)
+                    ->where('purches_book_id', $id)
+                    ->first();
+
+                // Update or create the PurchesBookItem entry if quantity has changed or record doesn't exist
+                if (!$existingPurchesBookItem || $existingPurchesBookItem->preturn != $quantity) {
+                    PurchesBookItem::updateOrCreate(
+                        ['item_id' => $itemId, 'purches_book_id' => $id],
+                        [
+                            'preturn' => $quantity,
+                            'rate' => $amount,
+                            'tax' => $tax,
+                            'amount' => $total
+                        ]
+                    );
+                }
+
+                $stkqty = $existingPurchesBookItem->quantity - $quantity;
+                // Update stock report
+                $stockReport = StockReport::where('item_id', $itemId)->first();
+                if ($stockReport) {
+                    $stockReport->decrement('quantity', $stkqty);
+                }
+            }
+
+            DB::commit();
+
+            return redirect()->route('company.purches.book.index')->with('success', 'Return Added successfully.');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()->withInput()->withErrors(['error' => 'An error occurred while updating the return.']);
+        }
+    }
 
 }

@@ -249,6 +249,31 @@
         let grandTotal = 0;
         let amountBeforeTax = 0;
 
+         // Vendor change handler
+         $('#customer').on('change', function() {
+            // Get the selected vendor state and company state
+            const selectedState = $('#customer option:selected').data('state');
+            const companyStateValue = $('#companyState').val();
+
+            console.log(selectedState  + ' =' + companyStateValue);
+
+            // Reset tax values
+            $('#cgst').val('0');
+            $('#sgst').val('0');
+            $('#igst').val('0');
+
+            // Update IGST/CGST/SGST based on the states comparison
+            if (companyStateValue == selectedState) {
+                // CGST and SGST will apply
+                const cgst = totalTax / 2;
+                $('#cgst').val(cgst.toFixed(2));
+                $('#sgst').val(cgst.toFixed(2));
+            } else {
+                // IGST will apply
+                $('#igst').val(totalTax.toFixed(2));
+            }
+        });
+
         // Function to update the grand total field based on other expenses, discounts, and round off values
         function updateGrandTotal() {
             const otherExpense = parseFloat($('#other_expense').val()) || 0;

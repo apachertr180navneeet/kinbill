@@ -9,17 +9,16 @@
     <div class="row">
         <div class="col-md-6 text-start">
             <h5 class="py-2 mb-2">
-                <span class="text-primary fw-light">Edit Sales Book</span>
+                <span class="text-primary fw-light">Sale Return</span>
             </h5>
         </div>
     </div>
-    <form role="form" action="{{ route('company.sales.book.update', $salesBook->id) }}" method="post" id="Sales_edit" enctype="multipart/form-data">
+    <form role="form" action="{{ route('company.sales.book.spreturn.save', $salesBook->id) }}" method="post" id="Sales_edit" enctype="multipart/form-data">
         @csrf
-        @method('PUT')
         <div class="row">
             <div class="col-xl-12 col-lg-12">
                 <div class="card mb-4">
-                    <h5 class="card-header">Edit Sales</h5>
+                    <h5 class="card-header">Sales Return</h5>
                     <div class="card-body">
                         <!-- Purchase details form -->
                         <div class="row">
@@ -59,12 +58,10 @@
                                     <th>S. No.</th>
                                     <th>Item</th>
                                     <th>Quantity</th>
-                                    <th>Return</th>
                                     <th>Variation</th>
                                     <th>Rate</th>
                                     <th>Tax</th>
                                     <th>Total Amount</th>
-                                    {{--  <th>Action</th>  --}}
                                 </tr>
                             </thead>
                             <tbody>
@@ -73,12 +70,11 @@
                                     <tr>
                                         <td>{{ $index + 1 }}</td>
                                         <td>{{ $item->item->name }}<input type="hidden" name="items[]" value="{{ $item->item_id }}"></td>
-                                        <td>{{ $item->quantity ?? 'N/A' }}<input type="hidden" name="quantities[]" value="{{ $item->quantity }}"></td>
-                                        <td>{{ $item->sreturn ?? 'N/A' }}<input type="hidden" name="sreturn[]" value="{{ $item->sreturn }}"></td>
+                                        <td><input type="text" class="form-control itemQty" name="quantities[]"  value="{{ $item->quantity }}" max="{{ $item->quantity }}" min="1"></td>
                                         <td>{{ $item->item->variation->name }}</td>
-                                        <td>{{ number_format(floatval($item->rate ?? 0), 2) }}<input type="hidden" name="rates[]" value="{{ number_format(floatval($item->rate ?? 0), 2) }}"></td>
-                                        <td>{{ number_format(floatval($item->tax ?? 0), 2) }}<input type="hidden" name="taxes[]" value="{{ number_format(floatval($item->tax ?? 0), 2) }}"></td>
-                                        <td>{{ number_format(floatval($item->amount ?? 0), 2) }}<input type="hidden" name="totalAmounts[]" value="{{ number_format(floatval($item->amount ?? 0), 2) }}"></td>
+                                        <td>{{ number_format(floatval($item->rate ?? 0), 2) }}<input type="hidden" name="taxespercent[]" value="{{ $item->item->tax->rate }}"><input type="hidden" name="rates[]" value="{{ $item->rate }}"></td>
+                                        <td><span class="taxAmountDisplay">{{ number_format(floatval($item->tax ?? 0), 2) }}</span><input type="hidden" name="taxes[]" value="{{ number_format(floatval($item->tax ?? 0), 2) }}"></td>
+                                        <td><span class="totalAmountDisplay">{{ number_format(floatval($item->amount ?? 0), 2) }}</span><input type="hidden" name="totalAmounts[]" value="{{ $item->amount }}"></td>
                                         {{--  <td><button type="button" class="btn btn-danger btn-sm removeItem">Remove</button></td>  --}}
                                     </tr>
                                 @endforeach
@@ -175,30 +171,12 @@
                                 <input type="text" class="form-control" id="grand_total" name="grand_total" value="{{ number_format( (float)$salesBook->grand_total, 2) }}" min="0" readonly>
                             </div>
                         </div>
-                        <!-- Given Amount -->
+                    </div>
+                    <!-- Save button -->
+                    <div class="card-body">
                         <div class="row">
-                            <div class="col-md-3 mb-3"></div>
-                            <div class="col-md-5 mb-3">
-                                <label for="received_amount" class="form-label text-end">Received Amount</label>
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <input type="text" class="form-control" id="received_amount" name="received_amount" value="{{ number_format( (float)$salesBook->recived_amount, 2) }}" min="0">
-                                @error('received_amount')
-                                    <div class="text-danger">{{ $message }}</div>
-                                @enderror
-                            </div>
-                        </div>
-                        <!-- Remaining Balance -->
-                        <div class="row">
-                            <div class="col-md-3 mb-3"></div>
-                            <div class="col-md-5 mb-3">
-                                <label for="balance_amount" class="form-label text-end">Balance Amount</label>
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <input type="text" class="form-control" id="balance_amount" name="balance_amount" value="{{ number_format( (float)$salesBook->balance_amount, 2) }}" min="0" readonly>
-                                @error('balance_amount')
-                                    <div class="text-danger">{{ $message }}</div>
-                                @enderror
+                            <div class="col-md-12 text-end">
+                                <button type="submit" class="btn btn-primary">Save</button>
                             </div>
                         </div>
                     </div>
@@ -211,87 +189,73 @@
 @endsection
 
 @section('script')
-
 <script>
-    $(document).ready(function() {
-        let itemCount = {{ count($salesBook->salesbookitem) }};
+    $(document).ready(function () {
+        // When the quantity is changed
+        $('#itemsTable').on('input', '.itemQty', function () {
+            var $row = $(this).closest('tr'); // Get the row of the quantity input
 
-        // Function to calculate total tax, grand total, and update fields
-        function calculateTotal() {
-            let totalTax = 0;
-            let grandTotal = 0;
+            // Parse the quantity and rate as floats
+            var quantity = $row.find('input[name="quantities[]"]').val() || 0; // Ensure this is a number
+            var rate = $row.find('input[name="rates[]"]').val() || 0; // Ensure this is a number
+            var taxPercent = $row.find('input[name="taxespercent[]"]').val() || 0; // Get the tax percentage
 
-            // Calculate total tax and grand total from items
-            $('#itemsTable tbody tr').each(function() {
-                const tax = parseFloat($(this).find('input[name="taxes[]"]').val()) || 0;
-                const totalAmount = parseFloat($(this).find('input[name="totalAmounts[]"]').val()) || 0;
+            // Calculate total amount before tax
+            var totalBeforeTax = quantity * rate;
+            console.log(rate,quantity,totalBeforeTax);
 
-                totalTax += tax;
-                grandTotal += totalAmount;
+            // Calculate tax
+            var taxAmount = (totalBeforeTax * taxPercent) / 100;
+
+            // Calculate total amount including tax
+            var totalAmount = totalBeforeTax + taxAmount;
+
+            // Update the tax and total amount fields
+            $row.find('.taxAmountDisplay').text(taxAmount.toFixed(2)); // Update the displayed tax
+            $row.find('input[name="taxes[]"]').val(taxAmount.toFixed(2)); // Update the hidden tax input
+            $row.find('.totalAmountDisplay').text(totalBeforeTax.toFixed(2)); // Update the displayed total amount
+            $row.find('input[name="totalAmounts[]"]').val(totalBeforeTax.toFixed(2)); // Update the hidden total amount input
+
+            // Optionally, update the amount before tax, total tax, and grand total at the bottom
+            updateTotals();
+        });
+
+        // Function to update the overall totals
+        function updateTotals() {
+            var totalBeforeTax = 0;
+            var totalTax = 0;
+            var grandTotal = 0;
+
+            var igst = document.getElementById("igst").value;
+            var cgst = document.getElementById("cgst").value;
+            var sgst = document.getElementById("sgst").value;
+
+            // Loop through each row to sum up the totals
+            $('#itemsTable tbody tr').each(function () {
+                var quantity = parseFloat($(this).find('.itemQty').val()) || 0;
+                var rate = parseFloat($(this).find('input[name="rates[]"]').val()) || 0;
+                var taxAmount = parseFloat($(this).find('input[name="taxes[]"]').val()) || 0;
+                var totalAmount = parseFloat($(this).find('input[name="totalAmounts[]"]').val()) || 0;
+
+                // Calculate totals
+                totalBeforeTax += quantity * rate;
+                totalTax += taxAmount;
+                grandTotal += totalAmount + totalTax;
             });
 
-            // Incorporate other expenses, discount, and round off into the grand total
-            const otherExpense = parseFloat($('#other_expense').val()) || 0;
-            const discount = parseFloat($('#discount').val()) || 0;
-            const roundOff = parseFloat($('#round_off').val()) || 0;
+            if(igst != 0){
+                $('#igst').val(totalTax.toFixed(2));
+            }else{
+                var dividetax = totalTax /2;
+                $('#cgst').val(dividetax.toFixed(2));
+                $('#sgst').val(dividetax.toFixed(2));
+            }
 
-            grandTotal = grandTotal + otherExpense - discount + roundOff;
-
-            // Update the total tax and grand total fields
-            $('#total_tax').val(totalTax.toFixed(2));
+            // Update the summary fields
+            $('#amount_before_tax').val(totalBeforeTax.toFixed(2));
+            //$('#igst').val(totalTax.toFixed(2)); // Assuming you're using IGST for simplicity
             $('#grand_total').val(grandTotal.toFixed(2));
         }
-
-        // Handle adding new items
-        $('#addItem').on('click', function() {
-            const item = $('#item option:selected');
-            const qty = parseFloat($('#qty').val());
-            const amountPerUnit = parseFloat($('#amount').val());
-            const taxRate = parseFloat(item.data('tax'));
-            const variation = item.data('variation');
-
-            if (item.val() && !isNaN(qty) && qty > 0 && !isNaN(amountPerUnit) && amountPerUnit > 0 && !isNaN(taxRate)) {
-                // Calculate the tax and total amount
-                const totalAmount = qty * amountPerUnit;
-                const tax = totalAmount * (taxRate / 100);
-                const totalWithTax = totalAmount + tax;
-
-                // Increment the item count
-                itemCount++;
-
-                // Append the new row to the items table
-                $('#itemsTable tbody').append(`
-                    <tr>
-                        <td>${itemCount}</td>
-                        <td>${item.text()}<input type="hidden" name="items[]" value="${item.val()}"></td>
-                        <td>${qty}<input type="hidden" name="quantities[]" value="${qty}"></td>
-                        <td>${variation}</td>
-                        <td>${totalAmount.toFixed(2)}<input type="hidden" name="rates[]" value="${totalAmount.toFixed(2)}"></td>
-                        <td>${tax.toFixed(2)}<input type="hidden" name="taxes[]" value="${tax.toFixed(2)}"></td>
-                        <td>${totalWithTax.toFixed(2)}<input type="hidden" name="totalAmounts[]" value="${totalWithTax.toFixed(2)}"></td>
-                        <td><button type="button" class="btn btn-danger btn-sm removeItem">Remove</button></td>
-                    </tr>
-                `);
-
-                // Recalculate the total tax and grand total
-                calculateTotal();
-            } else {
-                alert('Please fill in all fields with valid values before adding an item.');
-            }
-        });
-
-        // Handle the removal of items
-        $('#itemsTable').on('click', '.removeItem', function() {
-            $(this).closest('tr').remove();
-            itemCount--;
-            calculateTotal();
-        });
-
-        // Recalculate totals when other expenses, discount, or round off changes
-        $('#other_expense, #discount, #round_off').on('input', calculateTotal);
     });
-
 </script>
-
-
 @endsection

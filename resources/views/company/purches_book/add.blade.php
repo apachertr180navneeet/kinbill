@@ -63,8 +63,8 @@
                         </div>
                     </div>
 
+                    <!-- Item details form -->
                     <div class="card-body">
-                        <!-- Item details form -->
                         <div class="row">
                             <!-- Item Selection -->
                             <div class="col-md-3 mb-3">
@@ -149,7 +149,7 @@
                         <div class="row">
                             <div class="col-md-3 mb-3"></div>
                             <div class="col-md-3 mb-3">
-                                <label for="igst" class="form-label text-end">CGST/SGST</label>
+                                <label for="cgst" class="form-label text-end">CGST/SGST</label>
                             </div>
                             <div class="col-md-2 mb-3"></div>
                             <div class="col-md-2 mb-3">
@@ -263,10 +263,34 @@
 <script>
     $(document).ready(function() {
         let itemCount = 0;
-        let totalTax = 0;
+        let totalTax = 0; // Track the total tax
         let grandTotal = 0;
         let amountBeforeTax = 0;
 
+        // Vendor change handler
+        $('#vendor').on('change', function() {
+            // Get the selected vendor state and company state
+            const selectedState = $('#vendor option:selected').data('state');
+            const companyStateValue = $('#companyState').val();
+
+            console.log(selectedState  + ' =' + companyStateValue);
+
+            // Reset tax values
+            $('#cgst').val('0');
+            $('#sgst').val('0');
+            $('#igst').val('0');
+
+            // Update IGST/CGST/SGST based on the states comparison
+            if (companyStateValue == selectedState) {
+                // CGST and SGST will apply
+                const cgst = totalTax / 2;
+                $('#cgst').val(cgst.toFixed(2));
+                $('#sgst').val(cgst.toFixed(2));
+            } else {
+                // IGST will apply
+                $('#igst').val(totalTax.toFixed(2));
+            }
+        });
 
         // Function to update the grand total field
         function updateGrandTotal() {
@@ -323,7 +347,6 @@
                 var companyStateValue = $('#companyState').val();
                 var selectedState = $('#vendor option:selected').data('state');
 
-
                 // Update the total tax and grand total fields
                 if (companyStateValue == selectedState) {
                     var cgst = totalTax / 2;
@@ -350,8 +373,7 @@
 
             totalTax -= taxToRemove; // Subtract the removed tax from total tax
             grandTotal -= amountToRemove + taxToRemove; // Subtract the removed amount from grand total
-            amountBeforeTax -= amountToRemove; // Subtract the removed amount from grand total
-
+            amountBeforeTax -= amountToRemove; // Subtract the removed amount from total amount before tax
 
             $(this).closest('tr').remove();
             itemCount--;

@@ -95,6 +95,7 @@
                                     <th>S. No.</th>
                                     <th>Item</th>
                                     <th>Quantity</th>
+                                    <th>Return</th>
                                     <th>Variation</th>
                                     <th>Rate</th>
                                     <th>Tax</th>
@@ -108,6 +109,7 @@
                                         <td>{{ $index + 1 }}</td>
                                         <td>{{ $item->item->name }}<input type="hidden" name="items[]" value="{{ $item->item_id }}"></td>
                                         <td>{{ $item->quantity ?? 'N/A' }}<input type="hidden" name="quantities[]" value="{{ $item->quantity }}"></td>
+                                        <td>{{ $item->preturn ?? 'N/A' }}<input type="hidden" name="preturn[]" value="{{ $item->preturn }}"></td>
                                         <td>{{ $item->item->variation->name }}</td>
                                         <td>{{ number_format($item->rate, 2, '.', '') ?? '0.00' }}<input type="hidden" name="rates[]" value="{{ number_format($item->rate, 2, '.', '') }}"></td>
                                         <td>{{ number_format($item->tax, 2, '.', '') ?? '0.00' }}<input type="hidden" name="taxes[]" value="{{ number_format($item->tax, 2, '.', '') }}"></td>

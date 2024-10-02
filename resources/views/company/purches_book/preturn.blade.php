@@ -14,9 +14,8 @@
         </div>
     </div>
     <input type="hidden" name="companyState" id="companyState" value="{{ $companyState }}">
-    <form role="form" action="{{ route('company.purches.book.update', $purchaseBook->id) }}" method="post" id="purchase_edit" enctype="multipart/form-data">
+    <form role="form" action="{{ route('company.purches.book.preturn.save', $purchaseBook->id) }}" method="post" id="purchase_edit" enctype="multipart/form-data">
         @csrf
-        @method('PUT')
         <div class="row">
             <div class="col-xl-12 col-lg-12">
                 <div class="card mb-4">
@@ -57,37 +56,6 @@
                     </div>
 
                     <div class="card-body">
-                        <!-- Item details form -->
-                        {{--  <div class="row">
-                            <!-- Item Selection -->
-                            <div class="col-md-3 mb-3">
-                                <label for="item" class="form-label">Item</label>
-                                <select class="form-select" id="item">
-                                    <option selected disabled>Select</option>
-                                    @foreach ($items as $item)
-                                        <option value="{{ $item->id }}" data-tax="{{ $item->tax_rate }}" data-variation="{{ $item->variation_name }}">{{ $item->name }}</option>
-                                    @endforeach
-                                </select>
-                                <div id="item-error" class="text-danger"></div>
-                            </div>
-                            <!-- Quantity Field -->
-                            <div class="col-md-3 mb-3">
-                                <label for="qty" class="form-label">Quantity</label>
-                                <input type="number" class="form-control" id="qty" min="0">
-                                <div id="qty-error" class="text-danger"></div>
-                            </div>
-                            <!-- Amount per Unit Field -->
-                            <div class="col-md-3 mb-3">
-                                <label for="amount" class="form-label">Amount per Unit</label>
-                                <input type="number" class="form-control" id="amount" min="0">
-                                <div id="amount-error" class="text-danger"></div>
-                            </div>
-                            <!-- Add Item Button -->
-                            <div class="col-md-3 mb-3 d-flex align-items-end">
-                                <button type="button" class="btn btn-info" id="addItem">Add Item</button>
-                            </div>
-                        </div>  --}}
-
                         <!-- Items Table -->
                         <table class="table table-bordered mt-4" id="itemsTable">
                             <thead>
@@ -99,7 +67,6 @@
                                     <th>Rate</th>
                                     <th>Tax</th>
                                     <th>Total Amount</th>
-                                    <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -107,12 +74,11 @@
                                     <tr>
                                         <td>{{ $index + 1 }}</td>
                                         <td>{{ $item->item->name }}<input type="hidden" name="items[]" value="{{ $item->item_id }}"></td>
-                                        <td><input type="text" class="form-control" name="quantities[]"  value="{{ $item->quantity }}"></td>
+                                        <td><input type="text" class="form-control itemQty" name="quantities[]"  value="{{ $item->quantity }}" max="{{ $item->quantity }}" min="1"></td>
                                         <td>{{ $item->item->variation->name }}</td>
                                         <td>{{ number_format($item->rate, 2, '.', '') ?? '0.00' }}<input type="hidden" name="rates[]" value="{{ number_format($item->rate, 2, '.', '') }}"></td>
-                                        <td>{{ number_format($item->tax, 2, '.', '') ?? '0.00' }}<input type="hidden" name="taxes[]" value="{{ number_format($item->tax, 2, '.', '') }}"></td>
-                                        <td>{{ number_format($item->amount, 2, '.', '') ?? '0.00' }}<input type="hidden" name="totalAmounts[]" value="{{ number_format($item->amount, 2, '.', '') }}"></td>
-                                        <td><button type="button" class="btn btn-danger btn-sm removeItem">Remove</button></td>
+                                        <td><span class="taxAmountDisplay">{{ number_format($item->tax, 2, '.', '') ?? '0.00' }}</span><input type="hidden" name="taxespercent[]" value="{{ $item->item->tax->rate }}"><input type="hidden" name="taxes[]" value="{{ number_format($item->tax, 2, '.', '') }}"></td>
+                                        <td><span class="totalAmountDisplay">{{ number_format($item->amount, 2, '.', '') ?? '0.00' }}</span><input type="hidden" name="totalAmounts[]" value="{{ number_format($item->amount, 2, '.', '') }}"></td>
                                     </tr>
                                 @endforeach
                             </tbody>
@@ -216,7 +182,7 @@
                                 <input type="text" class="form-control" id="grand_total" name="grand_total" value="{{ number_format($purchaseBook->grand_total, 2, '.', '') }}" readonly>
                             </div>
                         </div>
-                        <!-- Given Amount -->
+                        {{--  <!-- Given Amount -->
                         <div class="row">
                             <div class="col-md-3 mb-3"></div>
                             <div class="col-md-5 mb-3">
@@ -241,7 +207,7 @@
                                     <div class="text-danger">{{ $message }}</div>
                                 @enderror
                             </div>
-                        </div>
+                        </div>  --}}
                     </div>
 
                     <!-- Save button -->
@@ -262,10 +228,72 @@
 @section('script')
 <script>
     $(document).ready(function() {
+        // Function to update tax and total amounts
+        function updateRowCalculation(row) {
+            // Get quantity, rate, and tax rate
+            let quantity = parseFloat($(row).find('.itemQty').val()) || 0;
+            let rate = parseFloat($(row).find('input[name="rates[]"]').val()) || 0;
+            let taxPercent = parseFloat($(row).find('input[name="taxespercent[]"]').val()) || 0;
 
+            // Calculate total before tax
+            let totalBeforeTax = quantity * rate;
 
+            // Calculate tax amount
+            let taxAmount = (totalBeforeTax * taxPercent) / 100;
 
+            // Calculate total amount after tax
+            let totalAmount = totalBeforeTax + taxAmount;
+
+            // Update tax and total amounts in the row
+            $(row).find('.taxAmountDisplay').text(taxAmount.toFixed(2));
+            $(row).find('input[name="taxes[]"]').val(taxAmount.toFixed(2));
+
+            $(row).find('.totalAmountDisplay').text(totalAmount.toFixed(2));
+            $(row).find('input[name="totalAmounts[]"]').val(totalAmount.toFixed(2));
+
+            // Update overall totals (if necessary)
+            updateOverallTotals();
+        }
+
+        // Function to update the overall totals in the form
+        function updateOverallTotals() {
+            let totalBeforeTax = 0;
+            let totalTax = 0;
+            let totalAmount = 0;
+            let otherExpenses = parseFloat($('#other_expense').val()) || 0;
+            let discount = parseFloat($('#discount').val()) || 0;
+            let roundOff = parseFloat($('#round_off').val()) || 0;
+            let givenAmount = parseFloat($('#given_amount').val()) || 0;
+
+            // Iterate over each row to sum the amounts
+            $('#itemsTable tbody tr').each(function() {
+                totalBeforeTax += parseFloat($(this).find('input[name="rates[]"]').val()) || 0;
+                totalTax += parseFloat($(this).find('input[name="taxes[]"]').val()) || 0;
+                totalAmount += parseFloat($(this).find('input[name="totalAmounts[]"]').val()) || 0;
+            });
+
+            // Calculate final totals
+            let igst = totalTax;  // Assuming IGST includes all the tax for now
+            let totalInvoiceValue = totalAmount + otherExpenses - discount + roundOff;
+
+            // Update the form fields
+            $('#amount_before_tax').val(totalBeforeTax.toFixed(2));
+            $('#igst').val(igst.toFixed(2));
+            $('#grand_total').val(totalInvoiceValue.toFixed(2));
+            let remainingBalance = totalInvoiceValue - givenAmount;
+            $('#remaining_blance').val(remainingBalance.toFixed(2));
+        }
+
+        // Event listener for keyup on quantity inputs and other relevant inputs
+        $(document).on('keyup', '.itemQty, #other_expense, #discount, #round_off, #given_amount', function() {
+            let row = $(this).closest('tr'); // Get the current row
+            updateRowCalculation(row); // Update calculations for the row
+        });
+
+        // Trigger update calculations on page load (in case there are pre-filled values)
+        updateOverallTotals();
     });
+
 
 </script>
 @endsection

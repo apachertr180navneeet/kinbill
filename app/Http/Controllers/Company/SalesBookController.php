@@ -333,4 +333,84 @@ class SalesBookController extends Controller
 
         return redirect()->route('company.sales.book.index')->with('success', 'sales book updated successfully.');
     }
+
+    public function sreturn($id)
+    {
+        // Get the authenticated user and their company ID
+        $user = Auth::user();
+        $compId = $user->company_id;
+
+        $salesBook = SalesBook::with('salesbookitem.item.variation','salesbookitem.item.tax')->find($id);
+
+
+        // Fetch all active vendors for the user's company
+        $customers = User::where('role', 'customer')
+            ->where('company_id', $compId)
+            ->where('status', 'active')
+            ->get();
+
+        // Fetch all items with their variations and tax details for the user's company
+        $items = Item::join('variations', 'items.variation_id', '=', 'variations.id')
+            ->join('taxes', 'items.tax_id', '=', 'taxes.id')
+            ->where('items.company_id', $compId)
+            ->select('items.*', 'variations.name as variation_name', 'taxes.rate as tax_rate')
+            ->get();
+
+        return view('company.sales_book.sreturn', compact('salesBook', 'customers', 'items'));
+    }
+
+
+    public function sreturn_update(Request $request, $id)
+    {
+        DB::beginTransaction();
+        try {
+            // Loop through each item in the request and update the stock and purchase book
+            foreach ($request->items as $index => $itemId) {
+                $quantity = $request->quantities[$index];
+                $amount = $request->rates[$index];
+                $tax = $request->taxes[$index];
+                $total = $request->totalAmounts[$index];
+
+                // Retrieve the item and validate its existence
+                $item = Item::find($itemId);
+                if (!$item) {
+                    return redirect()->back()->withInput()->withErrors(["Item with ID $itemId does not exist."]);
+                }
+
+                // Find the existing PurchesBookItem entry
+                $existingPurchesBookItem = SalesBookItem::where('item_id', $itemId)
+                    ->where('sales_book_id', $id)
+                    ->first();
+
+                // Update or create the PurchesBookItem entry if quantity has changed or record doesn't exist
+                if (!$existingPurchesBookItem || $existingPurchesBookItem->sreturn != $quantity) {
+                    SalesBookItem::updateOrCreate(
+                        ['item_id' => $itemId, 'sales_book_id' => $id],
+                        [
+                            'sreturn' => $quantity,
+                            'rate' => $amount,
+                            'tax' => $tax,
+                            'amount' => $total
+                        ]
+                    );
+                }
+
+                $stkqty = $existingPurchesBookItem->quantity - $quantity;
+                // Update stock report
+                $stockReport = StockReport::where('item_id', $itemId)->first();
+
+                if ($stockReport) {
+                    $stockReport->increment('quantity', $quantity);
+                }
+            }
+
+            DB::commit();
+
+            return redirect()->route('company.sales.book.index')->with('success', 'Return Added successfully.');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()->withInput()->withErrors(['error' => 'An error occurred while updating the return.']);
+        }
+    }
 }
