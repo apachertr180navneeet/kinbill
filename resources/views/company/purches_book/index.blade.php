@@ -12,7 +12,7 @@
         </div>
         <div class="col-md-6 text-end">
             <a href="{{ route('company.purches.book.add') }}" class="btn btn-primary">
-                Add Purchase Book
+                Add Purchase Invoice
             </a>
         </div>
     </div>
@@ -46,6 +46,7 @@
     $(document).ready(function() {
         // Base URL for the edit route
         const baseUrl = "{{ route('company.purches.book.edit', ['id' => ':id']) }}";
+        const baseviewUrl = "{{ route('company.purches.book.view', ['id' => ':id']) }}";
         const printbaseUrl = "{{ route('company.purches.report.print', ['id' => ':id']) }}";
         const pReturnbaseUrl = "{{ route('company.purches.book.preturn', ['id' => ':id']) }}";
 
@@ -64,10 +65,11 @@
                     data: "id",
                     render: function (data, type, row) {
                         const deleteButton = `<button type="button" class="btn btn-sm btn-danger" onclick="deletePurchase(${data})">Delete</button>`;
-                        const editButton = `<a href="${baseUrl.replace(':id', data)}" class="btn btn-sm btn-info">View</a>`;
+                        const editButton = `<a href="${baseUrl.replace(':id', data)}" class="btn btn-sm btn-info">Edit</a>`;
+                        const viewButton = `<a href="${baseviewUrl.replace(':id', data)}" class="btn btn-sm btn-info">View</a>`;
                         const printButton = `<a href="${printbaseUrl.replace(':id', data)}" class="btn btn-sm btn-info">Print</a>`;
                         const pReturnButton = `<a href="${pReturnbaseUrl.replace(':id', data)}" class="btn btn-sm btn-success">P-Return</a>`;
-                        return `${deleteButton} ${editButton} ${printButton} ${pReturnButton}`;
+                        return `${deleteButton} ${editButton} ${viewButton} ${printButton} ${pReturnButton}`;
                     },
                 },
             ],

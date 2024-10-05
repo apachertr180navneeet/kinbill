@@ -281,6 +281,35 @@ class PurchesBookController extends Controller
         return view('company.purches_book.edit', compact('purchaseBook', 'vendors', 'items','companyState'));
     }
 
+    public function view($id)
+    {
+        // Get the authenticated user and their company ID
+        $user = Auth::user();
+        $compId = $user->company_id;
+
+        // Fetch the company details for the authenticated user's company
+        $companyDetails = Company::find($compId);
+        $companyShortCode = $companyDetails->short_code;
+        $companyState = $companyDetails->state;
+
+        $purchaseBook = PurchesBook::with('purchesbookitem.item.variation')->find($id);
+
+        // Fetch all active vendors for the user's company
+        $vendors = User::where('role', 'vendor')
+            ->where('company_id', $compId)
+            ->where('status', 'active')
+            ->get();
+
+        // Fetch all items with their variations and tax details for the user's company
+        $items = Item::join('variations', 'items.variation_id', '=', 'variations.id')
+            ->join('taxes', 'items.tax_id', '=', 'taxes.id')
+            ->where('items.company_id', $compId)
+            ->select('items.*', 'variations.name as variation_name', 'taxes.rate as tax_rate')
+            ->get();
+
+        return view('company.purches_book.view', compact('purchaseBook', 'vendors', 'items','companyState'));
+    }
+
     public function update(Request $request, $id)
     {
         // Validate the incoming request
@@ -442,11 +471,19 @@ class PurchesBookController extends Controller
                 }
 
                 $stkqty = $existingPurchesBookItem->quantity - $quantity;
+                // dd($stkqty);
                 // Update stock report
                 $stockReport = StockReport::where('item_id', $itemId)->first();
                 if ($stockReport) {
-                    $stockReport->decrement('quantity', $stkqty);
+                    $stockReport->decrement('quantity', $quantity);
                 }
+            }
+
+            // Update the PurchesBook with the calculated grand total
+            $purchesBook = PurchesBook::find($id);
+            if ($purchesBook) {
+                $purchesBook->grand_total = $request->grand_total;
+                $purchesBook->save();
             }
 
             DB::commit();

@@ -4,14 +4,15 @@ namespace App\Http\Controllers\Company;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use App\Models\{
-        User,
-        Variation,
-        Item,
-        city,
-        State,
-        Pincode
-    };
+    User,
+    Variation,
+    Item,
+    city,
+    State,
+    Pincode
+};
 use Mail, DB, Hash, Validator, Session, File, Exception, Redirect, Auth;
 
 class CustomerController extends Controller
@@ -95,16 +96,37 @@ class CustomerController extends Controller
         // Validation rules
         $rules = [
             'full_name' => 'required|string|max:255',
-            'email' => 'required|email|max:255|unique:users',
-            'phone' => 'required|string|max:20|unique:users',
+            'email' => [
+                'required',
+                'email',
+                'max:255',
+                Rule::unique('users')->where(function ($query) use ($request) {
+                    return $query->where('role', $request->role);
+                }),
+            ],
+            'phone' => [
+                'required',
+                'string',
+                'max:20',
+                Rule::unique('users')->where(function ($query) use ($request) {
+                    return $query->where('role', $request->role);
+                }),
+            ],
             'address' => 'nullable|string',
             'city' => 'required|string|max:100',
             'state' => 'required|string',
             'gst' => 'required|string',
         ];
 
+        // Custom messages
+        $messages = [
+            'email.unique' => "The email has already been taken in the {$request->role}s.",
+            'phone.unique' => "The phone number has already been taken in the {$request->role}s.",
+        ];
+
+
         // Validate the request data
-        $validator = Validator::make($request->all(), $rules);
+        $validator = Validator::make($request->all(), $rules, $messages);
 
         if ($validator->fails()) {
             return response()->json([
@@ -179,10 +201,9 @@ class CustomerController extends Controller
         $user = User::find($request->id);
         if ($user) {
             $user->update($request->all());
-            return response()->json(['success' => true , 'message' => 'User Update Successfully']);
+            return response()->json(['success' => true, 'message' => 'User Update Successfully']);
         }
 
         return response()->json(['success' => false, 'message' => 'User not found']);
     }
-
 }

@@ -40,9 +40,14 @@ class ReceiptBookReportController extends Controller
         $ReceiptBookVoucher = ReceiptBookVoucher::join('users', 'receipt_book_vouchers.customer_id', '=', 'users.id')
             ->where('receipt_book_vouchers.company_id', $compId)
             ->select('receipt_book_vouchers.*', 'users.full_name as customer_name')
-            ->orderByDesc('receipt_book_vouchers.id')
-            ->get();
-
+            ->orderByDesc('receipt_book_vouchers.id');
+             
+          // If a date filter is provided, apply the date filter to the query
+          if ($request->start_date && $request->end_date) {
+            $ReceiptBookVoucher->whereBetween('receipt_book_vouchers.date', [$request->start_date, $request->end_date]);
+        } 
+        // Fetch the filtered data
+        $ReceiptBookVoucher = $ReceiptBookVoucher->get();
 
         // Return the purchase books data as JSON response
         return response()->json(['data' => $ReceiptBookVoucher]);

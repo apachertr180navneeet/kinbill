@@ -9,7 +9,7 @@
     <div class="row">
         <div class="col-md-6 text-start">
             <h5 class="py-2 mb-2">
-                <span class="text-primary fw-light">Edit Purchase Book</span>
+                <span class="text-primary fw-light">View Purchase Book</span>
             </h5>
         </div>
     </div>
@@ -20,7 +20,7 @@
         <div class="row">
             <div class="col-xl-12 col-lg-12">
                 <div class="card mb-4">
-                    <h5 class="card-header">Edit Purchase</h5>
+                    <h5 class="card-header">View Purchase</h5>
                     <div class="card-body">
                         <!-- Purchase details form -->
                         <div class="row">
@@ -58,7 +58,7 @@
 
                     <div class="card-body">
                         <!-- Item details form -->
-                         <div class="row">
+                        {{--  <div class="row">
                             <!-- Item Selection -->
                             <div class="col-md-3 mb-3">
                                 <label for="item" class="form-label">Item</label>
@@ -86,7 +86,7 @@
                             <div class="col-md-3 mb-3 d-flex align-items-end">
                                 <button type="button" class="btn btn-info" id="addItem">Add Item</button>
                             </div>
-                        </div> 
+                        </div>  --}}
 
                         <!-- Items Table -->
                         <table class="table table-bordered mt-4" id="itemsTable">
@@ -100,7 +100,7 @@
                                     <th>Rate</th>
                                     <th>Tax</th>
                                     <th>Total Amount</th>
-                                     <th>Action</th> 
+                                    {{--  <th>Action</th>  --}}
                                 </tr>
                             </thead>
                             <tbody>
@@ -114,7 +114,7 @@
                                         <td>{{ number_format($item->rate, 2, '.', '') ?? '0.00' }}<input type="hidden" name="rates[]" value="{{ number_format($item->rate, 2, '.', '') }}"></td>
                                         <td>{{ number_format($item->tax, 2, '.', '') ?? '0.00' }}<input type="hidden" name="taxes[]" value="{{ number_format($item->tax, 2, '.', '') }}"></td>
                                         <td>{{ number_format($item->amount, 2, '.', '') ?? '0.00' }}<input type="hidden" name="totalAmounts[]" value="{{ number_format($item->amount, 2, '.', '') }}"></td>
-                                         <td><button type="button" class="btn btn-danger btn-sm removeItem">Remove</button></td> 
+                                        {{--  <td><button type="button" class="btn btn-danger btn-sm removeItem">Remove</button></td>  --}}
                                     </tr>
                                 @endforeach
                             </tbody>
@@ -247,13 +247,13 @@
                     </div>
 
                     <!-- Save button -->
-                     <div class="card-body">
+                    {{--  <div class="card-body">
                         <div class="row">
                             <div class="col-md-12 text-end">
                                 <button type="submit" class="btn btn-primary">Save</button>
                             </div>
                         </div>
-                    </div> 
+                    </div>  --}}
                 </div>
             </div>
         </div>
@@ -264,7 +264,6 @@
 @section('script')
 <script>
     $(document).ready(function() {
-        let amountBeforeTax = 0;
         let itemsTableBody = $("#itemsTable tbody");
         const companyStateValue = $('#companyState').val();
         const selectedState = $('#vendor option:selected').data('state');
@@ -284,17 +283,11 @@
 
             let totalAmount = qty * amount;
             let totalTax = (totalAmount * itemTax) / 100;
-            
-            amountBeforeTax += totalAmount; 
-            let pretaxamount =  parseFloat($("#amount_before_tax").val());
-            let total_before_tax = pretaxamount+amountBeforeTax
-            $('#amount_before_tax').val(total_before_tax.toFixed(2));
 
             let row = `<tr>
                             <td>${itemsTableBody.children().length + 1}</td>
                             <td>${itemName}<input type="hidden" name="items[]" value="${item}"></td>
                             <td>${qty}<input type="hidden" name="quantities[]" value="${qty}"></td>
-                            <td>0<input type="hidden" name="preturn[]" value="0"></td>
                             <td>${itemVariation}</td>
                             <td>${amount.toFixed(2)}<input type="hidden" name="rates[]" value="${amount.toFixed(2)}"></td>
                             <td>${totalTax.toFixed(2)}<input type="hidden" name="taxes[]" value="${totalTax.toFixed(2)}"></td>

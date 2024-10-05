@@ -2,6 +2,8 @@
 
 @section('style')
 <!-- Add any necessary styles here -->
+<!-- Add these inside your head tag -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
 @endsection
 
 @section('content')
@@ -260,8 +262,18 @@
 @endsection
 
 @section('script')
+
+<!-- Add this before the closing body tag -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
 <script>
     $(document).ready(function() {
+        //for select search 
+        $('#item').select2({
+        placeholder: 'Select an item', // Optional placeholder text
+        allowClear: true // Allow clearing the selection
+        });
+
+
         let itemCount = 0;
         let totalTax = 0; // Track the total tax
         let grandTotal = 0;

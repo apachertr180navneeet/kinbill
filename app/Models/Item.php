@@ -26,4 +26,19 @@ class Item extends Model
     {
         return $this->belongsTo(Variation::class);
     }
+
+    public function purchesBookItems()
+    {
+        return $this->hasMany(PurchesBookItem::class);
+    }
+
+    public function salesBookItems()
+    {
+        return $this->hasMany(SalesBookItem::class);
+    }
+
+    public function stockReports()
+    {
+        return $this->hasMany(StockReport::class);
+    }
 }

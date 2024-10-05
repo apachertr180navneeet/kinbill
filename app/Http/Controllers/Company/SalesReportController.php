@@ -40,8 +40,14 @@ class SalesReportController extends Controller
         $purchesBooks = SalesBook::join('users', 'sales_books.customer_id', '=', 'users.id')
             ->where('sales_books.company_id', $compId)
             ->select('sales_books.*', 'users.full_name as customer_name')
-            ->orderByDesc('sales_books.id')
-            ->get();
+            ->orderByDesc('sales_books.id');
+
+            // If a date filter is provided, apply the date filter to the query
+            if ($request->start_date && $request->end_date) {
+                $purchesBooks->whereBetween('sales_books.date', [$request->start_date, $request->end_date]);
+            } 
+            // Fetch the filtered data
+            $purchesBooks = $purchesBooks->get();
 
 
         // Return the purchase books data as JSON response

@@ -40,8 +40,14 @@ class PurchesReportController extends Controller
         $purchesBooks = PurchesBook::join('users', 'purches_books.vendor_id', '=', 'users.id')
             ->where('purches_books.company_id', $compId)
             ->select('purches_books.*', 'users.full_name as vendor_name')
-            ->orderByDesc('purches_books.id')
-            ->get();
+            ->orderByDesc('purches_books.id');
+            
+            // If a date filter is provided, apply the date filter to the query
+            if ($request->start_date && $request->end_date) {
+                $purchesBooks->whereBetween('purches_books.date', [$request->start_date, $request->end_date]);
+            } 
+            // Fetch the filtered data
+            $purchesBooks = $purchesBooks->get();
 
 
         // Return the purchase books data as JSON response

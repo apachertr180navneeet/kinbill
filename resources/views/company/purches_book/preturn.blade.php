@@ -272,9 +272,12 @@
                 totalAmount += parseFloat($(this).find('input[name="totalAmounts[]"]').val()) || 0;
             });
 
+            let cgst = parseFloat($("#cgst").val()) || 0;
+            let sgst = parseFloat($("#sgst").val()) || 0; 
+
             // Calculate final totals
             let igst = totalTax;  // Assuming IGST includes all the tax for now
-            let totalInvoiceValue = totalAmount + otherExpenses - discount + roundOff;
+            let totalInvoiceValue = totalAmount + otherExpenses - discount + roundOff +cgst + sgst;
 
             // Update the form fields
             $('#amount_before_tax').val(totalBeforeTax.toFixed(2));

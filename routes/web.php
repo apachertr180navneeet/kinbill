@@ -25,7 +25,8 @@ use App\Http\Controllers\Company\{
     ReceiptBookReportController,
     PaymentBookReportController,
     BankAndCashMangementController,
-    BankAndCashReportController
+    BankAndCashReportController,
+    StockReportController
 };
 
 
@@ -263,6 +264,11 @@ Route::prefix('company')->name('company.')->group(function () {
 
         // Sales Report Management Routes
         Route::prefix('bank-and-cash-report')->name('bank.and.cash.report.')->controller(BankAndCashReportController::class)->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('all', 'getall')->name('getall');
+        });
+
+        Route::prefix('stock-report')->name('stock.report.')->controller(StockReportController::class)->group(function () {
             Route::get('/', 'index')->name('index');
             Route::get('all', 'getall')->name('getall');
         });
