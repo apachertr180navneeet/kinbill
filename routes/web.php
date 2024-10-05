@@ -177,6 +177,7 @@ Route::prefix('company')->name('company.')->group(function () {
             Route::post('/store', 'store')->name('store');
             Route::delete('/delete/{id}', 'destroy')->name('destroy');
             Route::get('/edit/{id}', 'edit')->name('edit'); // Edit route
+            Route::get('/view/{id}', 'view')->name('view'); // View route
             Route::put('/update/{id}', 'update')->name('update'); // Update route
             Route::get('/p-return/{id}', 'preturn')->name('preturn'); // Edit route
             Route::post('/p-return/save/{id}', 'preturn_update')->name('preturn.save');
