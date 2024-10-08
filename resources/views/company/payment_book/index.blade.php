@@ -56,7 +56,13 @@
                 type: 'GET',
             },
             columns: [
-                { data: "date" },
+                {
+                    data: "date",
+                    render: function (data, type, row) {
+                        // Using moment.js to format the date
+                        return moment(data).format('DD/MM/YYYY');
+                    }
+                },
                 { data: "payment_vouchers_number" },
                 { data: "vendor_name" },
                 { data: "grand_total" },

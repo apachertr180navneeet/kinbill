@@ -364,6 +364,7 @@ class SalesBookController extends Controller
     {
         DB::beginTransaction();
         try {
+            // dd($request->all());
             // Loop through each item in the request and update the stock and purchase book
             foreach ($request->items as $index => $itemId) {
                 $quantity = $request->quantities[$index];
@@ -388,6 +389,7 @@ class SalesBookController extends Controller
                         ['item_id' => $itemId, 'sales_book_id' => $id],
                         [
                             'sreturn' => $quantity,
+                            // 'quantity' => $quantity,
                             'rate' => $amount,
                             'tax' => $tax,
                             'amount' => $total
@@ -402,6 +404,13 @@ class SalesBookController extends Controller
                 if ($stockReport) {
                     $stockReport->increment('quantity', $quantity);
                 }
+            }
+            // Update the PurchesBook with the calculated grand total
+            $salesBook = SalesBook::find($id);
+            if ($salesBook) {
+                $salesBook->grand_total = $request->grand_total;
+                $salesBook->amount_before_tax = $request->amount_before_tax;
+                $salesBook->save();
             }
 
             DB::commit();

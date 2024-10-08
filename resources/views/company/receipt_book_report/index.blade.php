@@ -72,8 +72,15 @@
                     d.end_date = $('#end_date').val();
                 },
             },
+            order: [[0, 'desc']],  // Order by the first column (date) in descending order
             columns: [
-                { data: "date" },
+                {
+                    data: "date",
+                    render: function (data, type, row) {
+                        // Using moment.js to format the date
+                        return moment(data).format('DD/MM/YYYY');
+                    }
+                },
                 { data: "receipt_vouchers_number" },
                 { data: "customer_name" },
                 { data: "grand_total" },

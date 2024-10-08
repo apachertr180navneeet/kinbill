@@ -1,3 +1,15 @@
+@php
+    // Get the authenticated user's company_id
+    $companyId = Auth::user()->company_id;
+
+    // Use the company_id in a parameterized query to fetch the company details
+    $company = DB::select('SELECT * FROM companies WHERE id = ?', [$companyId]);
+
+	 
+
+    $company = $company ? $company[0] : null;
+@endphp
+
 <nav class="layout-navbar container-fluid navbar navbar-expand-xl navbar-detached align-items-center bg-navbar-theme"
 	id="layout-navbar">
 	<div class="layout-menu-toggle navbar-nav align-items-xl-center me-3 me-xl-0 d-xl-none">
@@ -11,7 +23,8 @@
 		<div class="navbar-nav align-items-center">
 			<div class="nav-item d-flex align-items-center text-primary">
 				<i class="bx bx-calendar fs-4 lh-0"></i>&nbsp;
-				<span class="">{{ date('D') }} {{ date('d M Y') }}</span>
+				<span class="">{{ date('D') }} {{ date('d M Y') }}</span>&nbsp;&nbsp;
+				<span class="ml-2">Company State :- {{ $company->state }}</span>
 			</div>
 		</div>
 		<!-- /Search -->
@@ -35,8 +48,8 @@
 							<div class="d-flex">
 								<div class="flex-shrink-0 me-3">
 									<div class="avatar avatar-online">
-										@if(!empty($user->avatar) && file_exists(public_path('/').$user->avatar))
-		                                    <img src="{{asset($user->avatar)}}" alt="User Image" class="w-px-40 h-auto rounded-circle">
+										@if(!empty(Auth::user()->avatar) && file_exists(public_path('/').Auth::user()->avatar))
+		                                    <img src="{{asset(Auth::user()->avatar)}}" alt="User Image" class="w-px-40 h-auto rounded-circle">
 		                                @else
 		                                    <img src="{{asset('assets/admin/img/avatars/1.png')}}"  alt="User Image" class="w-px-40 h-auto rounded-circle">
 		                                @endif

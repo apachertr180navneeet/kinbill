@@ -7,7 +7,7 @@
     <div class="row">
         <div class="col-md-6 text-start">
             <h5 class="py-2 mb-2">
-                <span class="text-primary fw-light">Purches Invoice</span>
+                <span class="text-primary fw-light">Sales Invoice</span>
             </h5>
         </div>
         <div class="col-md-6 text-end">
@@ -23,6 +23,9 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between flex-xl-row flex-md-column flex-sm-row flex-column p-sm-3 p-0">
                         <div class="mb-xl-0 mb-4">
+                            <h4 class="py-2 mb-2">
+                                <span>Sales Invoice</span>
+                            </h4>
                             <div class="d-flex svg-illustration mb-3 gap-2">
                                 <span class="app-brand-logo demo">
                                     Logo
@@ -36,7 +39,11 @@
                             <h4>Invoice #{{ $salesReport->dispatch_number }}</h4>
                             <div class="me-1">
                                 <span class="me-1">Date:</span>
-                                <span class="fw-medium">{{ $salesReport->date }}</span>
+                                <span class="fw-medium">{{ \Carbon\Carbon::parse($salesReport->date)->format('d-m-Y') }}</span>
+                            </div>
+                            <div>
+                                <span class="me-1">GST No.:</span>
+                                <span class="fw-medium">{{ $salesReport->customer_gst_no }}</span>
                             </div>
                         </div>
                     </div>

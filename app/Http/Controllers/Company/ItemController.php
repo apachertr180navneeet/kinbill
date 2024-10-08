@@ -12,6 +12,7 @@ use App\Models\{
         StockReport
     };
 use Mail, DB, Hash, Validator, Session, File, Exception, Redirect, Auth;
+use Illuminate\Validation\Rule;
 
 class ItemController extends Controller
 {

@@ -28,7 +28,7 @@
                         <div class="border p-3">
                             <div class="row mb-3">
                                 <div class="col-6"><strong>Payment Voucher No.:</strong> {{ $paymentBook->receipt_vouchers_number }}</div>
-                                <div class="col-6 text-end"><strong>Date:</strong> {{ $paymentBook->date }}</div>
+                                <div class="col-6 text-end"><strong>Date:</strong> {{ \Carbon\Carbon::parse($paymentBook->date)->format('d-m-Y') }}</div>
                             </div>
                             <div class="row mb-3">
                                 <div class="col-12"><strong>Payment From:</strong> {{ $paymentBook->vendor_name }}</div>

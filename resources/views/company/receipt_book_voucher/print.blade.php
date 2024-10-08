@@ -28,7 +28,7 @@
                         <div class="border p-3">
                             <div class="row mb-3">
                                 <div class="col-6"><strong>Receipt Voucher No.:</strong> {{ $receiptBook->receipt_vouchers_number }}</div>
-                                <div class="col-6 text-end"><strong>Date:</strong> {{ $receiptBook->date }}</div>
+                                <div class="col-6 text-end"><strong>Date:</strong> {{ \Carbon\Carbon::parse($receiptBook->date)->format('d-m-Y') }}</div>
                             </div>
                             <div class="row mb-3">
                                 <div class="col-12"><strong>Received From:</strong> {{ $receiptBook->customer_name }}</div>

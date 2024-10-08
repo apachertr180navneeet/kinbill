@@ -83,7 +83,7 @@ class ReceiptBookVoucherController extends Controller
             'round_off' => 'required|numeric',
             'grand_total' => 'required|numeric|min:0',
             'remark' => 'required|string|max:500',
-            'payment_method' => 'required|string|in:cash,credit,debit',
+            'payment_method' => 'required|string|in:cash,cheque,online bank,other',
         ];
 
         // Validate the request data

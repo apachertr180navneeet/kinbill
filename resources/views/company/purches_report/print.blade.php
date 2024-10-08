@@ -23,6 +23,9 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between flex-xl-row flex-md-column flex-sm-row flex-column p-sm-3 p-0">
                         <div class="mb-xl-0 mb-4">
+                            <h4 class="py-2 mb-2">
+                                <span>Purchase Invoice</span>
+                            </h4>
                             <div class="d-flex svg-illustration mb-3 gap-2">
                                 <span class="app-brand-logo demo">
                                     Logo
@@ -36,7 +39,7 @@
                             <h4>Invoice #{{ $purchaseReport->invoice_number }}</h4>
                             <div class="me-1">
                                 <span class="me-1">Date:</span>
-                                <span class="fw-medium">{{ $purchaseReport->date }}</span>
+                                <span class="fw-medium">{{ \Carbon\Carbon::parse($purchaseReport->date)->format('d-m-Y') }}</span>
                             </div>
                             <div>
                                 <span class="me-1">GST No.:</span>

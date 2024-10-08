@@ -68,7 +68,13 @@
                 },
             },
             columns: [
-                { data: "date" },
+                {
+                    data: "date",
+                    render: function (data, type, row) {
+                        // Using moment.js to format the date
+                        return moment(data).format('DD/MM/YYYY');
+                    }
+                },
                 { data: "dispatch_number" },
                 { data: "customer_name" },
                 { data: "grand_total" },

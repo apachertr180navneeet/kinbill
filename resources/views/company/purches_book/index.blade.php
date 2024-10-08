@@ -56,8 +56,15 @@
                 url: "{{ route('company.purches.book.getall') }}",
                 type: 'GET',
             },
+            order: [[0, 'desc']],  // Order by the first column (date) in descending order
             columns: [
-                { data: "date" },
+                {
+                    data: "date",
+                    render: function (data, type, row) {
+                        // Using moment.js to format the date
+                        return moment(data).format('DD/MM/YYYY');
+                    }
+                },
                 { data: "invoice_number" },
                 { data: "grand_total" },
                 { data: "vendor_name" },
@@ -65,7 +72,7 @@
                     data: "id",
                     render: function (data, type, row) {
                         const deleteButton = `<button type="button" class="btn btn-sm btn-danger" onclick="deletePurchase(${data})">Delete</button>`;
-                        //const editButton = `<a href="${baseUrl.replace(':id', data)}" class="btn btn-sm btn-info">Edit</a>`;
+                        const editButton = `<a href="${baseUrl.replace(':id', data)}" class="btn btn-sm btn-info">Edit</a>`;
                         const viewButton = `<a href="${baseviewUrl.replace(':id', data)}" class="btn btn-sm btn-info">View</a>`;
                         const printButton = `<a href="${printbaseUrl.replace(':id', data)}" class="btn btn-sm btn-info">Print</a>`;
                         const pReturnButton = `<a href="${pReturnbaseUrl.replace(':id', data)}" class="btn btn-sm btn-success">P-Return</a>`;

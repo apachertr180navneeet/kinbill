@@ -21,10 +21,10 @@
                                 <tr>
                                     <th>Date</th>
                                     <th>Serial No.</th>
-                                    <th>Type</th>
                                     <th>Particular</th>
-                                    <th>Diposit</th>
-                                    <th>Withdraw</th>
+                                    <th>Amount</th>
+                                    <th>Deposit in</th>
+                                    <th>Withdraw  From</th>
                                 </tr>
                             </thead>
                             <tbody></tbody>
@@ -52,22 +52,22 @@
 @section('script')
 <script>
     $(document).ready(function() {
-        const table = $('#variationTable').DataTable({
+          // Initialize DataTable
+          const table = $("#variationTable").DataTable({
             processing: true,
             ajax: {
                 url: "{{ route('company.bank.and.cash.report.getall') }}",
-                type: 'GET',
                 dataSrc: function(json) {
                     // Calculate total deposit and withdraw amounts here
                     let totalDeposit = 0;
                     let totalWithdraw = 0;
 
                     json.data.forEach(function(item) {
-                        if (item.payment_take.toLowerCase() === 'deposit') {
+                        // if (item.payment_take.toLowerCase() === 'deposit') {
                             totalDeposit += parseFloat(item.amount) || 0;
-                        } else {
+                        // } else {
                             totalWithdraw += parseFloat(item.amount) || 0;
-                        }
+                        // }
                     });
 
                     // Set the calculated values in the respective HTML elements
@@ -77,32 +77,28 @@
 
                     // Return the processed data to the DataTable
                     return json.data;
-                }
+                } 
             },
             columns: [
-                { data: "date" },
-                { data: "serial_no" },
-                { data: "payment_type" },
-                { data: "particular" },
                 {
-                    data: "amount",
-                    render: function(data, take, row) {
-                        if (row.payment_take.toLowerCase() === 'deposit') {
-                            return data;
-                        }
-                        return '0';
-                    }
+                    data: "date",
+                },
+                {
+                    data: "serial_no",
+                },
+                {
+                    data: "particular",
                 },
                 {
                     data: "amount",
-                    render: function(data, take, row) {
-                        if (row.payment_take.toLowerCase() !== 'deposit') {
-                            return data;
-                        }
-                        return '0';
-                    }
-                }
-            ]
+                },
+                {
+                    data: "deposite_bank_name",
+                },
+                {
+                    data: "withdraw_bank_name",
+                } 
+            ],
         });
     });
 </script>

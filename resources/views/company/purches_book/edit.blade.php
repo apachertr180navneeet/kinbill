@@ -316,6 +316,7 @@
             $(this).closest('tr').remove();
             recalculateItemNumbers(); // Recalculate item numbers after removing an item
             calculateTotals(); // Recalculate totals after removing an item
+            updateRemainingBalance();
         });
 
         // Recalculate item numbers
@@ -352,6 +353,8 @@
                 $('#cgst').val(cgst.toFixed(2));
                 $('#sgst').val(cgst.toFixed(2));
             }
+            $("#amount_before_tax").val(grandTotal.toFixed(2));
+            $("#igst").val(totalTax.toFixed(2));
             $("#grand_total").val(finalTotal.toFixed(2));
         }
 

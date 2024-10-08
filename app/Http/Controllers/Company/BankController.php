@@ -92,11 +92,11 @@ class BankController extends Controller
     {
         // Validation rules
         $rules = [
-            'name' => 'required|string',
-            'bank_name' => 'required|string',
+            'name' => 'required|string|regex:/^[a-zA-Z\s]+$/|max:255',
+            'bank_name' => 'required|string|regex:/^[a-zA-Z\s]+$/|max:255',
             'acc_no' => 'required|string|unique:banks,account_number',  // Unique validation
             'ifsc_code' => 'required|string',
-            'branch' => 'required|string'
+            'branch' => 'required|string|regex:/^[a-zA-Z\s]+$/|max:255'
         ];
 
 
@@ -120,7 +120,8 @@ class BankController extends Controller
             'account_number' => $request->acc_no,
             'ifsc_code' => $request->ifsc_code,
             'branch_name' => $request->branch,
-            'company_id' => $compId
+            'company_id' => $compId,
+            'opening_blance' => $request->opening_blance
         ];
         Bank::create($dataBank);
 

@@ -25,6 +25,7 @@
                                     <th>Account No.</th>
                                     <th>IFSC Code</th>
                                     <th>Branch</th>
+                                    <th>Opening Balance</th>
                                     <th>Status</th>
                                     <th>Action</th>
                                 </tr>
@@ -70,6 +71,11 @@
                     <div class="col-md-12 mb-3">
                         <label for="branch" class="form-label">Branch</label>
                         <input type="text" id="branch" class="form-control" placeholder="Enter Name" />
+                        <small class="error-text text-danger"></small>
+                    </div>
+                    <div class="col-md-12 mb-3">
+                        <label for="opening_blance" class="form-label">Opening Balance</label>
+                        <input type="text" id="opening_blance" class="form-control" placeholder="Enter Name" />
                         <small class="error-text text-danger"></small>
                     </div>
                 </div>
@@ -118,6 +124,11 @@
                         <input type="text" id="edit_branch" class="form-control" placeholder="Enter Name" />
                         <small class="error-text text-danger"></small>
                     </div>
+                    <div class="col-md-12 mb-3">
+                        <label for="edit_opening_blance" class="form-label">Opening Balance</label>
+                        <input type="text" id="edit_opening_blance" class="form-control" placeholder="Enter Name" />
+                        <small class="error-text text-danger"></small>
+                    </div>
                 </div>
             </div>
             <div class="modal-footer">
@@ -152,6 +163,9 @@
                 },
                 {
                     data: "branch_name",
+                },
+                {
+                    data: "opening_blance",
                 },
                 {
                     data: "status",
@@ -190,6 +204,7 @@
                 acc_no: $('#acc_no').val(),
                 ifsc_code : $('#ifsc_code').val(),
                 branch: $('#branch').val(),
+                opening_blance: $('#opening_blance').val(),
                 _token: $('meta[name="csrf-token"]').attr('content') // CSRF token
             };
 
@@ -241,6 +256,7 @@
                     $('#editacc_no').val(data.account_number);
                     $('#edit_ifsc_code').val(data.ifsc_code);
                     $('#edit_branch').val(data.branch_name);
+                    $('#edit_opening_blance').val(data.opening_blance);
 
                     // Open the modal
                     $('#editModal').modal('show');
@@ -265,6 +281,7 @@
                     account_number: $('#editacc_no').val(),
                     ifsc_code: $('#edit_ifsc_code').val(),
                     branch_name: $('#edit_branch').val(),
+                    opening_blance: $('#edit_opening_blance').val(),
                     id: userId // Ensure userId is in scope or adjust accordingly
                 },
                 success: function(response) {

@@ -7,12 +7,12 @@
     <div class="row">
         <div class="col-md-6 text-start">
             <h5 class="py-2 mb-2">
-                <span class="text-primary fw-light">Sales Book</span>
+                <span class="text-primary fw-light">Sales Invoice</span>
             </h5>
         </div>
         <div class="col-md-6 text-end">
             <a href="{{ route('company.sales.book.add') }}" class="btn btn-primary">
-                Add Sales Book
+                Add Sales Invoice
             </a>
         </div>
     </div>
@@ -55,8 +55,15 @@
                 url: "{{ route('company.sales.book.getall') }}",
                 type: 'GET',
             },
+            order: [[0, 'desc']],  // Order by the first column (date) in descending order
             columns: [
-                { data: "date" },
+                {
+                    data: "date",
+                    render: function (data, type, row) {
+                        // Using moment.js to format the date
+                        return moment(data).format('DD/MM/YYYY');
+                    }
+                },
                 { data: "dispatch_number" },
                 { data: "grand_total" },
                 { data: "customer_name" },

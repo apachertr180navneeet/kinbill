@@ -70,7 +70,7 @@
                                     <tr>
                                         <td>{{ $index + 1 }}</td>
                                         <td>{{ $item->item->name }}<input type="hidden" name="items[]" value="{{ $item->item_id }}"></td>
-                                        <td><input type="text" class="form-control itemQty" name="quantities[]"  value="{{ $item->quantity }}" max="{{ $item->quantity }}" min="1"></td>
+                                        <td><input type="text" class="form-control itemQty" name="quantities[]"  value="{{ $item->quantity - $item->sreturn }}" max="{{ $item->quantity }}" min="1"></td>
                                         <td>{{ $item->item->variation->name }}</td>
                                         <td>{{ number_format(floatval($item->rate ?? 0), 2) }}<input type="hidden" name="taxespercent[]" value="{{ $item->item->tax->rate }}"><input type="hidden" name="rates[]" value="{{ $item->rate }}"></td>
                                         <td><span class="taxAmountDisplay">{{ number_format(floatval($item->tax ?? 0), 2) }}</span><input type="hidden" name="taxes[]" value="{{ number_format(floatval($item->tax ?? 0), 2) }}"></td>

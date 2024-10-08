@@ -7,12 +7,12 @@
     <div class="row">
         <div class="col-md-6 text-start">
             <h5 class="py-2 mb-2">
-                <span class="text-primary fw-light">Receipt Book voucher</span>
+                <span class="text-primary fw-light">Receipt voucher</span>
             </h5>
         </div>
         <div class="col-md-6 text-end">
             <a href="{{ route('company.receipt.book.voucher.add') }}" class="btn btn-primary">
-                Add Receipt Book voucher
+                Add Receipt voucher
             </a>
         </div>
     </div>
@@ -55,8 +55,15 @@
                 url: "{{ route('company.receipt.book.voucher.getall') }}",
                 type: 'GET',
             },
+            order: [[0, 'desc']],  // Order by the first column (date) in descending order
             columns: [
-                { data: "date" },
+                {
+                    data: "date",
+                    render: function (data, type, row) {
+                        // Using moment.js to format the date
+                        return moment(data).format('DD/MM/YYYY');
+                    }
+                },
                 { data: "receipt_vouchers_number" },
                 { data: "customer_name" },
                 { data: "grand_total" },
