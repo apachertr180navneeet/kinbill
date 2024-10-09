@@ -243,6 +243,11 @@ class SalesBookController extends Controller
         $user = Auth::user();
         $compId = $user->company_id;
 
+        // Fetch the company details for the authenticated user's company
+        $companyDetails = Company::find($compId);
+        $companyShortCode = $companyDetails->short_code;
+        $companyState = $companyDetails->state;
+
         $salesBook = SalesBook::with('salesbookitem.item.variation')->find($id);
 
 
@@ -259,19 +264,62 @@ class SalesBookController extends Controller
             ->select('items.*', 'variations.name as variation_name', 'taxes.rate as tax_rate')
             ->get();
 
-        return view('company.sales_book.edit', compact('salesBook', 'customers', 'items'));
+        return view('company.sales_book.edit', compact('salesBook', 'customers', 'items','companyState'));
+    }
+    public function view($id)
+    {
+        // Get the authenticated user and their company ID
+        $user = Auth::user();
+        $compId = $user->company_id;
+
+        $salesBook = SalesBook::with('salesbookitem.item.variation')->find($id);
+
+
+        // Fetch all active vendors for the user's company
+        $customers = User::where('role', 'customer')
+            ->where('company_id', $compId)
+            ->where('status', 'active')
+            ->get();
+
+        // Fetch all items with their variations and tax details for the user's company
+        $items = Item::join('variations', 'items.variation_id', '=', 'variations.id')
+            ->join('taxes', 'items.tax_id', '=', 'taxes.id')
+            ->where('items.company_id', $compId)
+            ->select('items.*', 'variations.name as variation_name', 'taxes.rate as tax_rate')
+            ->get();
+
+        return view('company.sales_book.view', compact('salesBook', 'customers', 'items'));
     }
 
     public function update(Request $request, $id)
-    {
-        // Step 1: Check if items are provided
-        if (empty($request->items) || empty($request->quantities) || empty($request->rates) || empty($request->taxes) || empty($request->totalAmounts)) {
-            return redirect()->back()->with(['error' => 'No items provided. Please add items to the sales book.']);
-        }
+    {  
+        // Validate the incoming request
+        $validatedData = $request->validate([
+            'date' => 'required|date',
+            'dispatch' => 'required|string',
+            'customer' => 'required|exists:users,id',
+            'items' => 'required|array|min:1',
+            'quantities' => 'required|array|min:1',
+            'rates' => 'required|array|min:1',
+            'taxes' => 'required|array|min:1',
+            'totalAmounts' => 'required|array|min:1',
+            'igst' => 'required|numeric|min:0',
+            'cgst' => 'required|numeric|min:0',
+            'sgst' => 'required|numeric|min:0',
+            'grand_total' => 'required|numeric|min:0',
+        ], [
+            'items.required' => 'No items provided. Please add items to the purchase book.',
+            'quantities.required' => 'Quantities are required for all items.',
+            'rates.required' => 'Rates are required for all items.',
+            'taxes.required' => 'Taxes are required for all items.',
+            'totalAmounts.required' => 'Total amounts are required for all items.',
+        ]);
+
+        
 
         $salesBook = SalesBook::with('salesbookitem')->find($id);
 
-        // Step 2: Subtract old quantities from StockReport
+        // Step 1: Subtract old quantities from StockReport
         foreach ($salesBook->salesbookitem as $item) {
             $stockReport = StockReport::where('item_id', $item->item_id)->first();
             if ($stockReport) {
@@ -280,21 +328,26 @@ class SalesBookController extends Controller
             }
         }
 
-        // Step 3: Update sales Book details
+        // Step 2: Update Purchase Book details
         $salesBook->date = $request->date;
         $salesBook->dispatch_number = $request->dispatch;
         $salesBook->customer_id = $request->customer;
         $salesBook->item_weight = $request->weight;
-        $salesBook->total_tax = $request->total_tax;
+        $salesBook->igst = $request->igst;
+        $salesBook->cgst = $request->cgst;
+        $salesBook->sgst = $request->sgst;
         $salesBook->other_expense = $request->other_expense;
         $salesBook->discount = $request->discount;
         $salesBook->round_off = $request->round_off;
         $salesBook->grand_total = $request->grand_total;
+        $salesBook->amount_before_tax = $request->amount_before_tax;
+        $salesBook->recived_amount = $request->received_amount;
+        $salesBook->balance_amount = $request->balance_amount;
 
         // Delete existing items to reattach with updated quantities
         $salesBook->salesbookitem()->delete();
 
-        // Step 4: Add new quantities to StockReport and attach items to salesBook
+        // Step 3: Add new quantities to StockReport and attach items to PurchaseBook
         foreach ($request->items as $index => $itemId) {
             $quantity = $request->quantities[$index];
             $amount = $request->rates[$index];
@@ -306,7 +359,7 @@ class SalesBookController extends Controller
                 // Update or create a StockReport entry
                 $stockReport = StockReport::where('item_id', $itemId)->first();
                 if ($stockReport) {
-                    $stockReport->quantity -= $quantity;
+                    $stockReport->quantity += $quantity;
                     $stockReport->save();
                 } else {
                     StockReport::create([
@@ -315,23 +368,24 @@ class SalesBookController extends Controller
                     ]);
                 }
 
-                // Recreate the sales book item record
+                // Recreate the purchase book item record
                 $salesBook->salesbookitem()->create([
                     'item_id' => $itemId,
                     'quantity' => $quantity,
                     'rate' => $amount,
                     'tax' => $tax,
                     'amount' => $total,
-                ]);
+                    'sales_book_id' => $id,
+                ]); 
             } else {
                 // Handle the case where the item does not exist
-                return redirect()->back()->with(['error' => "Item with ID $itemId does not exist."]);
+                return redirect()->back()->withInput()->withErrors(["Item with ID $itemId does not exist."]);
             }
         }
 
         $salesBook->save();
 
-        return redirect()->route('company.sales.book.index')->with('success', 'sales book updated successfully.');
+        return redirect()->route('company.sales.book.index')->with('success', 'Purchase book updated successfully.');
     }
 
     public function sreturn($id)

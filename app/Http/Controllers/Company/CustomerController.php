@@ -100,17 +100,17 @@ class CustomerController extends Controller
                 'required',
                 'email',
                 'max:255',
-                Rule::unique('users')->where(function ($query) use ($request) {
-                    return $query->where('role', $request->role);
-                }),
+                // Rule::unique('users')->where(function ($query) use ($request) {
+                //     return $query->where('role', $request->role);
+                // }),
             ],
             'phone' => [
                 'required',
                 'string',
                 'max:20',
-                Rule::unique('users')->where(function ($query) use ($request) {
-                    return $query->where('role', $request->role);
-                }),
+                // Rule::unique('users')->where(function ($query) use ($request) {
+                //     return $query->where('role', $request->role);
+                // }),
             ],
             'address' => 'nullable|string',
             'city' => 'required|string|max:100',

@@ -348,8 +348,8 @@
                     $('#itemsTable tbody').append(row);
 
                     // Determine tax display based on company and customer states
-                    const companyStateValue = $('#companyState').val();
-                    const selectedState = $('#customer option:selected').data('state');
+                    var companyStateValue = $('#companyState').val();
+                    var selectedState = $('#customer option:selected').data('state');
 
                     // If company and customer states are the same, apply IGST; otherwise, apply CGST and SGST
                     if (companyStateValue == selectedState) {
@@ -392,29 +392,58 @@
                 $('#amount_before_tax').val(amountBeforeTax.toFixed(2));
                 $('#grand_total').val(grandTotal.toFixed(2));
 
+                 // Recalculate tax after removing the item
+                 recalculateTax();
+
                 updateGrandTotal();
 
                 // Check if there are no items left in the table
                 if ($('#itemsTable tbody tr').length === 0) {
-                    // Clear all relevant input fields
-                    $('#cgst').val('0.00');
-                    $('#sgst').val('0.00');
-                    $('#igst').val('0.00');
-                    $('#total_tax').val('0.00');
-                    $('#amount_before_tax').val('0.00');
-                    $('#grand_total').val('0.00');
-                    $('#other_expense').val('0.00');
-                    $('#discount').val('0.00');
-                    $('#round_off').val('0.00');
-                    $('#received_amount').val('0.00');
-                    $('#balance_amount').val('0.00');
-
-                    // Reset any other necessary fields
-                    totalTax = 0.00;
-                    grandTotal = 0.00;
-                    amountBeforeTax = 0.00;
+                    resetAllFields();
                 }
             });
+
+             // Reset all fields when no items are present
+             function resetAllFields() {
+                $('#cgst').val('0.00');
+                $('#sgst').val('0.00');
+                $('#igst').val('0.00');
+                $('#total_tax').val('0.00');
+                $('#amount_before_tax').val('0.00');
+                $('#grand_total').val('0.00');
+                $('#other_expense').val('0.00');
+                $('#discount').val('0.00');
+                $('#round_off').val('0.00');
+                $('#received_amount').val('0.00');
+                $('#balance_amount').val('0.00');
+
+                // Reset any other necessary fields
+                totalTax = 0.00;
+                grandTotal = 0.00;
+                amountBeforeTax = 0.00;
+            }
+
+            //function to recalculate all tax
+            function recalculateTax() {
+                totalTax = 0;
+                $('#itemsTable tbody tr').each(function() {
+                    const rowTax = parseFloat($(this).find('input[name="taxes[]"]').val()) || 0;
+                    totalTax += rowTax;
+                });
+
+                var companyStateValue = $('#companyState').val();
+                    var selectedState = $('#customer option:selected').data('state');
+
+                    // If company and customer states are the same, apply IGST; otherwise, apply CGST and SGST
+                    if (companyStateValue == selectedState) {
+                        $('#igst').val(totalTax.toFixed(2));
+                    } else {
+                        const cgst = totalTax / 2;
+                        $('#cgst').val(cgst.toFixed(2));
+                        $('#sgst').val(cgst.toFixed(2));
+                    }
+
+            }
 
             // Update serial numbers after item removal
             function updateSNo() {

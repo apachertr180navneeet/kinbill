@@ -364,7 +364,7 @@
                         <td>${qty}<input type="hidden" name="quantities[]" value="${qty}"></td>
                         <td>${variation}</td>
                         <td>${amountPerUnit.toFixed(2)}<input type="hidden" name="rates[]" value="${amountPerUnit.toFixed(2)}"></td>
-                        <td>${tax.toFixed(2)}<input type="hidden" name="taxes[]" value="${tax.toFixed(2)}"></td>
+                        <td>${taxRate} %<input type="hidden" name="taxes[]" value="${tax.toFixed(2)}"></td>
                         <td>${totalAmount.toFixed(2)}<input type="hidden" name="totalAmounts[]" value="${totalAmount.toFixed(2)}"></td>
                         <td><button type="button" class="btn btn-danger btn-sm removeItem">Remove</button></td>
                     </tr>
@@ -396,44 +396,70 @@
             // Remove item from the table
             $(document).on('click', '.removeItem', function() {
                 const taxToRemove = parseFloat($(this).closest('tr').find('input[name="taxes[]"]').val());
-                const amountToRemove = parseFloat($(this).closest('tr').find('input[name="totalAmounts[]"]')
-                    .val());
-
+                const amountToRemove = parseFloat($(this).closest('tr').find('input[name="totalAmounts[]"]').val());
+            
                 totalTax -= taxToRemove; // Subtract the removed tax from total tax
                 grandTotal -= amountToRemove + taxToRemove; // Subtract the removed amount from grand total
-                amountBeforeTax -=
-                    amountToRemove; // Subtract the removed amount from total amount before tax
-
+                amountBeforeTax -= amountToRemove; // Subtract the removed amount from total amount before tax
+            
                 $(this).closest('tr').remove();
                 itemCount--;
                 updateSNo();
-
-                // Update the total tax and grand total fields after removal
-                $('#total_tax').val(totalTax.toFixed(2));
-                $('#amount_before_tax').val(amountBeforeTax.toFixed(2));
-                $('#grand_total').val(grandTotal.toFixed(2)); 
-                     
+            
+                // Recalculate tax after removing the item
+                recalculateTax();
+            
                 updateGrandTotal();
+            
+                // If no items remain, reset all fields to 0
                 if ($('#itemsTable tbody tr').length === 0) {
-        // Clear all relevant input fields
-        $('#cgst').val('0.00');
-        $('#sgst').val('0.00');
-        $('#igst').val('0.00');
-        $('#total_tax').val('0.00');
-        $('#amount_before_tax').val('0.00');
-        $('#grand_total').val('0.00');
-        $('#other_expense').val('0.00');
-        $('#discount').val('0.00');
-        $('#round_off').val('0.00');
-        $('#received_amount').val('0.00');
-        $('#balance_amount').val('0.00');
-
-        // Reset any other necessary fields
-        totalTax = 0.00;
-        grandTotal = 0.00;
-        amountBeforeTax = 0.00;
-    }
+                    resetAllFields();
+                }
             });
+
+
+            // Function to recalculate total tax
+            function recalculateTax() {
+                totalTax = 0;
+                $('#itemsTable tbody tr').each(function() {
+                    const rowTax = parseFloat($(this).find('input[name="taxes[]"]').val()) || 0;
+                    totalTax += rowTax;
+                });
+
+                var companyStateValue = $('#companyState').val();
+                var selectedState = $('#vendor option:selected').data('state');
+
+                if (companyStateValue == selectedState) {
+                    var cgst = totalTax / 2;
+                    $('#cgst').val(cgst.toFixed(2));
+                    $('#sgst').val(cgst.toFixed(2));
+                    $('#igst').val('0.00');
+                } else {
+                    $('#igst').val(totalTax.toFixed(2));
+                    $('#cgst').val('0.00');
+                    $('#sgst').val('0.00');
+                }
+            }
+
+            // Reset all fields when no items are present
+            function resetAllFields() {
+                $('#cgst').val('0.00');
+                $('#sgst').val('0.00');
+                $('#igst').val('0.00');
+                $('#total_tax').val('0.00');
+                $('#amount_before_tax').val('0.00');
+                $('#grand_total').val('0.00');
+                $('#other_expense').val('0.00');
+                $('#discount').val('0.00');
+                $('#round_off').val('0.00');
+                $('#received_amount').val('0.00');
+                $('#balance_amount').val('0.00');
+
+                // Reset any other necessary fields
+                totalTax = 0.00;
+                grandTotal = 0.00;
+                amountBeforeTax = 0.00;
+            }
 
             // Update S. No. after item removal
             function updateSNo() {
