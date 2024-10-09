@@ -191,6 +191,7 @@ Route::prefix('company')->name('company.')->group(function () {
             Route::post('/store', 'store')->name('store');
             Route::delete('/delete/{id}', 'destroy')->name('destroy');
             Route::get('/edit/{id}', 'edit')->name('edit'); // Edit route
+            Route::get('/view/{id}', 'view')->name('view'); // Edit route
             Route::put('/update/{id}', 'update')->name('update'); // Update route
             Route::get('/s-return/{id}', 'sreturn')->name('sreturn'); // Edit route
             Route::post('/s-return/save/{id}', 'sreturn_update')->name('spreturn.save');
