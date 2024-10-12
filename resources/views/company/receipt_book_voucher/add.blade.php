@@ -29,7 +29,7 @@
                             <tr>
                                 <td>
                                     <label for="receipt" class="form-label">Receipt Voucher No.</label>
-                                    <input type="text" class="form-control @error('receipt') is-invalid @enderror" id="receipt" name="receipt" value="{{ old('receipt') }}">
+                                    <input type="text" class="form-control @error('receipt') is-invalid @enderror" id="receipt" name="receipt" value="{{ old('receipt',$finalInvoiceNumber) }}" readonly>
                                     @error('receipt')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
@@ -48,12 +48,17 @@
                                     <select class="form-select @error('customer') is-invalid @enderror" id="customer" name="customer">
                                         <option value="">Select</option>
                                         @foreach ($customers as $customer)
-                                            <option value="{{ $customer->id }}" {{ old('customer') == $customer->id ? 'selected' : '' }}>{{ $customer->full_name }}</option>
+                                            <option value="{{ $customer->id }}"
+                                                data-salesbook-amount="{{ $salesbooks->where('customer_id', $customer->id)->sum('grand_total') }}"
+                                                data-salesbook-received="{{ $salesbooks->where('customer_id', $customer->id)->sum('recived_amount') }}"
+                                                 {{ old('customer') == $customer->id ? 'selected' : '' }}>
+                                                 {{ $customer->full_name }}</option>
                                         @endforeach
                                     </select>
                                     @error('customer')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
+                                    
                                 </td>
                                 <td>
                                     <label for="remark" class="form-label">Remarks</label>
@@ -65,7 +70,7 @@
                             </tr>
                             <tr>
                                 <td>
-                                    <label for="amount" class="form-label">Amount</label>
+                                    <label for="amount" class="form-label">Amount</label> <span id="paymentStatus" style="color: green; display: none;">Customer has paid the full amount.</span> 
                                     <input type="text" class="form-control @error('amount') is-invalid @enderror" id="amount" name="amount" value="{{ old('amount', 0) }}">
                                     @error('amount')
                                         <div class="invalid-feedback">{{ $message }}</div>
@@ -143,9 +148,9 @@
 </div>
 @endsection
 
-@section('script')
+@section('script') 
 <script>
-    $(document).ready(function() {
+     $(document).ready(function() {
         function calculateGrandTotal() {
             var amount = parseFloat($('#amount').val()) || 0;
             var discount = parseFloat($('#discount').val()) || 0;
@@ -160,5 +165,26 @@
             calculateGrandTotal();
         });
     });
+    
+    document.getElementById('customer').addEventListener('change', function () {
+    const selectedCustomer = this.options[this.selectedIndex];
+    const grandTotalAmount = selectedCustomer.getAttribute('data-salesbook-amount') || 0;
+    const recievedAmount = selectedCustomer.getAttribute('data-salesbook-received') || 0;
+    const salesbookAmount = grandTotalAmount - recievedAmount;
+    console.log(salesbookAmount);
+    
+
+    // Update the amount input with the corresponding value
+    document.getElementById('amount').value = salesbookAmount;
+
+    const paymentStatus = document.getElementById('paymentStatus');
+    if (salesbookAmount===0) {
+        paymentStatus.style.display = 'inline';
+        paymentStatus.textContent =  '(Customer has paid the full amount.)';
+    }else{
+        paymentStatus.style.display = 'none';
+    }
+     
+});
 </script>
 @endsection

@@ -29,7 +29,7 @@
                             <tr>
                                 <td>
                                     <label for="payment" class="form-label">Payment Voucher No.</label>
-                                    <input type="text" class="form-control @error('payment') is-invalid @enderror" id="payment" name="payment" value="{{ old('payment') }}">
+                                    <input type="text" class="form-control @error('payment') is-invalid @enderror" id="payment" name="payment" value="{{ old('payment',$finalInvoiceNumber) }}">
                                     @error('payment')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
@@ -48,7 +48,11 @@
                                     <select class="form-select @error('vendor') is-invalid @enderror" id="vendor" name="vendor">
                                         <option value="">Select</option>
                                         @foreach ($vendors as $vendor)
-                                            <option value="{{ $vendor->id }}" {{ old('vendor') == $vendor->id ? 'selected' : '' }}>{{ $vendor->full_name }}</option>
+                                            <option value="{{ $vendor->id }}"
+                                                 data-purchasebooks-amount="{{ $purchasebooks->where('vendor_id', $vendor->id)->sum('grand_total') }}"
+                                                data-purchasebooks-given="{{ $purchasebooks->where('vendor_id', $vendor->id)->sum('given_amount') }}"
+                                                 {{ old('vendor') == $vendor->id ? 'selected' : '' }}>
+                                                 {{ $vendor->full_name }}</option>
                                         @endforeach
                                     </select>
                                     @error('vendor')
@@ -65,7 +69,7 @@
                             </tr>
                             <tr>
                                 <td>
-                                    <label for="amount" class="form-label">Amount</label>
+                                    <label for="amount" class="form-label">Amount</label> <span id="paymentStatus" style="color: green; display: none;">Vendor has paid the full amount.</span> 
                                     <input type="text" class="form-control @error('amount') is-invalid @enderror" id="amount" name="amount" value="{{ old('amount', 0) }}">
                                     @error('amount')
                                         <div class="invalid-feedback">{{ $message }}</div>
@@ -160,5 +164,24 @@
             calculateGrandTotal();
         });
     });
+
+    document.getElementById('vendor').addEventListener('change', function () {
+    const selectedVendor = this.options[this.selectedIndex];
+    const grandTotalAmount = selectedVendor.getAttribute('data-purchasebooks-amount') || 0;
+    const givenAmount = selectedVendor.getAttribute('data-purchasebooks-given') || 0;
+    const purchasebookAmount = grandTotalAmount - givenAmount;  
+
+    // Update the amount input with the corresponding value
+    document.getElementById('amount').value = purchasebookAmount;
+
+    const paymentStatus = document.getElementById('paymentStatus');
+    if (purchasebookAmount===0) {
+        paymentStatus.style.display = 'inline';
+        paymentStatus.textContent =  '(Vendor has paid the full amount.)';
+    }else{
+        paymentStatus.style.display = 'none';
+    }
+     
+});
 </script>
 @endsection

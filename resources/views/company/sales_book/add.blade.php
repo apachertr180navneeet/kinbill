@@ -319,54 +319,71 @@
 
                 // Check if the item ID, quantity, and amount per unit are valid
                 if (itemId && !isNaN(qty) && !isNaN(amountPerUnit)) {
-                    const totalAmount = qty * amountPerUnit;
-                    const tax = totalAmount * (taxRate / 100);
-                    const totalWithTax = totalAmount + tax;
 
-                    // Update item count, amounts, and taxes
-                    itemCount++;
-                    amountBeforeTax += totalAmount;
-                    totalTax += tax;
-                    grandTotal += totalWithTax;
+                    let itemExists = false;
+                    $('#itemsTable tbody tr').each(function() {
+                        const existingItemId = $(this).find('input[name="items[]"]').val();
+                        if (existingItemId == itemId) {
+                            itemExists = true; // If the item exists, set the flag to true
+                            return false; // Exit the loop early if a match is found
+                        }
+                    });
 
-                    // Update amount before tax in the form
-                    $('#amount_before_tax').val(amountBeforeTax.toFixed(2));
-
-                    // Generate a new row for the item in the table
-                    const row = `
-                    <tr>
-                        <td>${itemCount}</td>
-                        <td>${item}<input type="hidden" name="items[]" value="${itemId}"></td>
-                        <td>${qty}<input type="hidden" name="quantities[]" value="${qty}"></td>
-                        <td>${variation}</td>
-                        <td>${amountPerUnit.toFixed(2)}<input type="hidden" name="rates[]" value="${amountPerUnit.toFixed(2)}"></td>
-                        <td>${tax.toFixed(2)}<input type="hidden" name="taxes[]" value="${tax.toFixed(2)}"></td>
-                        <td>${totalAmount.toFixed(2)}<input type="hidden" name="totalAmounts[]" value="${totalAmount.toFixed(2)}"></td>
-                        <td><button type="button" class="btn btn-danger btn-sm removeItem">Remove</button></td>
-                    </tr>
-                `;
-                    $('#itemsTable tbody').append(row);
-
-                    // Determine tax display based on company and customer states
-                    var companyStateValue = $('#companyState').val();
-                    var selectedState = $('#customer option:selected').data('state');
-
-                    // If company and customer states are the same, apply IGST; otherwise, apply CGST and SGST
-                    if (companyStateValue == selectedState) {
-                        $('#igst').val(totalTax.toFixed(2));
+                    if (itemExists) {
+                        // Show error if the item already exists
+                        setFlash('error',
+                            'This item has already been added. Please select a different item.');
                     } else {
-                        const cgst = totalTax / 2;
-                        $('#cgst').val(cgst.toFixed(2));
-                        $('#sgst').val(cgst.toFixed(2));
+
+                        const totalAmount = qty * amountPerUnit;
+                        const tax = totalAmount * (taxRate / 100);
+                        const totalWithTax = totalAmount + tax;
+
+                        // Update item count, amounts, and taxes
+                        itemCount++;
+                        amountBeforeTax += totalAmount;
+                        totalTax += tax;
+                        grandTotal += totalWithTax;
+
+                        // Update amount before tax in the form
+                        $('#amount_before_tax').val(amountBeforeTax.toFixed(2));
+
+                        // Generate a new row for the item in the table
+                        const row = `
+                                        <tr>
+                                            <td>${itemCount}</td>
+                                            <td>${item}<input type="hidden" name="items[]" value="${itemId}"></td>
+                                            <td>${qty}<input type="hidden" name="quantities[]" value="${qty}"></td>
+                                            <td>${variation}</td>
+                                            <td>${amountPerUnit.toFixed(2)}<input type="hidden" name="rates[]" value="${amountPerUnit.toFixed(2)}"></td>
+                                            <td>${taxRate}%<input type="hidden" name="taxes[]" value="${tax.toFixed(2)}"></td>
+                                            <td>${totalAmount.toFixed(2)}<input type="hidden" name="totalAmounts[]" value="${totalAmount.toFixed(2)}"></td>
+                                            <td><button type="button" class="btn btn-danger btn-sm removeItem">Remove</button></td>
+                                        </tr>
+                                    `;
+                        $('#itemsTable tbody').append(row);
+
+                        // Determine tax display based on company and customer states
+                        var companyStateValue = $('#companyState').val();
+                        var selectedState = $('#customer option:selected').data('state');
+
+                        // If company and customer states are the same, apply IGST; otherwise, apply CGST and SGST
+                        if (companyStateValue != selectedState) {
+                            $('#igst').val(totalTax.toFixed(2));
+                        } else {
+                            const cgst = totalTax / 2;
+                            $('#cgst').val(cgst.toFixed(2));
+                            $('#sgst').val(cgst.toFixed(2));
+                        }
+
+                        // Update grand total
+                        updateGrandTotal();
+
+                        // Clear input fields after adding item
+                        $('#item').val('').trigger('change');
+                        $('#qty').val('');
+                        $('#amount').val('');
                     }
-
-                    // Update grand total
-                    updateGrandTotal();
-
-                    // Clear input fields after adding item
-                    $('#item').val('').trigger('change');
-                    $('#qty').val('');
-                    $('#amount').val('');
                 } else {
                     setFlash("error", "Please fill all fields with valid values.");
                 }
@@ -374,13 +391,16 @@
 
             // Remove item from the table and update totals
             $(document).on('click', '.removeItem', function() {
-                const taxToRemove = parseFloat($(this).closest('tr').find('input[name="taxes[]"]').val());
-                const amountToRemove = parseFloat($(this).closest('tr').find('input[name="totalAmounts[]"]')
+                const taxToRemove = parseFloat($(this).closest('tr').find('input[name="taxes[]"]')
+                    .val());
+                const amountToRemove = parseFloat($(this).closest('tr').find(
+                        'input[name="totalAmounts[]"]')
                     .val());
 
                 // Subtract the tax and amount from total values
                 totalTax -= taxToRemove;
                 grandTotal -= amountToRemove;
+                amountBeforeTax -= amountToRemove
 
                 // Remove the row and update the item count and serial numbers
                 $(this).closest('tr').remove();
@@ -392,8 +412,8 @@
                 $('#amount_before_tax').val(amountBeforeTax.toFixed(2));
                 $('#grand_total').val(grandTotal.toFixed(2));
 
-                 // Recalculate tax after removing the item
-                 recalculateTax();
+                // Recalculate tax after removing the item
+                recalculateTax();
 
                 updateGrandTotal();
 
@@ -403,8 +423,8 @@
                 }
             });
 
-             // Reset all fields when no items are present
-             function resetAllFields() {
+            // Reset all fields when no items are present
+            function resetAllFields() {
                 $('#cgst').val('0.00');
                 $('#sgst').val('0.00');
                 $('#igst').val('0.00');
@@ -432,16 +452,16 @@
                 });
 
                 var companyStateValue = $('#companyState').val();
-                    var selectedState = $('#customer option:selected').data('state');
+                var selectedState = $('#customer option:selected').data('state');
 
-                    // If company and customer states are the same, apply IGST; otherwise, apply CGST and SGST
-                    if (companyStateValue == selectedState) {
-                        $('#igst').val(totalTax.toFixed(2));
-                    } else {
-                        const cgst = totalTax / 2;
-                        $('#cgst').val(cgst.toFixed(2));
-                        $('#sgst').val(cgst.toFixed(2));
-                    }
+                // If company and customer states are the same, apply IGST; otherwise, apply CGST and SGST
+                if (companyStateValue == selectedState) {
+                    $('#igst').val(totalTax.toFixed(2));
+                } else {
+                    const cgst = totalTax / 2;
+                    $('#cgst').val(cgst.toFixed(2));
+                    $('#sgst').val(cgst.toFixed(2));
+                }
 
             }
 

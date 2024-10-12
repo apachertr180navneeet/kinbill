@@ -44,7 +44,7 @@
                                         <option selected>Select</option>
                                         @foreach ($customers as $customer)
                                             <option value="{{ $customer->id }}"
-                                                {{ $customer->id == $salesBook->customer_id ? 'selected' : '' }}>
+                                                {{ $customer->id == $salesBook->customer_id ? 'selected' : '' }} data-state="{{ $customer->state }}">
                                                 {{ $customer->full_name }}</option>
                                         @endforeach
                                     </select>
@@ -108,6 +108,11 @@
                                 <tbody>
                                     <!-- Pre-fill items from the purchase book -->
                                     @foreach ($salesBook->salesbookitem as $index => $item)
+                                    @php
+                                        $formattedAmount = $item->amount;
+                                        $amountWithoutCommas = str_replace(',', '', $formattedAmount); // Remove commas
+                                        $integerAmount = intval($amountWithoutCommas);
+                                    @endphp
                                         <tr>
                                             <td>{{ $index + 1 }}</td>
                                             <td>{{ $item->item->name }}<input type="hidden" name="items[]"
@@ -120,12 +125,11 @@
                                             <td>{{ number_format(floatval($item->rate ?? 0), 2) }}<input type="hidden"
                                                     name="rates[]"
                                                     value="{{ number_format(floatval($item->rate ?? 0), 2) }}"></td>
-                                            <td>{{ number_format(floatval($item->tax ?? 0), 2) }}<input type="hidden"
-                                                    name="taxes[]"
-                                                    value="{{ number_format(floatval($item->tax ?? 0), 2) }}"></td>
+                                            <td>{{ $item->item->tax->rate }} %<input type="hidden" name="taxes[]"
+                                                    value="{{ $item->tax }}"></td>
                                             <td>{{ number_format(floatval($item->amount ?? 0), 2) }}<input type="hidden"
                                                     name="totalAmounts[]"
-                                                    value="{{ number_format(floatval($item->amount ?? 0), 2) }}"></td>
+                                                    value="{{ $item->amount }}"></td>
                                             <td><button type="button"
                                                     class="btn btn-danger btn-sm removeItem">Remove</button></td>
                                         </tr>
@@ -145,7 +149,7 @@
                                 <div class="col-md-4 mb-3">
                                     <input type="text" class="form-control" id="amount_before_tax"
                                         value="{{ number_format((float) $salesBook->amount_before_tax, 2) }}"
-                                        name="amount_before_tax" min="0" readonly>
+                                        name="amount_before_tax">
                                     @error('amount_before_tax')
                                         <div class="text-danger">{{ $message }}</div>
                                     @enderror
@@ -285,159 +289,143 @@
 @endsection
 
 @section('script')
-    <script>
-        $(document).ready(function() {
-            let amountBeforeTax = 0;
-            let itemsTableBody = $("#itemsTable tbody");
-            const companyStateValue = $('#companyState').val();
+<script>
+    $(document).ready(function() {
+        let amountBeforeTax = 0;
+        let itemsTableBody = $("#itemsTable tbody");
+        const companyStateValue = $('#companyState').val();
 
-            // Initial calculation on page load for edit case
-            const initialVendorState = $('#customer option:selected').data('state');
-            calculateTotals(initialVendorState); // Recalculate totals on page load
-
-            // Vendor change event
-            $("#customer").change(function() {
-                const selectedVendorState = $('#customer option:selected').data('state');
-                calculateTotals(selectedVendorState); // Recalculate totals when vendor changes
-            });
-
-            // Add Item Button Click
-            $("#addItem").click(function() {
-                let item = $("#item").val();
-                let itemName = $("#item option:selected").text();
-                let itemTax = parseFloat($("#item option:selected").data('tax'));
-                let itemVariation = $("#item option:selected").data('variation');
-                let qty = parseFloat($("#qty").val());
-                let amount = parseFloat($("#amount").val());
-                // let taxRate = parseFloat($("#amount").val());
-
-                if (!item || qty <= 0 || amount <= 0) {
-                    alert('Please fill out all required fields before adding an item.');
-                    return;
-                }
-
-                let totalAmount = qty * amount;
-                let totalTax = (totalAmount * itemTax) / 100;
-
-                amountBeforeTax += totalAmount;
-                let pretaxamount = parseFloat($("#amount_before_tax").val());
-
-                let total_before_tax = pretaxamount + amountBeforeTax;
-                $('#amount_before_tax').val(total_before_tax.toFixed(2));
-
-                let row = `<tr>
-                            <td>${itemsTableBody.children().length + 1}</td>
-                            <td>${itemName}<input type="hidden" name="items[]" value="${item}"></td>
-                            <td>${qty}<input type="hidden" name="quantities[]" value="${qty}"></td>
-                            <td>0<input type="hidden" name="sreturn[]" value="0"></td>
-                            <td>${itemVariation}</td>
-                            <td>${amount.toFixed(2)}<input type="hidden" name="rates[]" value="${amount.toFixed(2)}"></td>
-                            <td>${totalTax} <input type="hidden" name="taxes[]" value="${totalTax.toFixed(2)}"></td>
-                            <td>${totalAmount.toFixed(2)}<input type="hidden" name="totalAmounts[]" value="${totalAmount.toFixed(2)}"></td>
-                            <td><button type="button" class="btn btn-danger btn-sm removeItem">Remove</button></td>
-                        </tr>`;
-
-                itemsTableBody.append(row);
-                const selectedVendorState = $('#customer option:selected').data('state');
-                calculateTotals(selectedVendorState); // Recalculate totals after adding the item
-
-                // Clear input fields after adding the item
-                $("#item").val("");
-                $("#qty").val("");
-                $("#amount").val("");
-            });
-
-            // Remove Item Button Click
-            itemsTableBody.on('click', '.removeItem', function() {
-                const row = $(this).closest('tr');
-                const totalAmount = parseFloat(row.find("input[name='totalAmounts[]']").val()) || 0;
-                const totalTax = parseFloat(row.find("input[name='taxes[]']").val()) || 0;
-
-                amountBeforeTax -= totalAmount;
-                row.remove();
-
-                recalculateItemNumbers();
-                const selectedVendorState = $('#customer option:selected').data('state');
-                calculateTotals(selectedVendorState);
-            });
-
-            // Recalculate item numbers
-            function recalculateItemNumbers() {
-                itemsTableBody.children().each(function(index) {
-                    $(this).find('td:first').text(index + 1);
-                });
-            }
-
-            // Calculate Totals based on vendor state
-            function calculateTotals(selectedState) {
-                let totalTax = 0;
-                let grandTotal = 0;
-
-                $("input[name='totalAmounts[]']").each(function() {
-                    grandTotal += parseFloat($(this).val()) || 0;
-                });
-
-                $("input[name='taxes[]']").each(function() {
-                    totalTax += parseFloat($(this).val()) || 0;
-                });
-
-                let otherExpense = parseFloat($("#other_expense").val()) || 0;
-                let discount = parseFloat($("#discount").val()) || 0;
-                let roundOff = parseFloat($("#round_off").val()) || 0;
-
-                let finalTotal = grandTotal + totalTax + otherExpense - discount + roundOff;
-                console.log("grandTotal:", grandTotal);
-                console.log("totalTax:", totalTax);
-                console.log("otherExpense:", otherExpense);
-                console.log("discount:", discount);
-                console.log("roundOff:", roundOff);
-                console.log("finalTotal:", finalTotal);
-
-                if (companyStateValue === selectedState) {
-                    // Same state, use CGST/SGST
-                    let halfTax = totalTax / 2;
-                    $('#cgst').val(halfTax.toFixed(2));
-                    $('#sgst').val(halfTax.toFixed(2));
-                    $('#igst').val('0.00');
-                } else {
-                    // Different state, use IGST
-                    $('#igst').val(totalTax.toFixed(2));
-                    $('#cgst').val('0.00');
-                    $('#sgst').val('0.00');
-                }
-
-                $("#amount_before_tax").val(grandTotal.toFixed(2));
-                $("#grand_total").val(finalTotal.toFixed(2));
-            }
-
-            // Update remaining balance when given amount changes
-            $('#received_amount').on('input', function() {
-                updateRemainingBalance();
-            });
-
-            // Function to update remaining balance
-            function updateRemainingBalance() {
-                const givenAmount = parseFloat($('#received_amount').val()) || 0;
-                const calculatedTotalMain = $('#grand_total').val();
-                const remainingBalance = calculatedTotalMain - givenAmount;
-                $('#balance_amount').val(remainingBalance.toFixed(2));
-            }
-
-            // Update totals on input changes
-            $("#other_expense, #discount, #round_off").on('input', function() {
-                const selectedVendorState = $('#customer option:selected').data('state');
-                calculateTotals(selectedVendorState);
-            });
-
-            // Handle form submission
-            $("#Sales_edit").submit(function(e) {
-                let itemsCount = $("input[name='items[]']").length;
-
-                if (itemsCount === 0) {
-                    alert('Please add at least one item before submitting the form.');
-                    e.preventDefault();
-                }
-            });
+        // Vendor change event
+        $("#customer").change(function() {
+            const selectedVendorState = $('#customer option:selected').data('state');
+            calculateTotals(selectedVendorState); // Recalculate totals when vendor changes
         });
-    </script>
+
+        // Add Item Button Click
+        $("#addItem").click(function() {
+            let item = $("#item").val();
+            let itemName = $("#item option:selected").text();
+            let itemTax = parseFloat($("#item option:selected").data('tax')) || 0; // Handle missing tax rate
+            let itemVariation = $("#item option:selected").data('variation');
+            let qty = parseInt($("#qty").val()) || 0; // Convert quantity to integer
+            let amount = parseFloat($("#amount").val()) || 0; // Convert amount to float
+
+            // Validate item, quantity, and amount before adding
+            if (!item || qty <= 0 || amount <= 0) {
+                alert('Please fill out all required fields before adding an item.');
+                return;
+            }
+
+            let totalAmount = qty * amount; // Calculate total amount (quantity * unit price)
+            let totalTax = Math.round((totalAmount * itemTax) / 100); // Calculate total tax as an integer
+
+            // Add the item as a new row in the table
+            let row = `<tr>
+                <td>${itemsTableBody.children().length + 1}</td>
+                <td>${itemName}<input type="hidden" name="items[]" value="${item}"></td>
+                <td>${qty}<input type="hidden" name="quantities[]" value="${qty}"></td>
+                <td>0<input type="hidden" name="sreturn[]" value="0"></td>
+                <td>${itemVariation}</td>
+                <td>${amount.toFixed(2)}<input type="hidden" name="rates[]" value="${amount.toFixed(2)}"></td>
+                <td>${itemTax}% <input type="hidden" name="taxes[]" value="${totalTax}"></td>
+                <td>${Math.round(totalAmount)}<input type="hidden" name="totalAmounts[]" value="${Math.round(totalAmount)}"></td>
+                <td><button type="button" class="btn btn-danger btn-sm removeItem">Remove</button></td>
+            </tr>`;
+
+            itemsTableBody.append(row);
+
+            // Recalculate totals after adding the item
+            const selectedVendorState = $('#customer option:selected').data('state');
+            calculateTotals(selectedVendorState); // Call function to update totals
+
+            // Clear input fields after adding the item
+            $("#item").val("");
+            $("#qty").val("");
+            $("#amount").val("");
+        });
+
+        // Remove Item Button Click with event delegation
+        itemsTableBody.on('click', '.removeItem', function() {
+            const row = $(this).closest('tr');
+            row.remove();
+            recalculateItemNumbers();
+
+            const selectedVendorState = $('#customer option:selected').data('state');
+            console.log(selectedVendorState);
+            
+            calculateTotals(selectedVendorState);
+        });
+
+        // Recalculate item numbers
+        function recalculateItemNumbers() {
+            itemsTableBody.children().each(function(index) {
+                $(this).find('td:first').text(index + 1);
+            });
+        }
+
+        // Recalculate Totals based on vendor state
+        function calculateTotals(selectedState) {
+
+            let totalTax = 0;
+            let grandTotal = 0;
+            let totalBeforeTax = 0;
+            var companyStateValue = $('#companyState').val();
+            console.log(companyStateValue + '<=>' + selectedState);
+            
+            // Calculate grand total and amount before tax
+            $("input[name='totalAmounts[]']").each(function() {
+                let totalAmount = parseInt($(this).val()) || 0; // Convert totalAmount to integer
+                totalBeforeTax += totalAmount;
+                grandTotal += totalAmount;
+            });
+
+            // Calculate total tax
+            $("input[name='taxes[]']").each(function() {
+                let taxAmount = parseInt($(this).val()) || 0; // Convert taxAmount to integer
+                totalTax += taxAmount;
+            });
+
+            // Parse other expense, discount, and round off values
+            let otherExpense = parseInt($("#other_expense").val()) || 0; // Convert to integer
+            let discount = parseInt($("#discount").val()) || 0; // Convert to integer
+            let roundOff = parseInt($("#round_off").val()) || 0; // Convert to integer
+
+            // Final total calculation
+            let finalTotal = grandTotal + totalTax + otherExpense - discount + roundOff;
+
+            // Display tax values based on the state
+            if (companyStateValue === selectedState) {
+                let halfTax = Math.round(totalTax / 2); // Split tax into two for CGST/SGST
+                $('#cgst').val(halfTax); // Show formatted value for display
+                $('#sgst').val(halfTax); // Show formatted value for display
+                $('#igst').val('0');
+            } else {
+                $('#igst').val(totalTax); // Show full tax value for IGST
+                $('#cgst').val('0');
+                $('#sgst').val('0');
+            }
+
+            // Set the correct amount before tax and grand total
+            $("#amount_before_tax").val(totalBeforeTax); // Show full amount
+            $("#grand_total").val(finalTotal); // Show grand total
+        }
+
+        // Update totals on input changes
+        $("#other_expense, #discount, #round_off").on('input', function() {
+            const selectedVendorState = $('#customer option:selected').data('state');
+            calculateTotals(selectedVendorState);
+        });
+
+        // Handle form submission
+        $("#Sales_edit").submit(function(e) {
+            let itemsCount = $("input[name='items[]']").length;
+
+            if (itemsCount === 0) {
+                alert('Please add at least one item before submitting the form.');
+                e.preventDefault();
+            }
+        });
+    });
+</script>
+
 @endsection

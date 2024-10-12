@@ -13,7 +13,8 @@ use Exception;
 
 class SalesBookController extends Controller
 {
-    public function getLastDigit($str) {
+    public function getLastDigit($str)
+    {
         // Use regular expression to find all digits in the string
         preg_match_all('/\d/', $str, $matches);
 
@@ -234,7 +235,6 @@ class SalesBookController extends Controller
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()]);
         }
-
     }
 
     public function edit($id)
@@ -248,7 +248,7 @@ class SalesBookController extends Controller
         $companyShortCode = $companyDetails->short_code;
         $companyState = $companyDetails->state;
 
-        $salesBook = SalesBook::with('salesbookitem.item.variation')->find($id);
+        $salesBook = SalesBook::with('salesbookitem.item.variation', 'salesbookitem.item.tax')->find($id);
 
 
         // Fetch all active vendors for the user's company
@@ -264,7 +264,7 @@ class SalesBookController extends Controller
             ->select('items.*', 'variations.name as variation_name', 'taxes.rate as tax_rate')
             ->get();
 
-        return view('company.sales_book.edit', compact('salesBook', 'customers', 'items','companyState'));
+        return view('company.sales_book.edit', compact('salesBook', 'customers', 'items', 'companyState'));
     }
     public function view($id)
     {
@@ -292,7 +292,7 @@ class SalesBookController extends Controller
     }
 
     public function update(Request $request, $id)
-    {  
+    {
         // Validate the incoming request
         $validatedData = $request->validate([
             'date' => 'required|date',
@@ -315,7 +315,7 @@ class SalesBookController extends Controller
             'totalAmounts.required' => 'Total amounts are required for all items.',
         ]);
 
-        
+
 
         $salesBook = SalesBook::with('salesbookitem')->find($id);
 
@@ -376,7 +376,7 @@ class SalesBookController extends Controller
                     'tax' => $tax,
                     'amount' => $total,
                     'sales_book_id' => $id,
-                ]); 
+                ]);
             } else {
                 // Handle the case where the item does not exist
                 return redirect()->back()->withInput()->withErrors(["Item with ID $itemId does not exist."]);
@@ -394,7 +394,7 @@ class SalesBookController extends Controller
         $user = Auth::user();
         $compId = $user->company_id;
 
-        $salesBook = SalesBook::with('salesbookitem.item.variation','salesbookitem.item.tax')->find($id);
+        $salesBook = SalesBook::with('salesbookitem.item.variation', 'salesbookitem.item.tax')->find($id);
 
 
         // Fetch all active vendors for the user's company
@@ -419,6 +419,7 @@ class SalesBookController extends Controller
         DB::beginTransaction();
         try {
             // dd($request->all());
+            // dd( $request->quantities);
             // Loop through each item in the request and update the stock and purchase book
             foreach ($request->items as $index => $itemId) {
                 $quantity = $request->quantities[$index];
@@ -437,19 +438,33 @@ class SalesBookController extends Controller
                     ->where('sales_book_id', $id)
                     ->first();
 
-                // Update or create the PurchesBookItem entry if quantity has changed or record doesn't exist
-                if (!$existingPurchesBookItem || $existingPurchesBookItem->sreturn != $quantity) {
-                    SalesBookItem::updateOrCreate(
-                        ['item_id' => $itemId, 'sales_book_id' => $id],
-                        [
-                            'sreturn' => $quantity,
-                            // 'quantity' => $quantity,
-                            'rate' => $amount,
-                            'tax' => $tax,
-                            'amount' => $total
-                        ]
-                    );
+                if ($existingPurchesBookItem) {
+                    $newqty = $quantity;
+                    $sreturn = $existingPurchesBookItem->sreturn + $newqty;
+    
+                    
+                    if ($existingPurchesBookItem->quantity == $existingPurchesBookItem->sreturn && $quantity > 0) {
+                        return redirect()->back()->withInput()->withErrors([
+                            'error' => "Cannot update. Quantity and return values are already equal for item ID $itemId."
+                        ]);
+                    }
+                } else {
+                    // If no existing entry, set sreturn to the current quantity
+                    $sreturn = $quantity;
                 }
+
+                // if (!$existingPurchesBookItem || $existingPurchesBookItem->sreturn != $quantity) {
+                SalesBookItem::updateOrCreate(
+                    ['item_id' => $itemId, 'sales_book_id' => $id],
+                    [
+                        'sreturn' => $sreturn,
+                        // 'quantity' => $quantity,
+                        'rate' => $amount,
+                        'tax' => $tax,
+                        'amount' => $total
+                    ]
+                );
+                // }
 
                 $stkqty = $existingPurchesBookItem->quantity - $quantity;
                 // Update stock report
@@ -470,7 +485,6 @@ class SalesBookController extends Controller
             DB::commit();
 
             return redirect()->route('company.sales.book.index')->with('success', 'Return Added successfully.');
-
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect()->back()->withInput()->withErrors(['error' => 'An error occurred while updating the return.']);
