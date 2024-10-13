@@ -81,7 +81,7 @@
                                         <option selected>Select</option>
                                         @foreach ($items as $item)
                                             <option value="{{ $item->id }}" data-tax="{{ $item->tax->rate }}"
-                                                data-variation="{{ $item->variation->name }}">{{ $item->name }}</option>
+                                                data-variation="{{ $item->variation->name }}" data-hsn="{{ $item->hsn_hac }}">{{ $item->name }}</option>
                                         @endforeach
                                     </select>
                                     <div id="item_error" class="text-danger"></div>
@@ -111,6 +111,7 @@
                                         <th>S. No.</th>
                                         <th>Item</th>
                                         <th>Quantity</th>
+                                        <th>HSN</th>
                                         <th>Variation</th>
                                         <th>Rate</th>
                                         <th>Tax</th>
@@ -282,7 +283,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
     <script>
         $(document).ready(function() {
-            //for select search 
+            //for select search
             $('#item').select2({
                 placeholder: 'Select an item', // Optional placeholder text
                 allowClear: true // Allow clearing the selection
@@ -340,6 +341,7 @@
             $('#addItem').on('click', function() {
                 const item = $('#item option:selected').text();
                 const itemId = $('#item').val();
+                const hsn = $('#item option:selected').data('hsn');
                 const variation = $('#item option:selected').data('variation');
                 const taxRate = parseFloat($('#item option:selected').data('tax'));
                 const qty = parseInt($('#qty').val());
@@ -362,6 +364,7 @@
                         <td>${itemCount}</td>
                         <td>${item}<input type="hidden" name="items[]" value="${itemId}"></td>
                         <td>${qty}<input type="hidden" name="quantities[]" value="${qty}"></td>
+                        <td>${hsn}</td>
                         <td>${variation}</td>
                         <td>${amountPerUnit.toFixed(2)}<input type="hidden" name="rates[]" value="${amountPerUnit.toFixed(2)}"></td>
                         <td>${taxRate} %<input type="hidden" name="taxes[]" value="${tax.toFixed(2)}"></td>
@@ -397,20 +400,20 @@
             $(document).on('click', '.removeItem', function() {
                 const taxToRemove = parseFloat($(this).closest('tr').find('input[name="taxes[]"]').val());
                 const amountToRemove = parseFloat($(this).closest('tr').find('input[name="totalAmounts[]"]').val());
-            
+
                 totalTax -= taxToRemove; // Subtract the removed tax from total tax
                 grandTotal -= amountToRemove + taxToRemove; // Subtract the removed amount from grand total
                 amountBeforeTax -= amountToRemove; // Subtract the removed amount from total amount before tax
-            
+
                 $(this).closest('tr').remove();
                 itemCount--;
                 updateSNo();
-            
+
                 // Recalculate tax after removing the item
                 recalculateTax();
-            
+
                 updateGrandTotal();
-            
+
                 // If no items remain, reset all fields to 0
                 if ($('#itemsTable tbody tr').length === 0) {
                     resetAllFields();

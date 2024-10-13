@@ -117,13 +117,13 @@ class VendorController extends Controller
             'state' => 'required|string',
             'gst' => 'required|string',
         ];
-        
+
         // Custom messages
         $messages = [
             'email.unique' => "The email has already been taken in the {$request->role}s.",
             'phone.unique' => "The phone number has already been taken in the {$request->role}s.",
         ];
-        
+
 
         // Validate the request data
         $validator = Validator::make($request->all(), $rules, $messages);
@@ -192,7 +192,7 @@ class VendorController extends Controller
         $request->validate([
             'full_name' => 'required|string|max:255',
             'email' => 'required|email|max:255|unique:users,email,' . $request->id,
-            'phone' => 'required|string|max:20|unique:users,phone,' . $request->id,
+            'phone' => 'required|string|max:20',
             'address' => 'nullable|string',
             'city' => 'required|string|max:100',
             'state' => 'required|string',

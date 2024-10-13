@@ -55,6 +55,8 @@
                                 <th>Sr. No.</th>
                                 <th>Item</th>
                                 <th>Quantity</th>
+                                <th>HSN</th>
+                                <th>Variation</th>
                                 <th>Price</th>
                                 <th>Tax</th>
                                 <th>Amount</th>
@@ -62,26 +64,24 @@
                         </thead>
                         <tbody>
                             @foreach ($purchaseReport->purchesbookitem as $index => $item)
-                                <tr>
-                                    <td class="text-nowrap">{{ $index + 1 }}</td>
-                                    <td class="text-nowrap">{{ $item->item->name }}</td>
-                                    <td class="text-nowrap">{{ $item->quantity ?? 'N/A' }}</td>
-                                    <td class="text-nowrap">₹{{ number_format(floatval($item->rate ?? 0), 2) }}</td>
-                                    <td class="text-nowrap">₹{{ number_format(floatval($item->tax ?? 0), 2) }}</td>
-                                    <td class="text-nowrap">₹{{ number_format(floatval($item->amount ?? 0), 2) }}</td>
-                                </tr>
+                            <tr>
+                                <td>{{ $index + 1 }}</td>
+                                <td>{{ $item->item->name }}</td>
+                                <td>{{ $item->quantity ?? 'N/A' }}</td>
+                                <td>{{ $item->item->hsn_hac }}</td>
+                                <td>{{ $item->item->variation->name }}</td>
+                                <td>₹{{ $item->item->tax->rate }}</td>
+                                <td>₹{{ number_format(floatval($item->tax ?? 0), 2) }}</td>
+                                <td>₹{{ number_format(floatval($item->amount ?? 0), 2) }}</td>
+                            </tr>
                             @endforeach
                             <tr>
-                                <td colspan="4" class="align-top px-4 py-5">
-                                    {{--  <p class="mb-2">
-                                        <span class="me-1 fw-medium">Salesperson:</span>
-                                        <span>Alfie Solomons</span>
-                                    </p>  --}}
+                                <td colspan="5" class="align-top px-4 py-5">
                                     <span>Thanks for your business</span>
                                 </td>
                                 <td class="text-end px-4 py-5">
                                     <p class="mb-2">SUBTOTAL :</p>
-                                    <p class="mb-2">Other Expenses(+) :</p>
+                                    <p class="mb-2">Other Expenses(+):</p>
                                     <p class="mb-2">Discount(-):</p>
                                     <p class="mb-2">Tax(IGST)(+):</p>
                                     <p class="mb-2">Tax(SGST)(+):</p>
@@ -89,7 +89,7 @@
                                     <p class="mb-2">Round Off(-/+):</p>
                                     <p class="mb-0">Grand Total:</p>
                                     <p class="mb-0">Given Amount:</p>
-                                    <p class="mb-0">Remaing Balance :</p>
+                                    <p class="mb-0">Remaining Balance :</p>
                                 </td>
                                 <td class="px-4 py-5">
                                     <p class="fw-medium mb-2">₹{{ number_format(floatval($purchaseReport->amount_before_tax ?? 0), 2) }}</p>
@@ -118,10 +118,18 @@
     $(document).ready(function(){
         $('#print').on('click', function() {
             var printContents = $('#printdata').html();
+            var originalContents = $('body').html(); // Store original content
+
+            // Replace the body content with print contents
             $('body').html(printContents);
+
+            // Trigger the print dialog
             window.print();
-            location.reload();
+
+            // Restore the original content
+            $('body').html(originalContents);
         });
     });
 </script>
+
 @endsection

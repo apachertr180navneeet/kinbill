@@ -352,7 +352,7 @@
 
             const selectedVendorState = $('#customer option:selected').data('state');
             console.log(selectedVendorState);
-            
+
             calculateTotals(selectedVendorState);
         });
 
@@ -371,7 +371,7 @@
             let totalBeforeTax = 0;
             var companyStateValue = $('#companyState').val();
             console.log(companyStateValue + '<=>' + selectedState);
-            
+
             // Calculate grand total and amount before tax
             $("input[name='totalAmounts[]']").each(function() {
                 let totalAmount = parseInt($(this).val()) || 0; // Convert totalAmount to integer
@@ -414,6 +414,12 @@
         $("#other_expense, #discount, #round_off").on('input', function() {
             const selectedVendorState = $('#customer option:selected').data('state');
             calculateTotals(selectedVendorState);
+            updateRemainingBalance();
+        });
+
+        // Update remaining balance when the received amount changes
+        $('#received_amount').on('input', function() {
+            updateRemainingBalance();
         });
 
         // Handle form submission
@@ -425,6 +431,14 @@
                 e.preventDefault();
             }
         });
+
+        // Function to update remaining balance based on received amount and grand total
+        function updateRemainingBalance() {
+            const givenAmount = parseFloat($('#received_amount').val()) || 0;
+            const calculatedTotalMain = parseFloat($('#grand_total').val()) || 0;
+            const remainingBalance = calculatedTotalMain - givenAmount;
+            $('#balance_amount').val(remainingBalance.toFixed(2));
+        }
     });
 </script>
 

@@ -88,7 +88,7 @@ class PurchesBookController extends Controller
         // Fetch items with their respective variations and tax details for the company
         $companyItems = Item::with(['variation:id,name', 'tax:id,rate']) // Eager loading relationships for efficiency
             ->where('company_id', $companyId)
-            ->get(['id', 'name', 'tax_id' , 'company_id' , 'variation_id']); // Ensure proper field selection and eager loading
+            ->get(['id', 'name', 'tax_id' , 'company_id' , 'variation_id', 'hsn_hac']); // Ensure proper field selection and eager loading
 
         // Get the maximum invoice number for the company's purchases
         $latestInvoiceNumber = PurchesBook::where('company_id', $companyId)->max('invoice_number');
@@ -263,7 +263,7 @@ class PurchesBookController extends Controller
         $companyShortCode = $companyDetails->short_code;
         $companyState = $companyDetails->state;
 
-        $purchaseBook = PurchesBook::with('purchesbookitem.item.variation')->find($id);
+        $purchaseBook = PurchesBook::with('purchesbookitem.item.variation','purchesbookitem.item.tax')->find($id);
 
         // Fetch all active vendors for the user's company
         $vendors = User::where('role', 'vendor')

@@ -41,11 +41,11 @@ class PurchesReportController extends Controller
             ->where('purches_books.company_id', $compId)
             ->select('purches_books.*', 'users.full_name as vendor_name')
             ->orderByDesc('purches_books.id');
-            
+
             // If a date filter is provided, apply the date filter to the query
             if ($request->start_date && $request->end_date) {
                 $purchesBooks->whereBetween('purches_books.date', [$request->start_date, $request->end_date]);
-            } 
+            }
             // Fetch the filtered data
             $purchesBooks = $purchesBooks->get();
 
@@ -61,10 +61,11 @@ class PurchesReportController extends Controller
         $user = Auth::user();
         $compId = $user->company_id;
 
-        $purchaseReport = PurchesBook::with('purchesbookitem.item.variation')
+        $purchaseReport = PurchesBook::with('purchesbookitem.item.variation','purchesbookitem.item.tax')
         ->join('users', 'purches_books.vendor_id', '=', 'users.id')
         ->select('purches_books.*', 'users.full_name as vendor_name', 'users.city as vendor_city', 'users.state as vendor_state', 'users.gst_no as vendor_gst_no', 'users.phone as vendor_phone')
         ->find($id);
+
 
         return view('company.purches_report.print', compact('purchaseReport'));
     }

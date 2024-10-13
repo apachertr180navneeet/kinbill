@@ -57,37 +57,6 @@
                     </div>
 
                     <div class="card-body">
-                        <!-- Item details form -->
-                        {{--  <div class="row">
-                            <!-- Item Selection -->
-                            <div class="col-md-3 mb-3">
-                                <label for="item" class="form-label">Item</label>
-                                <select class="form-select" id="item">
-                                    <option selected disabled>Select</option>
-                                    @foreach ($items as $item)
-                                        <option value="{{ $item->id }}" data-tax="{{ $item->tax_rate }}" data-variation="{{ $item->variation_name }}">{{ $item->name }}</option>
-                                    @endforeach
-                                </select>
-                                <div id="item-error" class="text-danger"></div>
-                            </div>
-                            <!-- Quantity Field -->
-                            <div class="col-md-3 mb-3">
-                                <label for="qty" class="form-label">Quantity</label>
-                                <input type="number" class="form-control" id="qty" min="0">
-                                <div id="qty-error" class="text-danger"></div>
-                            </div>
-                            <!-- Amount per Unit Field -->
-                            <div class="col-md-3 mb-3">
-                                <label for="amount" class="form-label">Amount per Unit</label>
-                                <input type="number" class="form-control" id="amount" min="0">
-                                <div id="amount-error" class="text-danger"></div>
-                            </div>
-                            <!-- Add Item Button -->
-                            <div class="col-md-3 mb-3 d-flex align-items-end">
-                                <button type="button" class="btn btn-info" id="addItem">Add Item</button>
-                            </div>
-                        </div>  --}}
-
                         <!-- Items Table -->
                         <table class="table table-bordered mt-4" id="itemsTable">
                             <thead>
@@ -96,6 +65,7 @@
                                     <th>Item</th>
                                     <th>Quantity</th>
                                     <th>Return</th>
+                                    <th>HSN</th>
                                     <th>Variation</th>
                                     <th>Rate</th>
                                     <th>Tax</th>
@@ -110,11 +80,11 @@
                                         <td>{{ $item->item->name }}<input type="hidden" name="items[]" value="{{ $item->item_id }}"></td>
                                         <td>{{ $item->quantity ?? 'N/A' }}<input type="hidden" name="quantities[]" value="{{ $item->quantity }}"></td>
                                         <td>{{ $item->preturn ?? 'N/A' }}<input type="hidden" name="preturn[]" value="{{ $item->preturn }}"></td>
+                                        <td>{{ $item->item->hsn_hac }}</td>
                                         <td>{{ $item->item->variation->name }}</td>
                                         <td>{{ number_format($item->rate, 2, '.', '') ?? '0.00' }}<input type="hidden" name="rates[]" value="{{ number_format($item->rate, 2, '.', '') }}"></td>
                                         <td>{{ number_format($item->tax, 2, '.', '') ?? '0.00' }}<input type="hidden" name="taxes[]" value="{{ number_format($item->tax, 2, '.', '') }}"></td>
                                         <td>{{ number_format($item->amount, 2, '.', '') ?? '0.00' }}<input type="hidden" name="totalAmounts[]" value="{{ number_format($item->amount, 2, '.', '') }}"></td>
-                                        {{--  <td><button type="button" class="btn btn-danger btn-sm removeItem">Remove</button></td>  --}}
                                     </tr>
                                 @endforeach
                             </tbody>
