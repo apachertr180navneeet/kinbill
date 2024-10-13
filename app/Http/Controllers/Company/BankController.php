@@ -92,8 +92,8 @@ class BankController extends Controller
     {
         // Validation rules
         $rules = [
-            'name' => 'required|string|regex:/^[a-zA-Z\s]+$/|max:255',
-            'bank_name' => 'required|string|regex:/^[a-zA-Z\s]+$/|max:255',
+            'name' => 'required|string|max:255',
+            'bank_name' => 'required|string|max:255',
             'acc_no' => 'required|string|unique:banks,account_number',  // Unique validation
             'ifsc_code' => 'required|string',
             'branch' => 'required|string|regex:/^[a-zA-Z\s]+$/|max:255'

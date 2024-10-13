@@ -9,7 +9,6 @@ use App\Models\{
     User,
     BankAndCash,
     Bank
-
 };
 use Mail, DB, Hash, Validator, Session, File, Exception, Redirect, Auth;
 
@@ -26,9 +25,10 @@ class BankAndCashMangementController extends Controller
 
         $compId = $user->company_id;
 
-        $bankLists = Bank::where('company_id',$compId)->get();
+        $bankLists = Bank::where('company_id', $compId)->get();
+        // dd($bankLists);
 
-        return view('company.bankandcash.index',compact('bankLists'));
+        return view('company.bankandcash.index', compact('bankLists'));
     }
 
     /**
@@ -83,7 +83,8 @@ class BankAndCashMangementController extends Controller
         $user = Auth::user();
 
         $compId = $user->company_id;
-
+        $amount = $request->amount;
+ 
         // Save the User data
         $dataUser = [
             'date' => $request->date,
@@ -96,6 +97,23 @@ class BankAndCashMangementController extends Controller
             'company_id' => $compId
         ];
         BankAndCash::create($dataUser);
+
+        $depositedBank = Bank::where('id', $request->deposite_in)
+        ->where('company_id', $compId)
+        ->first(); 
+        // dd($depositedBank->opening_blance);
+    if ($depositedBank) {
+        $depositedBank->opening_blance += $amount;  
+        $depositedBank->save(); 
+    }
+
+    $withrawalBank = Bank::where('id', $request->withdraw_in)
+        ->where('company_id', $compId)
+        ->first();
+    if ($withrawalBank) {
+        $withrawalBank->opening_blance -= $amount; // Increment the opening balance
+        $withrawalBank->save(); 
+    }
 
         return response()->json([
             'success' => true,
@@ -133,7 +151,7 @@ class BankAndCashMangementController extends Controller
         $user = BankAndCash::find($request->id);
         if ($user) {
             $user->update($request->all());
-            return response()->json(['success' => true , 'message' => 'User Update Successfully']);
+            return response()->json(['success' => true, 'message' => 'User Update Successfully']);
         }
 
         return response()->json(['success' => false, 'message' => 'User not found']);

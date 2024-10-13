@@ -77,9 +77,10 @@
                     }
                 },
                 {
-                    data: "total_preturn",
-                    render: function(data) {
-                        return data || 0; // Returns 0 if data is null or undefined
+                    data: null,
+                    render: function(row) {
+                        const totalPReturnQty = row.total_preturn || 0;
+                        return totalPReturnQty; // Calculate and return the value
                     }
                 },
             ]
