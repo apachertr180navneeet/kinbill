@@ -45,7 +45,7 @@ class SalesReportController extends Controller
             // If a date filter is provided, apply the date filter to the query
             if ($request->start_date && $request->end_date) {
                 $purchesBooks->whereBetween('sales_books.date', [$request->start_date, $request->end_date]);
-            } 
+            }
             // Fetch the filtered data
             $purchesBooks = $purchesBooks->get();
 
@@ -61,7 +61,7 @@ class SalesReportController extends Controller
         $user = Auth::user();
         $compId = $user->company_id;
 
-        $salesReport = SalesBook::with('salesbookitem.item.variation')
+        $salesReport = SalesBook::with('salesbookitem.item.variation','salesbookitem.item.tax')
         ->join('users', 'sales_books.customer_id', '=', 'users.id')
         ->select('sales_books.*', 'users.full_name as customer_name', 'users.city as customer_city', 'users.state as customer_state', 'users.gst_no as customer_gst_no', 'users.phone as customer_phone')
         ->find($id);

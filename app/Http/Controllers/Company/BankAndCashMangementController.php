@@ -102,18 +102,18 @@ class BankAndCashMangementController extends Controller
         ->where('company_id', $compId)
         ->first(); 
         // dd($depositedBank->opening_blance);
-    if ($depositedBank) {
-        $depositedBank->opening_blance += $amount;  
-        $depositedBank->save(); 
-    }
+        if ($depositedBank) {
+            $depositedBank->opening_blance += $amount;  
+            $depositedBank->save(); 
+        }
 
-    $withrawalBank = Bank::where('id', $request->withdraw_in)
-        ->where('company_id', $compId)
-        ->first();
-    if ($withrawalBank) {
-        $withrawalBank->opening_blance -= $amount; // Increment the opening balance
-        $withrawalBank->save(); 
-    }
+        $withrawalBank = Bank::where('id', $request->withdraw_in)
+            ->where('company_id', $compId)
+            ->first();
+        if ($withrawalBank) {
+            $withrawalBank->opening_blance -= $amount; // Increment the opening balance
+            $withrawalBank->save(); 
+        }
 
         return response()->json([
             'success' => true,

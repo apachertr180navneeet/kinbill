@@ -68,6 +68,7 @@
                                         <th>Quantity</th>
                                         <th>Return</th>
                                         <th>Variation</th>
+                                        <th>HSN</th>
                                         <th>Rate</th>
                                         <th>Tax</th>
                                         <th>Total Amount</th>
@@ -89,6 +90,7 @@
                                             <td>{{ $item->sreturn ?? 'N/A' }}<input type="hidden" name="sreturn[]"
                                                     value="{{ $item->sreturn }}"></td>
                                             <td>{{ $item->item->variation->name }}</td>
+                                            <td>{{ $item->item->hsn_hac }}</td>
                                             <td>{{ number_format(floatval($item->rate ?? 0), 2) }}<input type="hidden"
                                                     name="rates[]"
                                                     value="{{ number_format(floatval($item->rate ?? 0), 2) }}"></td>

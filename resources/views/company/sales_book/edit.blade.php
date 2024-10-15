@@ -39,7 +39,7 @@
                                 </div>
                                 <!-- customer Field -->
                                 <div class="col-md-6 mb-3">
-                                    <label for="customer" class="form-label">Costomer</label>
+                                    <label for="customer" class="form-label">Customer</label>
                                     <select class="form-select" id="customer" name="customer">
                                         <option selected>Select</option>
                                         @foreach ($customers as $customer)
@@ -68,7 +68,7 @@
                                         <option selected disabled>Select</option>
                                         @foreach ($items as $item)
                                             <option value="{{ $item->id }}" data-tax="{{ $item->tax_rate }}"
-                                                data-variation="{{ $item->variation_name }}">{{ $item->name }}</option>
+                                                data-variation="{{ $item->variation_name }}" data-hsn="{{ $item->hsn_hac }}">{{ $item->name }}</option>
                                         @endforeach
                                     </select>
                                     <div id="item-error" class="text-danger"></div>
@@ -98,6 +98,7 @@
                                         <th>Item</th>
                                         <th>Quantity</th>
                                         <th>Return</th>
+                                        <th>HSN</th>
                                         <th>Variation</th>
                                         <th>Rate</th>
                                         <th>Tax</th>
@@ -121,6 +122,7 @@
                                                     value="{{ $item->quantity }}"></td>
                                             <td>{{ $item->sreturn ?? 'N/A' }}<input type="hidden" name="sreturn[]"
                                                     value="{{ $item->sreturn }}"></td>
+                                            <td>{{ $item->item->hsn_hac }}</td>
                                             <td>{{ $item->item->variation->name }}</td>
                                             <td>{{ number_format(floatval($item->rate ?? 0), 2) }}<input type="hidden"
                                                     name="rates[]"
@@ -307,6 +309,7 @@
             let itemName = $("#item option:selected").text();
             let itemTax = parseFloat($("#item option:selected").data('tax')) || 0; // Handle missing tax rate
             let itemVariation = $("#item option:selected").data('variation');
+            let hsn = $('#item option:selected').data('hsn');
             let qty = parseInt($("#qty").val()) || 0; // Convert quantity to integer
             let amount = parseFloat($("#amount").val()) || 0; // Convert amount to float
 
@@ -325,6 +328,7 @@
                 <td>${itemName}<input type="hidden" name="items[]" value="${item}"></td>
                 <td>${qty}<input type="hidden" name="quantities[]" value="${qty}"></td>
                 <td>0<input type="hidden" name="sreturn[]" value="0"></td>
+                <td>${hsn}</td>
                 <td>${itemVariation}</td>
                 <td>${amount.toFixed(2)}<input type="hidden" name="rates[]" value="${amount.toFixed(2)}"></td>
                 <td>${itemTax}% <input type="hidden" name="taxes[]" value="${totalTax}"></td>

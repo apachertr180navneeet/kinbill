@@ -47,6 +47,9 @@
                                 <!-- Vendor Field -->
                                 <div class="col-md-6 mb-3">
                                     <label for="vendor" class="form-label">Vendor</label>
+                                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addModal">
+                                        + Add Vendor
+                                    </button>
                                     <select class="form-select" id="vendor" name="vendor">
                                         <option selected>Select</option>
                                         @foreach ($vendors as $vendor)
@@ -275,6 +278,69 @@
                 </div>
             </div>
         </form>
+    </div>
+    <div class="modal fade" id="addModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel1">Vendor Add</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <label for="name" class="form-label">Name</label>
+                            <input type="text" id="name" class="form-control" placeholder="Enter Name" />
+                            <small class="error-text text-danger"></small>
+                        </div>
+                        <div class="col-md-12 mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" id="email" class="form-control" placeholder="xxxx@xxx.xx" />
+                            <small class="error-text text-danger"></small>
+                        </div>
+                        <div class="col-md-12 mb-3">
+                            <label for="phone" class="form-label">Phone</label>
+                            <input type="text" id="phone" class="form-control" placeholder="" />
+                            <small class="error-text text-danger"></small>
+                        </div>
+                        <div class="col-md-12 mb-3">
+                            <label for="state" class="form-label">State</label>
+                            <select class="form-select" id="state">
+                                <option selected>Select  State</option>
+                                @foreach ($states as $state)
+                                    <option value="{{$state->state_name}}" data-id="{{$state->state_id}}">{{$state->state_name}}</option>
+                                @endforeach
+                            </select>
+                            <small class="error-text text-danger"></small>
+                        </div>
+                        <div class="col-md-12 mb-3">
+                            <label for="city" class="form-label">City</label>
+                            <select class="form-select" id="city">
+                                <option selected>Select  City</option>
+                            </select>
+                            <small class="error-text text-danger"></small>
+                        </div>
+                        <div class="col-md-12 mb-3">
+                            <label for="zipcode" class="form-label">Pincode</label>
+                            <select class="form-select" id="zipcode">
+                                <option selected>Select  Pincode</option>
+                            </select>
+                            <small class="error-text text-danger"></small>
+                        </div>
+                        <div class="col-md-12 mb-3">
+                            <label for="gst" class="form-label">GST No.</label>
+                            <input type="text" id="gst" class="form-control" placeholder="" />
+                            <small class="error-text text-danger"></small>
+                            <input type="hidden" id="role" value="vendor">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="AddItemven">Save</button>
+                </div>
+            </div>
+        </div>
     </div>
 @endsection
 
@@ -519,6 +585,117 @@
             // Ensure only valid numbers are entered in round off field
             $('#round_off').on('input', function() {
                 this.value = this.value.replace(/[^0-9.-]/g, '');
+            });
+
+            // Handle 'Add Vendor' form submission via AJAX
+            $('#AddItemven').click(function (e) {
+                e.preventDefault(); // Prevent default form submission behavior
+
+                // Collect form data
+                let data = {
+                    full_name: $('#name').val(),
+                    email: $('#email').val(),
+                    phone: $('#phone').val(),
+                    city: $('#city').val(),
+                    state: $('#state').val(),
+                    zipcode: $('#zipcode').val(),
+                    gst: $('#gst').val(),
+                    role: $('#role').val(),
+                    _token: $('meta[name="csrf-token"]').attr('content') // CSRF token for security
+                };
+
+                // Clear previous validation error messages
+                $('.error-text').text('');
+
+                // Send data via AJAX POST request
+                $.ajax({
+                    url: '{{ route('company.vendor.store') }}', // URL to store vendor data
+                    type: 'POST',
+                    data: data,
+                    success: function (response) {
+                        if (response.success) {
+                            setFlash("success", response.message); // Show success message
+                            $('#addModal').modal('hide'); // Close modal after successful save
+                            $('#addModal').find('input, textarea, select').val(''); // Reset form fields
+                            location.reload();
+                        } else {
+                            // Display validation errors if any
+                            if (response.errors) {
+                                for (let field in response.errors) {
+                                    let $field = $(`#${field}`);
+                                    if ($field.length) {
+                                        $field.siblings('.error-text').text(response.errors[field][0]);
+                                    }
+                                }
+                            } else {
+                                setFlash("error", response.message); // Show error message
+                            }
+                        }
+                    },
+                    error: function (xhr) {
+                        setFlash("error", "An unexpected error occurred."); // Handle general errors
+                    }
+                });
+            });
+            // Event handling for dynamic state and city selection
+            $(document).ready(function () {
+                // Trigger when state is changed in the 'Add Vendor' modal
+                $('#state').on('change', function () {
+                    let stateId = $('#state').find(':selected').attr('data-id');
+                    fetchCities(stateId, $('#city')); // Fetch cities based on selected state
+                });
+
+                // Trigger when city is changed in the 'Add Vendor' modal
+                $('#city').on('change', function () {
+                    let cityId = $('#city').find(':selected').attr('data-id');
+                    fetchPincodes(cityId, $('#zipcode')); // Fetch pincodes based on selected city
+                });
+
+                // Trigger when state is changed in the 'Edit Vendor' modal
+                $('#editstate').on('change', function () {
+                    let stateId = $('#editstate').find(':selected').attr('data-id');
+                    fetchCities(stateId, $('#editcity')); // Fetch cities based on selected state
+                });
+
+                // Trigger when city is changed in the 'Edit Vendor' modal
+                $('#editcity').on('change', function () {
+                    let cityId = $('#editcity').find(':selected').attr('data-id');
+                    fetchPincodes(cityId, $('#editzipcode')); // Fetch pincodes based on selected city
+                });
+
+                // Function to fetch cities based on stateId
+                function fetchCities(stateId, cityElement) {
+                    if (stateId) {
+                        $.ajax({
+                            url: '{{ route("ajax.getCities", "") }}/' + stateId, // Fetch cities based on state ID
+                            type: 'GET',
+                            dataType: 'json',
+                            success: function (data) {
+                                cityElement.empty().append('<option selected>Select City</option>');
+                                $.each(data, function (key, value) {
+                                    cityElement.append('<option value="' + value.city_name + '" data-id="' + value.id + '">' + value.city_name + '</option>');
+                                });
+                            }
+                        });
+                    }
+                }
+
+                // Function to fetch pincodes based on cityId
+                function fetchPincodes(cityId, zipcodeElement) {
+                    if (cityId) {
+                        $.ajax({
+                            url: '{{ route("ajax.getPincodes", "") }}/' + cityId, // Fetch pincodes based on city ID
+                            type: 'GET',
+                            dataType: 'json',
+                            success: function (datapincode) {
+                                zipcodeElement.empty().append('<option selected>Select Pincode</option>');
+                                $.each(datapincode, function (keypincode, valuepincode) {
+                                    zipcodeElement.append('<option value="' + valuepincode.pincode + '">' + valuepincode.pincode + '</option>');
+                                });
+                            }
+                        });
+                    }
+                }
             });
         });
     </script>

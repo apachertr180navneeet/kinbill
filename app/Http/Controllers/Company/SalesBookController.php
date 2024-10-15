@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Company;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\{User, Company, Tax, Item, SalesBook, SalesBookItem, StockReport};
+use App\Models\{User, Company, Tax, Item, SalesBook, SalesBookItem, StockReport, State};
 use Illuminate\Support\Facades\{Auth, DB, Mail, Hash, Validator, Session};
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Redirect;
@@ -108,13 +108,16 @@ class SalesBookController extends Controller
             ->select('items.*', 'variations.name as variation_name', 'taxes.rate as tax_rate')
             ->get();
 
+        $states = State::all();
+
         // Pass the vendors and items data to the view for adding a new sales book
         return view('company.sales_book.add', [
             'customers' => $customers,
             'items' => $companyItems,
             'invoiceNumber' => $finalInvoiceNumber,
             'currentDate' => $currentDate,
-            'companyState' => $companyState
+            'companyState' => $companyState,
+            'states' => $states
         ]);
     }
 

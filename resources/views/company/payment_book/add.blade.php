@@ -29,7 +29,7 @@
                             <tr>
                                 <td>
                                     <label for="payment" class="form-label">Payment Voucher No.</label>
-                                    <input type="text" class="form-control @error('payment') is-invalid @enderror" id="payment" name="payment" value="{{ old('payment',$finalInvoiceNumber) }}">
+                                    <input type="text" class="form-control @error('payment') is-invalid @enderror" id="payment" name="payment" value="{{ old('payment',$finalInvoiceNumber) }}" readonly>
                                     @error('payment')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror

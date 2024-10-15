@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Company;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\{User, Company, Tax, Item, ReceiptBookVoucher};
+use App\Models\{User, Company, Tax, Item, ReceiptBookVoucher, SalesBook};
 use Illuminate\Support\Facades\{Auth, DB, Mail, Hash, Validator, Session};
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Redirect;
@@ -12,6 +12,18 @@ use Exception;
 
 class ReceiptBookVoucherController extends Controller
 {
+    public function getLastDigit($str) {
+        // Use regular expression to find all digits in the string
+        preg_match_all('/\d/', $str, $matches);
+
+        // If there are digits found, return the last one
+        if (!empty($matches[0])) {
+            return end($matches[0]);
+        }
+
+        // Return null or a message if no digits are found
+        return null;
+    }
     /**
      * Display the purchase book index page.
      *
@@ -60,14 +72,38 @@ class ReceiptBookVoucherController extends Controller
         $user = Auth::user();
         $compId = $user->company_id;
 
+        $companyDetails = Company::find($compId);
+        $companyShortCode = $companyDetails->short_code;
+        $companyState = $companyDetails->state;
+
+        // Get the maximum invoice number for the company's purchases
+        $latestRecieptNumber = ReceiptBookVoucher::where('company_id', $compId)->max('receipt_vouchers_number');
+        $lastDigit = $this->getLastDigit($latestRecieptNumber); 
+        // Generate the next invoice number by incrementing the latest invoice or default to 1
+        $lastDigit = (int) $lastDigit; // Convert to integer
+        $nextRecieptNumber = $lastDigit ? $lastDigit + 1 : 1;
+
+
+        // Format the invoice number to have 5 digits, with leading zeros if necessary
+        $formattedInvoiceNumber = sprintf('%05d', $nextRecieptNumber);
+        $finalInvoiceNumber = $companyShortCode . '-RV' . '-' . $formattedInvoiceNumber;
+
         // Fetch all active vendors for the user's company
         $customers = User::where('role', 'customer')
             ->where('company_id', $compId)
             ->where('status', 'active')
             ->get();
+        $salesbooks = collect(); // Create an empty collection to store sales books
 
-        // Pass the vendors and items data to the view for adding a new sales book
-        return view('company.receipt_book_voucher.add', compact('customers'));
+        foreach ($customers as $customer) {
+            $customerSalesbooks = SalesBook::where('customer_id', $customer->id)->get();
+            $salesbooks = $salesbooks->merge($customerSalesbooks); // Add the sales books to the collection
+        }
+        
+        // dd($salesbooks);
+        
+    // Pass the vendors and items data to the view for adding a new sales book
+    return view('company.receipt_book_voucher.add', compact('customers','salesbooks','finalInvoiceNumber'));
     }
 
 

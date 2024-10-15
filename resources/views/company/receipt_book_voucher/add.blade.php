@@ -177,6 +177,8 @@
     // Update the amount input with the corresponding value
     document.getElementById('amount').value = salesbookAmount;
 
+    document.getElementById('grand_total').value = salesbookAmount;
+
     const paymentStatus = document.getElementById('paymentStatus');
     if (salesbookAmount===0) {
         paymentStatus.style.display = 'inline';

@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Company;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\{User, Company, Tax, Item, PurchesBook, PurchesBookItem, StockReport};
+use App\Models\{User, Company, Tax, Item, PurchesBook, PurchesBookItem, StockReport, State};
 use Illuminate\Support\Facades\{Auth, DB, Mail, Hash, Validator, Session};
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Redirect;
@@ -105,13 +105,16 @@ class PurchesBookController extends Controller
         // Get the current date
         $currentDate = Carbon::now()->toDateString(); // Y-m-d format
 
+        $states = State::all();
+
         // Return the view with the active vendors, items, and the generated invoice number
         return view('company.purches_book.add', [
             'vendors' => $activeVendors,
             'items' => $companyItems,
             'invoiceNumber' => $finalInvoiceNumber,
             'currentDate' => $currentDate,
-            'companyState' => $companyState
+            'companyState' => $companyState,
+            'states' => $states
         ]);
     }
     public function store(Request $request)
