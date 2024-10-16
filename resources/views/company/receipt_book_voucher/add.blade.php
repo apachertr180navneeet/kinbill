@@ -58,7 +58,7 @@
                                     @error('customer')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
-                                    
+
                                 </td>
                                 <td>
                                     <label for="remark" class="form-label">Remarks</label>
@@ -70,7 +70,7 @@
                             </tr>
                             <tr>
                                 <td>
-                                    <label for="amount" class="form-label">Amount</label> <span id="paymentStatus" style="color: green; display: none;">Customer has paid the full amount.</span> 
+                                    <label for="amount" class="form-label">Amount</label> <span id="paymentStatus" style="color: green; display: none;">Customer has paid the full amount.</span>
                                     <input type="text" class="form-control @error('amount') is-invalid @enderror" id="amount" name="amount" value="{{ old('amount', 0) }}">
                                     @error('amount')
                                         <div class="invalid-feedback">{{ $message }}</div>
@@ -127,6 +127,19 @@
                                         <div class="invalid-feedback d-block">{{ $message }}</div>
                                     @enderror
                                 </td>
+                                <td class="d-none">
+                                    <label for="bank" class="form-label">Bank:</label>
+                                    <select class="form-select @error('bank') is-invalid @enderror" id="bank" name="bank">
+                                        <option value="">Select</option>
+                                        @foreach ($banks as $bank)
+                                            <option value="{{ $bank->id }}"{{ old('bank') == $bank->id ? 'selected' : '' }}>
+                                                 {{ $bank->name }}</option>
+                                        @endforeach
+                                    </select>
+                                    @error('customer')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </td>
                                 <td>
                                     <label for="signature" class="form-label">Signature:</label>
                                     <input type="text" class="form-control @error('signature') is-invalid @enderror" id="signature" name="signature" value="{{ old('signature') }}">
@@ -148,7 +161,7 @@
 </div>
 @endsection
 
-@section('script') 
+@section('script')
 <script>
      $(document).ready(function() {
         function calculateGrandTotal() {
@@ -165,28 +178,50 @@
             calculateGrandTotal();
         });
     });
-    
+
     document.getElementById('customer').addEventListener('change', function () {
-    const selectedCustomer = this.options[this.selectedIndex];
-    const grandTotalAmount = selectedCustomer.getAttribute('data-salesbook-amount') || 0;
-    const recievedAmount = selectedCustomer.getAttribute('data-salesbook-received') || 0;
-    const salesbookAmount = grandTotalAmount - recievedAmount;
-    console.log(salesbookAmount);
-    
+        const selectedCustomer = this.options[this.selectedIndex];
+        const grandTotalAmount = selectedCustomer.getAttribute('data-salesbook-amount') || 0;
+        const recievedAmount = selectedCustomer.getAttribute('data-salesbook-received') || 0;
+        const salesbookAmount = grandTotalAmount - recievedAmount;
+        console.log(salesbookAmount);
 
-    // Update the amount input with the corresponding value
-    document.getElementById('amount').value = salesbookAmount;
 
-    document.getElementById('grand_total').value = salesbookAmount;
+        // Update the amount input with the corresponding value
+        document.getElementById('amount').value = salesbookAmount;
 
-    const paymentStatus = document.getElementById('paymentStatus');
-    if (salesbookAmount===0) {
-        paymentStatus.style.display = 'inline';
-        paymentStatus.textContent =  '(Customer has paid the full amount.)';
-    }else{
-        paymentStatus.style.display = 'none';
-    }
-     
-});
+        document.getElementById('grand_total').value = salesbookAmount;
+
+        const paymentStatus = document.getElementById('paymentStatus');
+        if (salesbookAmount===0) {
+            paymentStatus.style.display = 'inline';
+            paymentStatus.textContent =  '(Customer has paid the full amount.)';
+        }else{
+            paymentStatus.style.display = 'none';
+        }
+
+    });
+
+    document.getElementById('date').addEventListener('change', function() {
+        let dateValue = this.value; // Format will be YYYY-MM-DD
+        let dateParts = dateValue.split('-');
+        if (dateParts.length === 3) {
+            // Reformat to DD/MM/YYYY
+            let formattedDate = `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`;
+        }
+    });
+
+    $(document).ready(function () {
+        $('input[name="payment_method"]').on('change', function () {
+            if ($(this).val() === 'online bank') {
+                $('#bank').closest('td').removeClass('d-none');
+            } else {
+                $('#bank').closest('td').addClass('d-none');
+            }
+        });
+
+        // Trigger change event on page load to handle default selection
+        $('input[name="payment_method"]:checked').trigger('change');
+    });
 </script>
 @endsection

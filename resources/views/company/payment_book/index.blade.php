@@ -7,12 +7,12 @@
     <div class="row">
         <div class="col-md-6 text-start">
             <h5 class="py-2 mb-2">
-                <span class="text-primary fw-light">Payment Book</span>
+                <span class="text-primary fw-light">Payment voucher</span>
             </h5>
         </div>
         <div class="col-md-6 text-end">
             <a href="{{ route('company.payment.book.add') }}" class="btn btn-primary">
-                Add Payment Book
+                Add Payment voucher
             </a>
         </div>
     </div>

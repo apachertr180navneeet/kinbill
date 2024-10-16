@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Company;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\{User, Company, Tax, Item, PaymentBook};
+use App\Models\{User, Company, Tax, Item, PaymentBook, PurchesBook,Bank};
 use Illuminate\Support\Facades\{Auth, DB, Mail, Hash, Validator, Session};
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Redirect;
@@ -30,6 +30,20 @@ class PaymentBookController extends Controller
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\JsonResponse
      */
+
+     public function getLastDigit($str)
+    {
+        // Use regular expression to find all digits in the string
+        preg_match_all('/\d/', $str, $matches);
+
+        // If there are digits found, return the last one
+        if (!empty($matches[0])) {
+            return end($matches[0]);
+        }
+
+        // Return null or a message if no digits are found
+        return null;
+    }
     public function getall(Request $request)
     {
         // Get the authenticated user and their company ID
@@ -60,36 +74,62 @@ class PaymentBookController extends Controller
         $user = Auth::user();
         $compId = $user->company_id;
 
+        $companyDetails = Company::find($compId);
+        $companyShortCode = $companyDetails->short_code;
+        $companyState = $companyDetails->state;
+
+        // Get the maximum invoice number for the company's purchases
+        $latestRecieptNumber = PaymentBook::where('company_id', $compId)->max('payment_vouchers_number');
+        $lastDigit = $this->getLastDigit($latestRecieptNumber);
+        // Generate the next invoice number by incrementing the latest invoice or default to 1
+        $lastDigit = (int) $lastDigit; // Convert to integer
+        $nextRecieptNumber = $lastDigit ? $lastDigit + 1 : 1;
+
+
+        // Format the invoice number to have 5 digits, with leading zeros if necessary
+        $formattedInvoiceNumber = sprintf('%05d', $nextRecieptNumber);
+        $finalInvoiceNumber = $companyShortCode . '-PV' . '-' . $formattedInvoiceNumber;
+
         // Fetch all active vendors for the user's company
         $vendors = User::where('role', 'vendor')
             ->where('company_id', $compId)
             ->where('status', 'active')
             ->get();
 
+
+        $purchasebooks = collect(); // Create an empty collection to store sales books
+
+        foreach ($vendors as $vendor) {
+            $customerPurchaseBooks = PurchesBook::where('vendor_id', $vendor->id)->get();
+            $purchasebooks = $purchasebooks->merge($customerPurchaseBooks); // Add the sales books to the collection
+        }
+
+        // dd($salesbooks);
+        $banks = Bank::where('company_id',$compId)->get();
         // Pass the vendors and items data to the view for adding a new sales book
-        return view('company.payment_book.add', compact('vendors'));
+        return view('company.payment_book.add', compact('vendors','purchasebooks','finalInvoiceNumber','banks'));
     }
 
 
     public function store(Request $request)
     {
-        // Define validation rules
-        $validatedData = $request->validate([
-            'date' => 'required|date',
-            'payment' => 'required|string|max:255',
-            'vendor' => 'required|exists:users,id',
-            'amount' => 'required|numeric|min:0',
-            'discount' => 'required|numeric|min:0',
-            'round_off' => 'required|numeric',
-            'grand_total' => 'required|numeric',
-            'remark' => 'required|string',
-            'payment_method' => 'required|string|in:cash,cheque,online bank,other',
-        ]);
-
-        // Start a database transaction
-        DB::beginTransaction();
-
         try {
+
+            // Define validation rules
+            $validatedData = $request->validate([
+                'date' => 'required',
+                'payment' => 'required|string|max:255',
+                'vendor' => 'required|exists:users,id',
+                'amount' => 'required|numeric|min:0',
+                'discount' => 'required|numeric|min:0',
+                'round_off' => 'required|numeric',
+                'grand_total' => 'required|numeric',
+                'remark' => 'required|string',
+                'payment_method' => 'required|string|in:cash,cheque,online bank,other',
+            ]);
+
+            // Start a database transaction
+            DB::beginTransaction();
             // Get the authenticated user and their company ID
             $user = Auth::user();
             $compId = $user->company_id;
@@ -103,10 +143,15 @@ class PaymentBookController extends Controller
                 'amount' => $request->amount,
                 'discount' => $request->discount,
                 'round_off' => $request->round_off,
+                'bank_id' => $request->bank ?? 0,
                 'grand_total' => $request->grand_total,
                 'remark' => $request->remark,
                 'payment_type' => $request->payment_method,
             ]);
+
+
+            // increment the stock quantity by 5
+            Bank::where('id', $request->bank)->decrement('opening_blance', $request->amount);
 
             // Commit the transaction
             DB::commit();
@@ -116,6 +161,7 @@ class PaymentBookController extends Controller
         } catch (\Exception $e) {
             // Rollback the transaction on error
             DB::rollback();
+            dd($e);
 
             // Redirect with an error message
             return redirect()->back()->with('error', 'An error occurred while saving the payment book entry.');
@@ -161,7 +207,10 @@ class PaymentBookController extends Controller
             ->where('status', 'active')
             ->get();
 
-        return view('company.payment_book.edit', compact('paymentBook', 'vendors'));
+        // dd($salesbooks);
+        $banks = Bank::where('company_id',$compId)->get();
+
+        return view('company.payment_book.edit', compact('paymentBook', 'vendors','banks'));
     }
 
 
@@ -177,6 +226,9 @@ class PaymentBookController extends Controller
             // Find the specific ReceiptBookVoucher record by its ID
             $receiptBook = PaymentBook::findOrFail($id);
 
+            $previousbank = $receiptBook->bank_id;
+            $previousamount = $receiptBook->amount;
+
             // Update the record with the validated data
             $receiptBook->payment_vouchers_number = $request->payment;
             $receiptBook->date = $request->date;
@@ -185,11 +237,17 @@ class PaymentBookController extends Controller
             $receiptBook->amount = $request->amount;
             $receiptBook->discount = $request->discount;
             $receiptBook->round_off = $request->round_off;
+            $receiptBook->bank_id = $request->bank;
             $receiptBook->grand_total = $request->grand_total;
             $receiptBook->payment_type = $request->payment_method;
 
             // Save the updated record
             $receiptBook->save();
+
+            Bank::where('id', $previousbank)->increment('opening_blance', $request->amount);
+
+
+            Bank::where('id', $request->bank)->decrement('opening_blance', $request->amount);
 
             // Commit the transaction
             DB::commit();

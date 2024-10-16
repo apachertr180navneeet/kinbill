@@ -50,7 +50,7 @@ public function getAll(Request $request)
                     ->leftJoin(DB::raw('(SELECT item_id, SUM(quantity) as total_purches_book_qty, SUM(preturn) as total_preturn FROM purches_book_items GROUP BY item_id) as purches_book_items'), 'items.id', '=', 'purches_book_items.item_id')
                     ->leftJoin(DB::raw('(SELECT item_id, SUM(quantity) as total_sales_book_qty, SUM(sreturn) as total_sreturn FROM sales_book_items GROUP BY item_id) as sales_book_items'), 'items.id', '=', 'sales_book_items.item_id')
                     ->leftJoin('stock_reports', 'items.id', '=', 'stock_reports.item_id')
-                    ->where('items.company_id', 4)
+                    ->where('items.company_id', $compId)
                     ->whereNull('items.deleted_at')
                     ->groupBy('items.id', 'items.name', 'total_purches_book_qty', 'total_preturn', 'total_sales_book_qty', 'total_sreturn')
                     ->get();

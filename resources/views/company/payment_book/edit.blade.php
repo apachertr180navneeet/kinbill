@@ -101,6 +101,20 @@
                                         <label class="form-check-label" for="other">Other</label>
                                     </div>
                                 </td>
+                                <td class="{{ $paymentBook->payment_type == 'online bank' ? '' : 'd-none' }}">
+                                    <label for="bank" class="form-label">Bank:</label>
+                                    <select class="form-select @error('bank') is-invalid @enderror" id="bank" name="bank">
+                                        <option value="">Select</option>
+                                        @foreach ($banks as $bank)
+                                            <option value="{{ $bank->id }}" {{ $paymentBook->bank_id == $bank->id ? 'selected' : '' }}>
+                                                {{ $bank->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    @error('bank')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </td>
                                 <td>
                                     <label for="signature" class="form-label">Signature:</label>
                                     <input type="text" class="form-control" id="signature" name="signature" value="{{ $paymentBook->signature }}">
@@ -139,6 +153,28 @@
 
         // Trigger the calculation on page load
         calculateGrandTotal();
+    });
+
+    document.getElementById('date').addEventListener('change', function() {
+        let dateValue = this.value; // Format will be YYYY-MM-DD
+        let dateParts = dateValue.split('-');
+        if (dateParts.length === 3) {
+            // Reformat to DD/MM/YYYY
+            let formattedDate = `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`;
+        }
+    });
+
+    $(document).ready(function () {
+        $('input[name="payment_method"]').on('change', function () {
+            if ($(this).val() === 'online bank') {
+                $('#bank').closest('td').removeClass('d-none');
+            } else {
+                $('#bank').closest('td').addClass('d-none');
+            }
+        });
+
+        // Trigger change event on page load to handle default selection
+        $('input[name="payment_method"]:checked').trigger('change');
     });
 </script>
 

@@ -93,7 +93,8 @@ class SalesBookController extends Controller
         $finalInvoiceNumber = $companyShortCode . '-SB' . '-' . $formattedInvoiceNumber;
 
         // Get the current date
-        $currentDate = Carbon::now()->toDateString(); // Y-m-d format
+        $currentDate = Carbon::now()->format('d/m/Y'); // DD/MM/YYYY format
+
 
         // Fetch all active vendors for the user's company
         $customers = User::where('role', 'customer')
@@ -125,7 +126,7 @@ class SalesBookController extends Controller
     {
         // Validate the request data
         $request->validate([
-            'date' => 'required|date',
+            'date' => 'required',
             'dispatch' => 'required|string|max:255',
             'customer' => 'required|exists:users,id',
             'weight' => 'required',
@@ -444,8 +445,8 @@ class SalesBookController extends Controller
                 if ($existingPurchesBookItem) {
                     $newqty = $quantity;
                     $sreturn = $existingPurchesBookItem->sreturn + $newqty;
-    
-                    
+
+
                     if ($existingPurchesBookItem->quantity == $existingPurchesBookItem->sreturn && $quantity > 0) {
                         return redirect()->back()->withInput()->withErrors([
                             'error' => "Cannot update. Quantity and return values are already equal for item ID $itemId."

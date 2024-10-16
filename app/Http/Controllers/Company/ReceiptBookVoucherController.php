@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Company;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\{User, Company, Tax, Item, ReceiptBookVoucher, SalesBook};
+use App\Models\{User, Company, Tax, Item, ReceiptBookVoucher, SalesBook, Bank};
 use Illuminate\Support\Facades\{Auth, DB, Mail, Hash, Validator, Session};
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Redirect;
@@ -78,7 +78,7 @@ class ReceiptBookVoucherController extends Controller
 
         // Get the maximum invoice number for the company's purchases
         $latestRecieptNumber = ReceiptBookVoucher::where('company_id', $compId)->max('receipt_vouchers_number');
-        $lastDigit = $this->getLastDigit($latestRecieptNumber); 
+        $lastDigit = $this->getLastDigit($latestRecieptNumber);
         // Generate the next invoice number by incrementing the latest invoice or default to 1
         $lastDigit = (int) $lastDigit; // Convert to integer
         $nextRecieptNumber = $lastDigit ? $lastDigit + 1 : 1;
@@ -99,37 +99,39 @@ class ReceiptBookVoucherController extends Controller
             $customerSalesbooks = SalesBook::where('customer_id', $customer->id)->get();
             $salesbooks = $salesbooks->merge($customerSalesbooks); // Add the sales books to the collection
         }
-        
+
         // dd($salesbooks);
-        
-    // Pass the vendors and items data to the view for adding a new sales book
-    return view('company.receipt_book_voucher.add', compact('customers','salesbooks','finalInvoiceNumber'));
+        $banks = Bank::where('company_id',$compId)->get();
+
+        // Pass the vendors and items data to the view for adding a new sales book
+        return view('company.receipt_book_voucher.add', compact('customers','salesbooks','finalInvoiceNumber','banks'));
     }
 
 
     public function store(Request $request)
     {
-        // Define validation rules
-        $rules = [
-            'date' => 'required|date',
-            'receipt' => 'required|string|max:255',
-            'customer' => 'required|exists:users,id',
-            'amount' => 'required|numeric|min:0',
-            'discount' => 'required|numeric',
-            'round_off' => 'required|numeric',
-            'grand_total' => 'required|numeric|min:0',
-            'remark' => 'required|string|max:500',
-            'payment_method' => 'required|string|in:cash,cheque,online bank,other',
-        ];
-
-        // Validate the request data
-        $validatedData = $request->validate($rules);
-
         try {
+
+            // Define validation rules
+            $rules = [
+                'date' => 'required|date',
+                'receipt' => 'required|string|max:255',
+                'customer' => 'required|exists:users,id',
+                'amount' => 'required|numeric|min:0',
+                'discount' => 'required|numeric',
+                'bank' => 'nullable|numeric',
+                'round_off' => 'required|numeric',
+                'grand_total' => 'required|numeric|min:0',
+                'remark' => 'required|string|max:500',
+                'payment_method' => 'required|string|in:cash,cheque,online bank,other',
+            ];
+
+            // Validate the request data
+            $validatedData = $request->validate($rules);
             // Get the authenticated user and their company ID
             $user = Auth::user();
             $compId = $user->company_id;
-
+            //cho $validatedData['payment_method']; die;
             // Save the sales book details in the sales_books table
             $salesBook = ReceiptBookVoucher::create([
                 'date' => $validatedData['date'],
@@ -138,11 +140,16 @@ class ReceiptBookVoucherController extends Controller
                 'customer_id' => $validatedData['customer'],
                 'amount' => $validatedData['amount'],
                 'discount' => $validatedData['discount'] ?? 0,
+                'bank_id' => $validatedData['bank'] ?? 0,
                 'round_off' => $validatedData['round_off'] ?? 0,
                 'grand_total' => $validatedData['grand_total'],
                 'remark' => $validatedData['remark'] ?? '',
                 'payment_type' => $validatedData['payment_method'],
             ]);
+
+            // increment the stock quantity by 5
+            Bank::where('id', $validatedData['bank'])->increment('opening_blance', $validatedData['amount']);
+
 
             // Commit the transaction
             DB::commit();
@@ -152,7 +159,7 @@ class ReceiptBookVoucherController extends Controller
         } catch (\Exception $e) {
             // Rollback the transaction on error
             DB::rollback();
-
+            dd($e);
             // Redirect with an error message
             return redirect()->back()->with('error', 'An error occurred while saving the sales book entry.');
         }
@@ -197,7 +204,9 @@ class ReceiptBookVoucherController extends Controller
             ->where('status', 'active')
             ->get();
 
-        return view('company.receipt_book_voucher.edit', compact('receiptBook', 'customers'));
+        $banks = Bank::where('company_id',$compId)->get();
+
+        return view('company.receipt_book_voucher.edit', compact('receiptBook', 'customers','banks'));
     }
 
 
@@ -213,6 +222,9 @@ class ReceiptBookVoucherController extends Controller
             // Find the specific ReceiptBookVoucher record by its ID
             $receiptBook = ReceiptBookVoucher::findOrFail($id);
 
+            $previousbank = $receiptBook->bank_id;
+            $previousamount = $receiptBook->amount;
+
             // Update the record with the validated data
             $receiptBook->receipt_vouchers_number = $request->receipt;
             $receiptBook->date = $request->date;
@@ -221,11 +233,17 @@ class ReceiptBookVoucherController extends Controller
             $receiptBook->amount = $request->amount;
             $receiptBook->discount = $request->discount;
             $receiptBook->round_off = $request->round_off;
+            $receiptBook->bank_id = $request->bank;
             $receiptBook->grand_total = $request->grand_total;
             $receiptBook->payment_type = $request->payment_method;
 
             // Save the updated record
             $receiptBook->save();
+
+            Bank::where('id', $previousbank)->decrement('opening_blance', $request->amount);
+
+
+            Bank::where('id', $request->bank)->increment('opening_blance', $request->amount);
 
             // Commit the transaction
             DB::commit();
