@@ -29,7 +29,7 @@
                                 <div class="col-md-6 mb-3">
                                     <label for="date" class="form-label">Date</label>
                                     <input class="form-control" type="date" id="date" name="date"
-                                        value="{{ $salesBook->date }}">
+                                           value="{{ \Carbon\Carbon::createFromFormat('d/m/Y', $salesBook->date)->format('Y-m-d') }}">
                                 </div>
                                 <!-- dispatch Field -->
                                 <div class="col-md-6 mb-3">
@@ -150,7 +150,7 @@
                                 <div class="col-md-2 mb-3"></div>
                                 <div class="col-md-4 mb-3">
                                     <input type="text" class="form-control" id="amount_before_tax"
-                                        value="{{ number_format((float) $salesBook->amount_before_tax, 2) }}"
+                                        value="{{ $salesBook->amount_before_tax }}"
                                         name="amount_before_tax">
                                     @error('amount_before_tax')
                                         <div class="text-danger">{{ $message }}</div>
@@ -166,7 +166,7 @@
                                 <div class="col-md-2 mb-3"></div>
                                 <div class="col-md-4 mb-3">
                                     <input type="text" class="form-control" id="igst"
-                                        value="{{ number_format((float) $salesBook->igst, 2) }}" name="igst"
+                                        value="{{ $salesBook->igst }}" name="igst"
                                         min="0" readonly>
                                     @error('igst')
                                         <div class="text-danger">{{ $message }}</div>
@@ -182,7 +182,7 @@
                                 <div class="col-md-2 mb-3"></div>
                                 <div class="col-md-2 mb-3">
                                     <input type="text" class="form-control" id="cgst"
-                                        value="{{ number_format((float) $salesBook->cgst, 2) }}" name="cgst"
+                                        value="{{ $salesBook->cgst }}" name="cgst"
                                         min="0" readonly>
                                     @error('igst')
                                         <div class="text-danger">{{ $message }}</div>
@@ -190,7 +190,7 @@
                                 </div>
                                 <div class="col-md-2 mb-3">
                                     <input type="text" class="form-control" id="sgst"
-                                        value="{{ number_format((float) $salesBook->sgst, 2) }}" name="sgst"
+                                        value="{{ $salesBook->sgst }}" name="sgst"
                                         min="0" readonly>
                                     @error('igst')
                                         <div class="text-danger">{{ $message }}</div>
@@ -205,7 +205,7 @@
                                 </div>
                                 <div class="col-md-4 mb-3">
                                     <input type="text" class="form-control" id="other_expense"
-                                        value="{{ number_format((float) $salesBook->other_expense, 2) }}" min="0"
+                                        value="{{ $salesBook->other_expense }}" min="0"
                                         name="other_expense">
                                 </div>
                             </div>
@@ -217,7 +217,7 @@
                                 </div>
                                 <div class="col-md-4 mb-3">
                                     <input type="text" class="form-control" id="discount" name="discount"
-                                        min="0" value="{{ number_format((float) $salesBook->discount, 2) }}">
+                                        min="0" value="{{ $salesBook->discount }}">
                                 </div>
                             </div>
                             <!-- Round Off -->
@@ -228,7 +228,7 @@
                                 </div>
                                 <div class="col-md-4 mb-3">
                                     <input type="text" class="form-control" id="round_off" name="round_off"
-                                        value="{{ number_format((float) $salesBook->round_off, 2) }}" step="any">
+                                        value="{{ $salesBook->round_off }}" step="any">
                                 </div>
                             </div>
                             <!-- Grand Total -->
@@ -239,7 +239,7 @@
                                 </div>
                                 <div class="col-md-4 mb-3">
                                     <input type="text" class="form-control" id="grand_total" name="grand_total"
-                                        value="{{ number_format((float) $salesBook->grand_total, 2) }}" min="0"
+                                        value="{{ $salesBook->grand_total }}" min="0"
                                         readonly>
                                 </div>
                             </div>
@@ -439,6 +439,7 @@
         // Function to update remaining balance based on received amount and grand total
         function updateRemainingBalance() {
             const givenAmount = parseFloat($('#received_amount').val()) || 0;
+            console.log(givenAmount);
             const calculatedTotalMain = parseFloat($('#grand_total').val()) || 0;
             const remainingBalance = calculatedTotalMain - givenAmount;
             $('#balance_amount').val(remainingBalance.toFixed(2));

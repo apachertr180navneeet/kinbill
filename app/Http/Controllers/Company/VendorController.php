@@ -97,7 +97,7 @@ class VendorController extends Controller
         $rules = [
             'full_name' => 'required|string|max:255',
             'email' => [
-                'required',
+                'nullable',
                 'email',
                 'max:255',
                 // Rule::unique('users')->where(function ($query) use ($request) {
@@ -115,7 +115,7 @@ class VendorController extends Controller
             'address' => 'nullable|string',
             'city' => 'required|string|max:100',
             'state' => 'required|string',
-            'gst' => 'required|string',
+            'gst' => 'nullable|string',
         ];
 
         // Custom messages
