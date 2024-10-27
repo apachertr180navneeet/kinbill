@@ -73,7 +73,7 @@
         </li>
 
          {{--  Report menu  --}}
-         <li class="menu-item {{ request()->routeIs(['company.purches.report.*', 'company.sales.report.*', 'company.receipt.report.*', 'company.payment.report.*', 'company.payment.report.*', 'company.stock.report.*']) ? 'active open' : '' }}">
+         <li class="menu-item {{ request()->routeIs(['company.purches.report.*', 'company.sales.report.*', 'company.receipt.report.*', 'company.payment.report.*', 'company.payment.report.*', 'company.stock.report.*', 'company.gst.report.*']) ? 'active open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon tf-icons bx bx-home-circle"></i>
                 <div class="text-truncate" data-i18n="Master">Report</div>
@@ -86,6 +86,7 @@
                     ['route' => 'company.payment.report.index', 'text' => 'Payment Book Report'],
                     ['route' => 'company.bank.and.cash.report.index', 'text' => 'Bank And Cash Report'],
                     ['route' => 'company.stock.report.index', 'text' => 'Stock Report'],
+                    ['route' => 'company.gst.report.index', 'text' => 'GST Report'],
                 ] as $reportmenu)
                     <li class="menu-item {{ request()->routeIs($reportmenu['route']) ? 'active' : '' }}">
                         <a href="{{ route($reportmenu['route']) }}" class="menu-link">

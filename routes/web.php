@@ -26,7 +26,8 @@ use App\Http\Controllers\Company\{
     PaymentBookReportController,
     BankAndCashMangementController,
     BankAndCashReportController,
-    StockReportController
+    StockReportController,
+    GstReportController
 };
 
 
@@ -273,6 +274,12 @@ Route::prefix('company')->name('company.')->group(function () {
         Route::prefix('stock-report')->name('stock.report.')->controller(StockReportController::class)->group(function () {
             Route::get('/', 'index')->name('index');
             Route::get('all', 'getall')->name('getall');
+        });
+
+
+        Route::prefix('gst-report')->name('gst.report.')->controller(GstReportController::class)->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('/filter', 'filter')->name('filter');
         });
 
     });
