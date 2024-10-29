@@ -84,7 +84,8 @@
                     ['route' => 'company.sales.report.index', 'text' => 'Sales Report'],
                     ['route' => 'company.receipt.report.index', 'text' => 'Receipt Book Report'],
                     ['route' => 'company.payment.report.index', 'text' => 'Payment Book Report'],
-                    ['route' => 'company.bank.and.cash.report.index', 'text' => 'Bank And Cash Report'],
+                    ['route' => 'company.contra.report.index', 'text' => 'Contra Report'],
+                    ['route' => 'company.bank.and.cash.report.bankindex', 'text' => 'Bank And Cash Report'],
                     ['route' => 'company.stock.report.index', 'text' => 'Stock Report'],
                     ['route' => 'company.gst.report.index', 'text' => 'GST Report'],
                 ] as $reportmenu)

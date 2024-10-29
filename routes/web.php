@@ -266,8 +266,13 @@ Route::prefix('company')->name('company.')->group(function () {
         });
 
         // Sales Report Management Routes
-        Route::prefix('bank-and-cash-report')->name('bank.and.cash.report.')->controller(BankAndCashReportController::class)->group(function () {
+        Route::prefix('contra')->name('contra.report.')->controller(BankAndCashReportController::class)->group(function () {
             Route::get('/', 'index')->name('index');
+            Route::get('all', 'getall')->name('getall');
+        });
+
+        Route::prefix('bank-and-cash-report')->name('bank.and.cash.report.')->controller(BankAndCashReportController::class)->group(function () {
+            Route::get('/', 'bankindex')->name('bankindex');
             Route::get('all', 'getall')->name('getall');
         });
 

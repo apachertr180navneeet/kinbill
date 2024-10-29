@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Company;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\{User, BankAndCash, Bank};
+use App\Models\{User, BankAndCash, Bank, PaymentBook, ReceiptBookVoucher};
 use Illuminate\Support\Facades\{Auth, DB, Mail, Hash, Validator, Session};
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Redirect;
@@ -20,35 +20,70 @@ class BankAndCashReportController extends Controller
      */
     public function index(Request $request)
     {
+        // Get the authenticated user and their company ID
+        $user = Auth::user();
+        $compId = $user->company_id;
+
+        // Fetch all BankAndCash records for the user's company, including related bank details
+        $bankandcashs = BankAndCash::where('bank_and_cashes.company_id', $compId)
+            ->leftJoin('banks as deposite_bank', 'deposite_bank.id', '=', 'bank_and_cashes.deposite_in') // Join for deposite_in
+            ->leftJoin('banks as withdraw_bank', 'withdraw_bank.id', '=', 'bank_and_cashes.withdraw_in') // Join for withdraw_in
+            ->select(
+                'bank_and_cashes.*',
+                'deposite_bank.bank_name as deposite_bank_name',
+                'withdraw_bank.bank_name as withdraw_bank_name'
+            )
+            ->get();
+
         // Simply returning the view for purchase book index page
-        return view('company.bank_and_cash_report.index');
+        return view('company.contra_report.index',compact('bankandcashs'));
     }
 
-    /**
-     * Fetch all purchase books for the authenticated user's company and return them as JSON.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function getall(Request $request)
+
+    public function bankindex(Request $request)
     {
         // Get the authenticated user and their company ID
         $user = Auth::user();
         $compId = $user->company_id;
 
-        // Fetch all purchase books for the user's company, including vendor details
-        $bankandcash = BankAndCash::where('bank_and_cashes.company_id', $compId)
-        ->leftJoin('banks as deposite_bank', 'deposite_bank.id', '=', 'bank_and_cashes.deposite_in') // Join for deposite_in
-        ->leftJoin('banks as withdraw_bank', 'withdraw_bank.id', '=', 'bank_and_cashes.withdraw_in') // Join for withdraw_in
-        ->select(
-            'bank_and_cashes.*',
-            'deposite_bank.bank_name as deposite_bank_name',  // Select the name of the bank for deposite_in
-            'withdraw_bank.bank_name as withdraw_bank_name'   // Select the name of the bank for withdraw_in
-        )
-        ->get();
+        $paymentBooks = PaymentBook::where('payment_books.company_id', $compId)
+            ->where('payment_books.bank_id', '!=', '0')
+            ->leftJoin('banks', 'payment_books.bank_id', '=', 'banks.id')
+            ->leftJoin('users as vendors', 'payment_books.vendor_id', '=', 'vendors.id')
+            ->select(
+                'payment_books.id',
+                'payment_books.amount',
+                'payment_books.date',
+                'payment_books.payment_type',
+                'payment_books.company_id',
+                'banks.bank_name as bank_name',
+                'vendors.full_name as name', // Vendor name for payment
+                DB::raw("'payment' as type") // Distinguish payment records
+            );
+
+        $receiptBookVouchers = ReceiptBookVoucher::where('receipt_book_vouchers.company_id', $compId)
+            ->where('receipt_book_vouchers.bank_id', '!=', '0')
+            ->leftJoin('banks', 'receipt_book_vouchers.bank_id', '=', 'banks.id')
+            ->leftJoin('users as customers', 'receipt_book_vouchers.customer_id', '=', 'customers.id')
+            ->select(
+                'receipt_book_vouchers.id',
+                'receipt_book_vouchers.amount',
+                'receipt_book_vouchers.date',
+                'receipt_book_vouchers.payment_type',
+                'receipt_book_vouchers.company_id',
+                'banks.bank_name as bank_name',
+                'customers.full_name as name', // Customer name for receipt
+                DB::raw("'receipt' as type") // Distinguish receipt records
+            );
+
+        $combinedRecords = $paymentBooks->union($receiptBookVouchers)->get();
+
+        $totalReceipt = $combinedRecords->where('type', 'receipt')->sum('amount');
+        $totalPayment = $combinedRecords->where('type', 'payment')->sum('amount');
 
 
-        // Return the purchase books data as JSON response
-        return response()->json(['data' => $bankandcash]);
+        // Simply returning the view for purchase book index page
+        return view('company.bank_and_cash_report.index',compact('combinedRecords','totalReceipt','totalPayment'));
     }
+
 }
