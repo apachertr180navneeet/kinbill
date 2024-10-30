@@ -62,7 +62,7 @@
                             <p id="dateRange"></p>
                         </div>
                         <div class="table-responsive text-nowrap">
-                            <table class="table table-bordered" id="variationTable">
+                            <table class="table table-bordered" id="variationTable" style="width: 99%">
                                 <thead>
                                     <tr>
                                         <th>Date</th>
@@ -89,6 +89,21 @@
         // Base URL for the edit route
         const baseUrl = "{{ route('company.sales.report.print', ['id' => ':id']) }}";
 
+        function getSearchParam(param){
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(param);
+        }
+
+        const startDate = getSearchParam('start_date');
+        const endDate = getSearchParam('end_date');
+
+        if (startDate) {
+            $('#start_date').val(startDate);
+        }
+        if (endDate) {
+            $('#end_date').val(endDate);
+        }
+
         const table = $('#variationTable').DataTable({
             processing: true,
             ajax: {
@@ -102,10 +117,7 @@
             columns: [
                 {
                     data: "date",
-                    render: function (data, type, row) {
-                        // Using moment.js to format the date
-                        return moment(data).format('DD/MM/YYYY');
-                    }
+
                 },
                 { data: "dispatch_number" },
                 { data: "customer_name" },
@@ -119,6 +131,10 @@
                 },
             ],
         });
+
+        if (startDate || endDate) {
+            table.ajax.reload();
+        }
         // Filter Button Click Event
         $('#filterBtn').click(function() {
             table.ajax.reload(); // Reload the DataTable with the new date range filter

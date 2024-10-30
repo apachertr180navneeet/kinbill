@@ -175,14 +175,14 @@
     @endsection @section('script')
     <script>
         $(document).ready(function() {
-           
+
             const depositeSelect = document.getElementById('deposite_in');
             const withdrawSelect = document.getElementById('withdraw_in');
 
             function disableOptions(disabledId,selectElement){
                 const options = selectElement.options;
                 for (let i = 0; i < options.length; i++) {
-                    options[i].disabled = options[i].value === disabledId && disabledId !== "";                  
+                    options[i].disabled = options[i].value === disabledId && disabledId !== "";
                 }
             }
 
@@ -196,8 +196,8 @@
                 disableOptions(selectedWithrawalValue,depositeSelect);
             })
 
-            
-          
+
+
 
             // Initialize DataTable
             const table = $("#ItemTable").DataTable({
@@ -230,7 +230,7 @@
                         data: "action",
                         render: (data, type, row) => {
                             const deleteButton =
-                                `<button type="button" class="btn btn-sm btn-danger" onclick="delete(${row.id})">Delete</button>`;
+                                `<button type="button" class="btn btn-sm btn-danger" onclick="deleteUser(${row.id})">Delete</button>`;
                             const editButton =
                                 `<button type="button" class="btn btn-sm btn-warning" onclick="editbankcash(${row.id})">Edit</button>`;
 
@@ -384,7 +384,7 @@
                     confirmButtonText: "Yes",
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        const url = '{{ route('company.item.destroy', ':userId') }}'.replace(":userId",
+                        const url = '{{ route('company.bank.and.cash.destroy', ':userId') }}'.replace(":userId",
                             userId);
                         $.ajax({
                             type: "DELETE",

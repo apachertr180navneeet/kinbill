@@ -39,7 +39,7 @@
                             <h4>Invoice #{{ $salesReport->dispatch_number }}</h4>
                             <div class="me-1">
                                 <span class="me-1">Date:</span>
-                                <span class="fw-medium">{{ \Carbon\Carbon::parse($salesReport->date)->format('d-m-Y') }}</span>
+                                <span class="fw-medium">{{ $salesReport->date }}</span>
                             </div>
                             <div>
                                 <span class="me-1">GST No.:</span>

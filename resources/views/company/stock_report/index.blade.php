@@ -32,7 +32,11 @@
             }
 
             /* Hide unnecessary elements for print */
-            .no-print, .btn, #filterBtn {
+            .no-print, .btn, #filterBtn,
+            .dataTables_filter, /* Hides search */
+            .dataTables_info, /* Hides row info */
+            .dataTables_paginate, /* Hides pagination */
+            .dataTables_length /* Hides entries count selection */ {
                 display: none !important;
             }
         }
@@ -41,8 +45,14 @@
         <div class="col-xl-12 col-lg-12">
             <div class="card">
                 <div class="card-body">
-                    <div class="table-responsive text-nowrap">
-                        <table class="table table-bordered" id="variationTable">
+                    <!-- Header for Print with Dynamic Data -->
+                    <div id="printHeader" class="text-center mb-4">
+                        <h4 id="companyName"></h4>
+                        <h5 id="gstNumber"></h5>
+                        <p id="dateRange"></p>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="variationTable" style="width: 99%">
                             <thead>
                                 <tr>
                                     <th>Item</th>

@@ -44,7 +44,7 @@
                             <p id="dateRange"></p>
                         </div>
                         <div class="table-responsive text-nowrap">
-                            <table class="table table-bordered" id="variationTable">
+                            <table class="table table-bordered" id="variationTable" style="width: 99%">
                                 <thead>
                                     <tr>
                                         <th scope="col" style="width: 20%;">Date</th>
@@ -69,6 +69,21 @@
 <script>
     $(document).ready(function() {
         const baseUrl = "{{ route('company.purches.report.print', ['id' => ':id']) }}";
+
+        function getSearchParam(param){
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(param);
+        }
+
+        const startDate = getSearchParam('start_date');
+        const endDate = getSearchParam('end_date');
+
+        if (startDate) {
+            $('#start_date').val(startDate);
+        }
+        if (endDate) {
+            $('#end_date').val(endDate);
+        }
 
         const table = $('#variationTable').DataTable({
             processing: true,
@@ -99,6 +114,10 @@
                 },
             ],
         });
+
+        if (startDate || endDate) {
+            table.ajax.reload();
+        }
 
         $('#filterBtn').click(function() {
             table.ajax.reload();

@@ -17,23 +17,23 @@
         $endDate = $endDate ? Carbon::parse($endDate)->format('d-m-Y') : null;
     @endphp
     <style>
-        /* Print CSS */
+        / Print CSS /
         @media print {
             @page {
-                size: A4 landscape; /* Set page size to A4 and orientation to landscape */
-                margin: 0; /* Optional: Adjust margins as needed */
+                size: A4 landscape; / Set page size to A4 and orientation to landscape /
+                margin: 0; / Optional: Adjust margins as needed /
             }
 
             body {
-                margin: 0; /* Remove default margins */
-                overflow: hidden; /* Prevent scrolling in print mode */
+                margin: 0; / Remove default margins /
+                overflow: hidden; / Prevent scrolling in print mode /
             }
 
             #printThis {
-                overflow: visible; /* Allow content to display fully */
+                overflow: visible; / Allow content to display fully /
             }
 
-            /* Hide unnecessary elements for print */
+            / Hide unnecessary elements for print /
             .no-print, .btn, #filterBtn {
                 display: none !important;
             }
@@ -59,8 +59,8 @@
                                 <button type="submit" class="btn btn-primary mt-4">Filter</button>
                             </div>
                             <div class="col-md-2">
-                                <a href="{{ route('company.purches.report.index') }}" class="btn btn-primary mt-4">R1</a>
-                                <a href="{{ route('company.sales.report.index') }}" class="btn btn-primary mt-4">R2</a>
+                                <a href="{{ route('company.purches.report.index') }}" id="reportR1" class="btn btn-primary mt-4">R1</a>
+                                <a href="{{ route('company.sales.report.index') }}" id="reportR2" class="btn btn-primary mt-4">R2</a>
                                 <button id="printdiv" class="btn btn-primary mt-4"> Print Data</button>
                             </div>
                         </div>
@@ -175,6 +175,37 @@
             // Reload the page after print dialog is closed
             window.location.reload();
         });
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Elements for date inputs and buttons
+        const startDate = document.getElementById('start_date');
+        const endDate = document.getElementById('end_date');
+        const reportR1 = document.getElementById('reportR1');
+        const reportR2 = document.getElementById('reportR2');
+
+        // Function to update URLs with selected dates
+        function updateReportUrls() {
+            const start = startDate.value;
+            const end = endDate.value;
+
+
+            const r1Url = new URL(reportR1.href);
+            const r2Url = new URL(reportR2.href);
+
+            if (start) r1Url.searchParams.set('start_date', start);
+            if (end) r1Url.searchParams.set('end_date', end);
+
+            if (start) r2Url.searchParams.set('start_date', start);
+            if (end) r2Url.searchParams.set('end_date', end);
+
+            reportR1.href = r1Url.toString();
+            reportR2.href = r2Url.toString();
+        }
+
+        // Update URLs when date inputs change
+        startDate.addEventListener('change', updateReportUrls);
+        endDate.addEventListener('change', updateReportUrls);
     });
 </script>
 @endsection

@@ -66,7 +66,7 @@
                             <p id="dateRange"></p>
                         </div>
                         <div class="table-responsive text-nowrap">
-                            <table class="table table-bordered" id="variationTable">
+                            <table class="table table-bordered" id="variationTable" style="width: 99%">
                                 <thead>
                                     <tr>
                                         <th>Date</th>
