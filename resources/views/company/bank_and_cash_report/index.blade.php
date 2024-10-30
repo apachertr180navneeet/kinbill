@@ -75,15 +75,15 @@
                         </table>
                     </div>
                     <div class="row mt-4">
-                        <div class="col-md-3">
-                            <h4>Net Value = <span id="netValue">{{ $totalPayment - $totalReceipt }}</span></h4>
+                        <div class="col-md-4">
+                            <h4>Recipt Value = <span id="WithdrawValue">{{ $totalReceipt }}</span></h4>
                         </div>
-                        <div class="col-md-3"></div>
-                        <div class="col-md-3">
+                        <div class="col-md-4"></div>
+                        <div class="col-md-2">
                             <h4>Payment = <span id="DepositValue">{{ $totalPayment }}</span></h4>
                         </div>
-                        <div class="col-md-3">
-                            <h4>Recipt Value = <span id="WithdrawValue">{{ $totalReceipt }}</span></h4>
+                        <div class="col-md-2">
+                            <h4>Net Value = <span id="netValue">{{ $totalReceipt - $totalPayment }}</span></h4>
                         </div>
                     </div>
                 </div>
