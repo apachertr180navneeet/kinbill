@@ -104,10 +104,16 @@ class PaymentBookController extends Controller
             $purchasebooks = $purchasebooks->merge($customerPurchaseBooks); // Add the sales books to the collection
         }
 
+        $paymentAmounts = collect();
+        foreach ($vendors as $vendor) {
+            $customerReciept = PaymentBook::where('vendor_id', $vendor->id)->get();
+            $paymentAmounts = $paymentAmounts->merge($customerReciept); // Add the sales books to the collection
+        }
+
         // dd($salesbooks);
         $banks = Bank::where('company_id',$compId)->get();
         // Pass the vendors and items data to the view for adding a new sales book
-        return view('company.payment_book.add', compact('vendors','purchasebooks','finalInvoiceNumber','banks'));
+        return view('company.payment_book.add', compact('vendors','purchasebooks','paymentAmounts','finalInvoiceNumber','banks'));
     }
 
 

@@ -50,7 +50,7 @@
                                         @foreach ($vendors as $vendor)
                                             <option value="{{ $vendor->id }}"
                                                  data-purchasebooks-amount="{{ $purchasebooks->where('vendor_id', $vendor->id)->sum('grand_total') }}"
-                                                data-purchasebooks-given="{{ $purchasebooks->where('vendor_id', $vendor->id)->sum('given_amount') }}"
+                                                 data-purchasebooks-given="{{ $paymentAmounts->where('vendor_id', $vendor->id)->sum('amount') }}"
                                                  {{ old('vendor') == $vendor->id ? 'selected' : '' }}>
                                                  {{ $vendor->full_name }}</option>
                                         @endforeach

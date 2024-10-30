@@ -50,7 +50,7 @@
                                         @foreach ($customers as $customer)
                                             <option value="{{ $customer->id }}"
                                                 data-salesbook-amount="{{ $salesbooks->where('customer_id', $customer->id)->sum('grand_total') }}"
-                                                data-salesbook-received="{{ $salesbooks->where('customer_id', $customer->id)->sum('recived_amount') }}"
+                                                data-salesbook-received="{{ $recieptAmounts->where('customer_id', $customer->id)->sum('amount') }}"
                                                  {{ old('customer') == $customer->id ? 'selected' : '' }}>
                                                  {{ $customer->full_name }}</option>
                                         @endforeach

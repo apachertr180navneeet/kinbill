@@ -100,11 +100,17 @@ class ReceiptBookVoucherController extends Controller
             $salesbooks = $salesbooks->merge($customerSalesbooks); // Add the sales books to the collection
         }
 
+        $recieptAmounts = collect();
+        foreach ($customers as $customer) {
+            $customerReciept = ReceiptBookVoucher::where('customer_id', $customer->id)->get();
+            $recieptAmounts = $recieptAmounts->merge($customerReciept); // Add the sales books to the collection
+        }
+
         // dd($salesbooks);
-        $banks = Bank::where('company_id',$compId)->get();
+        $banks = Bank::where('company_id', $compId)->get();
 
         // Pass the vendors and items data to the view for adding a new sales book
-        return view('company.receipt_book_voucher.add', compact('customers','salesbooks','finalInvoiceNumber','banks'));
+        return view('company.receipt_book_voucher.add', compact('customers', 'salesbooks','recieptAmounts', 'finalInvoiceNumber', 'banks'));
     }
 
 

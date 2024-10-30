@@ -26,14 +26,20 @@
 
             body {
                 margin: 0; /* Remove default margins */
+                overflow: hidden; /* Prevent scrolling in print mode */
             }
 
             #printThis {
-                width: 100%; /* Ensure full-width usage for landscape */
-                overflow: hidden; /* Hide any overflow content */
+                overflow: visible; /* Allow content to display fully */
+            }
+
+            /* Hide unnecessary elements for print */
+            .no-print, .btn, #filterBtn {
+                display: none !important;
             }
         }
     </style>
+
     <div class="row">
         <div class="col-xl-12 col-lg-12">
             <div class="card">
@@ -61,36 +67,30 @@
                     </form>
 
                     <div id="printThis">
-                        <div class="row border mt-4">
-                            <!-- Date Range Filters -->
-                            <div class="col-md-4 d-flex mb-4">
-                                <button id="filterBtn" class="btn btn-primary mt-4">GSTR :- {{ $companyDetail->gstin }}</button>
-                            </div>
-                            <div class="col-md-8 mb-4 d-flex justify-content-center">
-                                <button id="filterBtn" class="btn btn-primary mt-4">{{ $companyDetail->name }}</button>
-                                <button id="filterBtn" class="btn btn-primary mt-4" style="margin-left: 5%;">{{ $startDate }} - {{ $endDate }}</button>
-                            </div>
+                        <!-- Header for Print with Dynamic Data -->
+                        <div id="printHeader" class="text-center mb-4">
+                            <h4 id="companyName"></h4>
+                            <h5 id="gstNumber"></h5>
+                            <p id="dateRange"></p>
                         </div>
 
                         <div class="table-responsive text-nowrap mt-4">
                             <table class="table table-bordered" id="variationTable">
                                 <thead>
                                     <tr>
-                                        <th>S. No.</th>
-                                        <th>Particular</th>
-                                        <th>Voucher Count</th>
-                                        <th>Taxable</th>
-                                        <th>IGST</th>
-                                        <th>CGST</th>
-                                        <th>SGST</th>
-                                        <th>Cess</th>
-                                        <th>Tax Amount</th>
-                                        <th>Invoice Amount</th>
+                                        <th style="width: 10%;">Particular</th>
+                                        <th style="width: 10%;">Voucher Count</th>
+                                        <th style="width: 10%;">Taxable</th>
+                                        <th style="width: 10%;">IGST</th>
+                                        <th style="width: 10%;">CGST</th>
+                                        <th style="width: 10%;">SGST</th>
+                                        <th style="width: 10%;">Cess</th>
+                                        <th style="width: 10%;">Tax</th>
+                                        <th style="width: 15%;">Invoice</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr>
-                                        <td>1</td>
                                         <td>B2B invoices -4A,4B,4C,6B,6C</td>
                                         <td>{{ $b2btotalInvoiceCount }}</td>
                                         <td>{{ $b2btotalAmountBeforeTax }}</td>
@@ -102,7 +102,6 @@
                                         <td>{{ $b2btotalGrandTotal }}</td>
                                     </tr>
                                     <tr>
-                                        <td>2</td>
                                         <td>B2C ( large Invoices )-5A,5B</td>
                                         <td>{{ $b2ctotalInvoiceCount }}</td>
                                         <td>{{ $b2ctotalAmountBeforeTax }}</td>
@@ -114,7 +113,6 @@
                                         <td>{{ $b2ctotalGrandTotal }}</td>
                                     </tr>
                                     <tr>
-                                        <td>3</td>
                                         <td>Credit / Debit Note ( Reg)-9B</td>
                                         <td>{{ $b2bSalesBookItemInvoiceCount }}</td>
                                         <td>{{ $b2bTotalPrice }}</td>
@@ -126,7 +124,6 @@
                                         <td>{{ $b2bTotalPrice + $b2bTotalTaxValue }}</td>
                                     </tr>
                                     <tr>
-                                        <td>4</td>
                                         <td>Credit/ debit note (unreg)-9B</td>
                                         <td>{{ $b2cSalesBookItemInvoiceCount }}</td>
                                         <td>{{ $b2cTotalPrice }}</td>
@@ -138,7 +135,6 @@
                                         <td>{{ $b2cTotalPrice + $b2cTotalTaxValue }}</td>
                                     </tr>
                                     <tr id="total">
-                                        <td></td>
                                         <td>TOTAL</td>
                                         <td>{{ $b2btotalInvoiceCount + $b2ctotalInvoiceCount + $b2bSalesBookItemInvoiceCount + $b2cSalesBookItemInvoiceCount }}</td>
                                         <td>{{ $b2btotalAmountBeforeTax + $b2ctotalAmountBeforeTax + $b2bTotalPrice + $b2cTotalPrice }}</td>
@@ -163,12 +159,19 @@
 <script>
     $(document).ready(function() {
         $('#printdiv').click(function() {
+            // Set header details dynamically
+            $('#companyName').text("{{ $companyDetail->name }}");
+            $('#gstNumber').text("GSTIN: {{ $companyDetail->gstin }}");
+            $('#dateRange').text("Date Range: {{ $startDate }} - {{ $endDate }}");
+
+            // Prepare for printing
             var printContents = $('#printThis').html();
             var originalContents = $('body').html();
 
             $('body').html(printContents);
             window.print();
             $('body').html(originalContents);
+
             // Reload the page after print dialog is closed
             window.location.reload();
         });

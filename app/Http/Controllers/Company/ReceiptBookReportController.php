@@ -4,11 +4,12 @@ namespace App\Http\Controllers\Company;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\{User, ReceiptBookVoucher};
+use App\Models\{User, ReceiptBookVoucher,Company};
 use Illuminate\Support\Facades\{Auth, DB, Mail, Hash, Validator, Session};
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Redirect;
 use Exception;
+use Carbon\Carbon; // Add this line to import Carbon
 
 class ReceiptBookReportController extends Controller
 {
@@ -20,8 +21,25 @@ class ReceiptBookReportController extends Controller
      */
     public function index(Request $request)
     {
+        $user = Auth::user();
+        $compId = $user->company_id;
+
+        $companyDetail = Company::find($compId);
+
+        // Retrieve start and end dates from the request, default to current date if not provided
+        $startDate = Carbon::now()->format('Y-m-d');
+        $endDate = Carbon::now()->format('Y-m-d');
+
+        // Convert to Carbon instances if you need to use them later
+        $startDate = Carbon::parse($startDate);
+        $endDate = Carbon::parse($endDate);
+
         // Simply returning the view for purchase book index page
-        return view('company.receipt_book_report.index');
+        return view('company.receipt_book_report.index',[
+            'companyDetail' => $companyDetail,
+            'startDate' => $startDate,
+            'endDate' => $endDate
+        ]);
     }
 
     /**
@@ -41,11 +59,11 @@ class ReceiptBookReportController extends Controller
             ->where('receipt_book_vouchers.company_id', $compId)
             ->select('receipt_book_vouchers.*', 'users.full_name as customer_name')
             ->orderByDesc('receipt_book_vouchers.id');
-             
+
           // If a date filter is provided, apply the date filter to the query
           if ($request->start_date && $request->end_date) {
             $ReceiptBookVoucher->whereBetween('receipt_book_vouchers.date', [$request->start_date, $request->end_date]);
-        } 
+        }
         // Fetch the filtered data
         $ReceiptBookVoucher = $ReceiptBookVoucher->get();
 

@@ -4,11 +4,12 @@ namespace App\Http\Controllers\Company;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\{User, BankAndCash, Bank, PaymentBook, ReceiptBookVoucher};
+use App\Models\{User, BankAndCash, Bank, PaymentBook, ReceiptBookVoucher, Company};
 use Illuminate\Support\Facades\{Auth, DB, Mail, Hash, Validator, Session};
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Redirect;
 use Exception;
+use Carbon\Carbon; // Add this line to import Carbon
 
 class BankAndCashReportController extends Controller
 {
@@ -24,6 +25,16 @@ class BankAndCashReportController extends Controller
         $user = Auth::user();
         $compId = $user->company_id;
 
+        $companyDetail = Company::find($compId);
+
+        // Retrieve start and end dates from the request, default to current date if not provided
+        $startDate = Carbon::now()->format('Y-m-d');
+        $endDate = Carbon::now()->format('Y-m-d');
+
+        // Convert to Carbon instances if you need to use them later
+        $startDate = Carbon::parse($startDate);
+        $endDate = Carbon::parse($endDate);
+
         // Fetch all BankAndCash records for the user's company, including related bank details
         $bankandcashs = BankAndCash::where('bank_and_cashes.company_id', $compId)
             ->leftJoin('banks as deposite_bank', 'deposite_bank.id', '=', 'bank_and_cashes.deposite_in') // Join for deposite_in
@@ -36,7 +47,7 @@ class BankAndCashReportController extends Controller
             ->get();
 
         // Simply returning the view for purchase book index page
-        return view('company.contra_report.index',compact('bankandcashs'));
+        return view('company.contra_report.index',compact('bankandcashs','companyDetail','startDate','endDate'));
     }
 
 
@@ -45,6 +56,15 @@ class BankAndCashReportController extends Controller
         // Get the authenticated user and their company ID
         $user = Auth::user();
         $compId = $user->company_id;
+        $companyDetail = Company::find($compId);
+
+        // Retrieve start and end dates from the request, default to current date if not provided
+        $startDate = Carbon::now()->format('Y-m-d');
+        $endDate = Carbon::now()->format('Y-m-d');
+
+        // Convert to Carbon instances if you need to use them later
+        $startDate = Carbon::parse($startDate);
+        $endDate = Carbon::parse($endDate);
 
         $paymentBooks = PaymentBook::where('payment_books.company_id', $compId)
             ->where('payment_books.bank_id', '!=', '0')
@@ -83,7 +103,7 @@ class BankAndCashReportController extends Controller
 
 
         // Simply returning the view for purchase book index page
-        return view('company.bank_and_cash_report.index',compact('combinedRecords','totalReceipt','totalPayment'));
+        return view('company.bank_and_cash_report.index',compact('combinedRecords','totalReceipt','totalPayment','companyDetail','startDate','endDate'));
     }
 
 }

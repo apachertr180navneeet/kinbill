@@ -4,11 +4,12 @@ namespace App\Http\Controllers\Company;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\{User, SalesBook, SalesBookItem};
+use App\Models\{User, SalesBook, SalesBookItem, Company};
 use Illuminate\Support\Facades\{Auth, DB, Mail, Hash, Validator, Session};
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Redirect;
 use Exception;
+use Carbon\Carbon; // Add this line to import Carbon
 
 class SalesReportController extends Controller
 {
@@ -20,8 +21,25 @@ class SalesReportController extends Controller
      */
     public function index(Request $request)
     {
+        $user = Auth::user();
+        $compId = $user->company_id;
+
+        $companyDetail = Company::find($compId);
+
+        // Retrieve start and end dates from the request, default to current date if not provided
+        $startDate = Carbon::now()->format('Y-m-d');
+        $endDate = Carbon::now()->format('Y-m-d');
+
+        // Convert to Carbon instances if you need to use them later
+        $startDate = Carbon::parse($startDate);
+        $endDate = Carbon::parse($endDate);
+
         // Simply returning the view for purchase book index page
-        return view('company.sales_report.index');
+        return view('company.sales_report.index',[
+            'companyDetail' => $companyDetail,
+            'startDate' => $startDate,
+            'endDate' => $endDate
+        ]);
     }
 
     /**
