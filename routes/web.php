@@ -163,6 +163,9 @@ Route::prefix('company')->name('company.')->group(function () {
                 Route::get('/', [$controller, 'index'])->name('index');
                 Route::get('all', [$controller, 'getall'])->name('getall');
                 Route::post('store', [$controller, 'store'])->name('store');
+                if($resource == 'bank'){
+                    Route::post('show_invoice', [$controller, 'show_invoice'])->name('show.invoice');
+                }
                 Route::post('status', [$controller, 'status'])->name('status');
                 Route::delete('delete/{id}', [$controller, 'destroy'])->name('destroy');
                 Route::get('get/{id}', [$controller, 'get'])->name('get');

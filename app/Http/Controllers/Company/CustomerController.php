@@ -141,6 +141,7 @@ class CustomerController extends Controller
             'full_name' => $request->full_name,
             'email' => $request->email,
             'phone' => $request->phone,
+            'address' => $request->address,
             'state' => $request->state,
             'city' => $request->city,
             'zipcode' => $request->zipcode,

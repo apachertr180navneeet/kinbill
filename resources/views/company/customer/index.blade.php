@@ -23,6 +23,7 @@
                                     <th>Name</th>
                                     <th>Email</th>
                                     <th>Phone</th>
+                                    <th>Address</th>
                                     <th>Status</th>
                                     <th>Action</th>
                                 </tr>
@@ -58,6 +59,11 @@
                     <div class="col-md-12 mb-3">
                         <label for="phone" class="form-label">Phone</label>
                         <input type="text" id="phone" class="form-control" placeholder="" />
+                        <small class="error-text text-danger"></small>
+                    </div>
+                    <div class="col-md-12 mb-3">
+                        <label for="address" class="form-label">Address</label>
+                        <textarea class="form-control" id="address"name="address" rows="3"></textarea>
                         <small class="error-text text-danger"></small>
                     </div>
                     <div class="col-md-12 mb-3">
@@ -129,6 +135,11 @@
                         <small class="error-text text-danger"></small>
                     </div>
                     <div class="col-md-12 mb-3">
+                        <label for="editaddress" class="form-label">Address</label>
+                        <textarea class="form-control" id="editaddress"name="editaddress" rows="3"></textarea>
+                        <small class="error-text text-danger"></small>
+                    </div>
+                    <div class="col-md-12 mb-3">
                         <label for="state" class="form-label">State</label>
                         <select class="form-select" id="editstate">
                             <option selected>Select  State</option>
@@ -190,6 +201,9 @@
                     data: "phone",
                 },
                 {
+                    data: "address",
+                },
+                {
                     data: "status",
                     render: (data, type, row) => {
                         const statusBadge = row.status === "active" ?
@@ -229,6 +243,7 @@
                 state: $('#state').val(),
                 role: $('#role').val(),
                 zipcode: $('#zipcode').val(),
+                address: $('#address').val(),
                 gst: $('#gst').val(),
                 _token: $('meta[name="csrf-token"]').attr('content') // CSRF token
             };
@@ -288,6 +303,7 @@
                     $('#editstate').val(user.state);
                     $('#editgst').val(user.gst_no);
                     $('#editzipcode').val(user.zipcode);
+                    $('#editaddress').val(user.address);
 
                     // Populate city dropdown
                     $('#editcity').empty().append('<option selected>Select City</option>');
@@ -326,6 +342,7 @@
                     state: $('#editstate').val(),
                     zipcode: $('#editzipcode').val(),
                     gst_no: $('#editgst').val(),
+                    address: $('#editaddress').val(),
                     _token: $('meta[name="csrf-token"]').attr('content'), // CSRF token
                     id: userId // Ensure userId is in scope or adjust accordingly
                 },

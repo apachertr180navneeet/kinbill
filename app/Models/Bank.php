@@ -12,6 +12,6 @@ class Bank extends Model
 
 
     protected $fillable = [
-        'company_id', 'name', 'bank_name', 'account_number', 'ifsc_code', 'branch_name', 'status' , 'opening_blance'
+        'company_id', 'name', 'bank_name', 'account_number', 'ifsc_code', 'branch_name', 'status' , 'opening_blance', 'show_invoice'
     ];
 }

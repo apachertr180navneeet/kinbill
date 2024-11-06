@@ -282,6 +282,11 @@
                             <small class="error-text text-danger"></small>
                         </div>
                         <div class="col-md-12 mb-3">
+                            <label for="address" class="form-label">Address</label>
+                            <textarea class="form-control" id="address"name="address" rows="3"></textarea>
+                            <small class="error-text text-danger"></small>
+                        </div>
+                        <div class="col-md-12 mb-3">
                             <label for="state" class="form-label">State</label>
                             <select class="form-select" id="state">
                                 <option selected>Select  State</option>
@@ -612,6 +617,7 @@
                     city: $('#city').val(),
                     state: $('#state').val(),
                     role: $('#role').val(),
+                    address: $('#address').val(),
                     zipcode: $('#zipcode').val(),
                     gst: $('#gst').val(),
                     _token: $('meta[name="csrf-token"]').attr('content') // CSRF token

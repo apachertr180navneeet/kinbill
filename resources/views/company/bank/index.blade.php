@@ -27,6 +27,7 @@
                                     <th>Branch</th>
                                     <th>Opening Balance</th>
                                     <th>Status</th>
+                                    <th>Show Invoice</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
@@ -177,6 +178,15 @@
                     },
                 },
                 {
+                    data: "show_invoice",
+                    render: (data, type, row) => {
+                        const statusBadge = row.show_invoice === "1" ?
+                            '<span class="badge bg-label-success me-1">Show</span>' :
+                            '<span class="badge bg-label-danger me-1">Hide</span>';
+                        return statusBadge;
+                    },
+                },
+                {
                     data: "action",
                     render: (data, type, row) => {
                         const statusButton = row.status === "inactive"
@@ -185,8 +195,9 @@
 
                         //const deleteButton = `<button type="button" class="btn btn-sm btn-danger" onclick="deleteUser(${row.id})">Delete</button>`;
                         const editButton = `<button type="button" class="btn btn-sm btn-warning" onclick="editUser(${row.id})">Edit</button>`;
+                        const showButton = `<button type="button" class="btn btn-sm btn-warning" onclick="showInvoice(${row.id})">Show Invoice</button>`;
 
-                        return `${statusButton} ${editButton}`;
+                        return `${statusButton} ${editButton} ${showButton}`;
                     },
                 },
 
@@ -339,6 +350,44 @@
             });
         };
 
+
+        function showInvoice(userId) {
+            const message = "Bank will show in invoice.";
+
+            Swal.fire({
+                title: "Are you sure?",
+                text: message,
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Okay",
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        type: "POST",
+                        url: "{{ route('company.bank.show.invoice') }}",
+                        data: { userId, _token: $('meta[name="csrf-token"]').attr('content') },
+                        success: function (response) {
+                            console.log(response);
+                            if (response.success == true) {
+                                const successMessage = "Bank will show in successfully.";
+                                setFlash("success", successMessage);
+                            } else {
+                                setFlash("error", "There was an issue changing the status. Please contact your system administrator.");
+                            }
+                            table.ajax.reload(); // Reload DataTable
+                        },
+                        error: function () {
+                            setFlash("error", "There was an issue processing your request. Please try again later.");
+                        },
+                    });
+                } else {
+                    table.ajax.reload(); // Reload DataTable
+                }
+            });
+        };
+
         // Delete user
         function deleteUser(userId) {
             Swal.fire({
@@ -382,6 +431,7 @@
 
         // Expose functions to global scope
         window.updateUserStatus = updateUserStatus;
+        window.showInvoice = showInvoice;
         window.deleteUser = deleteUser;
         window.editUser = editUser;
     });

@@ -33,7 +33,7 @@
                             </div>
                             <p class="mb-1">Bill From :- {{ $purchaseReport->vendor_name  }} </p>
                             <p class="mb-1">Address</p>
-                            <p class="mb-0">{{ $purchaseReport->vendor_city }} {{ $purchaseReport->vendor_state }} ({{ $purchaseReport->vendor_phone }})</p>
+                            <p class="mb-0">{{ $purchaseReport->vendor_address }} {{ $purchaseReport->vendor_city }} {{ $purchaseReport->vendor_state }} ({{ $purchaseReport->vendor_phone }})</p>
                         </div>
                         <div>
                             <h4>Invoice #{{ $purchaseReport->invoice_number }}</h4>
@@ -77,7 +77,12 @@
                             @endforeach
                             <tr>
                                 <td colspan="5" class="align-top px-4 py-5">
-                                    <span>Thanks for your business</span>
+                                    <span>{{ $grandtotalwrod}}</span>
+                                    <br>
+                                    <span>Bank :</span>
+                                    <span>Account Number :- {{$bank->account_number}}</span>
+                                    <span>IFSC Code :- {{$bank->ifsc_code}}</span>
+                                    <span>Bank Name :- {{$bank->bank_name}}</span>
                                 </td>
                                 <td class="text-end px-4 py-5">
                                     <p class="mb-2">SUBTOTAL :</p>

@@ -143,6 +143,7 @@ class VendorController extends Controller
             'full_name' => $request->full_name,
             'email' => $request->email,
             'phone' => $request->phone,
+            'address' => $request->address,
             'state' => $request->state,
             'zipcode' => $request->zipcode,
             'city' => $request->city,
