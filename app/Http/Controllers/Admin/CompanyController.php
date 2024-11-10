@@ -120,60 +120,134 @@ class CompanyController extends Controller
     }
 
     // Fetch user data
-public function getCompany($id)
-{
-    $user = Company::find($id);
+    public function getCompany($id)
+    {
+        $user = Company::find($id);
 
-    if (!$user) {
-        return response()->json(['error' => 'User not found'], 404);
+        if (!$user) {
+            return response()->json(['error' => 'User not found'], 404);
+        }
+
+        // Retrieve state data based on state name from user
+        $stateData = State::where('state_name', $user->state)->first();
+
+        // Retrieve city data based on city name from user
+        $cityData = City::where('city_name', $user->city)->first();
+
+
+        // Retrieve cities based on state id
+        $cities = City::where('state_id', $stateData->state_id ?? null)->get(); // Safeguard in case state data is not found
+
+        // Retrieve pincodes based on city id
+        $pincodes = Pincode::where('city_id', $cityData->id ?? null)->get(); // Safeguard in case city data is not found
+
+        return response()->json([
+            'company' => $user,
+            'state' => $stateData,
+            'city' => $cityData,
+            'cities' => $cities,
+            'pincodes' => $pincodes
+        ]);
+
     }
 
-    // Retrieve state data based on state name from user
-    $stateData = State::where('state_name', $user->state)->first();
 
-    // Retrieve city data based on city name from user
-    $cityData = City::where('city_name', $user->city)->first();
+    public function show($id)
+    {
+        $user = Company::find($id);
+
+        if (!$user) {
+            return response()->json(['error' => 'User not found'], 404);
+        }
+
+        // Retrieve state data based on state name from user
+        $stateData = State::where('state_name', $user->state)->first();
+
+        // Retrieve city data based on city name from user
+        $cityData = City::where('city_name', $user->city)->first();
 
 
-    // Retrieve cities based on state id
-    $cities = City::where('state_id', $stateData->state_id ?? null)->get(); // Safeguard in case state data is not found
+        // Retrieve cities based on state id
+        $cities = City::where('state_id', $stateData->state_id ?? null)->get(); // Safeguard in case state data is not found
 
-    // Retrieve pincodes based on city id
-    $pincodes = Pincode::where('city_id', $cityData->id ?? null)->get(); // Safeguard in case city data is not found
+        // Retrieve pincodes based on city id
+        $pincodes = Pincode::where('city_id', $cityData->id ?? null)->get(); // Safeguard in case city data is not found
 
-    return response()->json([
-        'company' => $user,
-        'state' => $stateData,
-        'city' => $cityData,
-        'cities' => $cities,
-        'pincodes' => $pincodes
-    ]);
 
-}
+        return view('admin.company.show', compact('user', 'stateData', 'cityData', 'cities', 'pincodes'));
 
-// Update user data
-public function updateCompany(Request $request)
-{
-    $request->validate([
-        'name' => 'required|string',
-        'email' => 'required|email',
-        'phone' => 'required|string',
-        'address' => 'required|string',
-        'city' => 'required|string',
-        'type' => 'required|string',
-        'gstin' => 'required|string',
-        'short_code' => 'required|string',
-        'id' => 'required|integer|exists:companies,id', // Adjust as needed
-    ]);
-
-    $user = Company::find($request->id);
-    if ($user) {
-        $user->update($request->all());
-        return response()->json(['success' => true , 'message' => 'Company Update Successfully']);
     }
 
-    return response()->json(['success' => false, 'message' => 'User not found']);
-}
+
+    public function logo(Request $request)
+    {
+        $comId = $request->id;
+
+        return view('admin.company.logo', compact('comId'));
+
+
+    }
+
+    // Update user data
+    public function updateCompany(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string',
+            'email' => 'required|email',
+            'phone' => 'required|string',
+            'address' => 'required|string',
+            'city' => 'required|string',
+            'type' => 'required|string',
+            'gstin' => 'required|string',
+            'short_code' => 'required|string',
+            'id' => 'required|integer|exists:companies,id', // Adjust as needed
+        ]);
+
+        $user = Company::find($request->id);
+        if ($user) {
+            $user->update($request->all());
+            return response()->json(['success' => true , 'message' => 'Company Update Successfully']);
+        }
+
+        return response()->json(['success' => false, 'message' => 'User not found']);
+    }
+
+
+    public function updatelogo(Request $request)
+    {
+        // Validate the request
+        $request->validate([
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'id' => 'required|exists:companies,id', // Ensure the ID exists
+        ]);
+
+        // Find the company
+        $company = Company::find($request->id);
+
+        if ($company) {
+            // Check if a file is uploaded
+            if ($request->hasFile('image')) {
+                // Generate a unique file name
+                $fileName = time() . '.' . $request->file('image')->getClientOriginalExtension();
+
+                // Move the file to public/uploads
+                $request->file('image')->move(public_path('uploads'), $fileName);
+
+                // Get the full URL of the uploaded file
+                $fullUrl = url('uploads/' . $fileName);
+
+                // Update the company's logo field with the full URL
+                $company->logo = $fullUrl;
+            }
+
+            // Update other fields if provided
+            $company->update($request->except('image'));
+
+            return redirect()->back()->with('success', 'Company logo updated successfully!');
+        }
+
+        return redirect()->back()->with('error', 'Company not found.');
+    }
 
 
 }

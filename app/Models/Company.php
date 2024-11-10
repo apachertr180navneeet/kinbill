@@ -20,6 +20,6 @@ class Company extends Model
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'phone', 'address', 'city', 'type', 'status', 'gstin', 'short_code', 'state', 'zipcode', // Add all the attributes you want to be mass assignable
+        'name', 'email', 'phone', 'address', 'city', 'type', 'status', 'gstin', 'short_code', 'state', 'zipcode', 'logo' // Add all the attributes you want to be mass assignable
     ];
 }

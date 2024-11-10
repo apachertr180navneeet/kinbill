@@ -246,6 +246,7 @@
                 {
                     data: "action",
                     render: (data, type, row) => {
+                        const logourl = '{{ route("admin.company.logo", ":userId") }}'.replace(":userId", row.id);
                         // Status button to toggle activation
                         const statusButton = row.status === "inactive"
                             ? `<button type="button" class="btn btn-sm btn-success" onclick="updateUserStatus(${row.id}, 'active')">Activate</button>`
@@ -255,8 +256,9 @@
                         const deleteButton = `<button type="button" class="btn btn-sm btn-danger" onclick="deleteUser(${row.id})">Delete</button>`;
                         const editButton = `<button type="button" class="btn btn-sm btn-warning" onclick="editUser(${row.id})">Edit</button>`;
                         const viewButton = `<a href="{{ route('admin.user.index') }}?id=${row.id}" class="btn btn-sm btn-info">Add User</a>`;
+                        const logoButton = `<a href="${logourl}" class="btn btn-sm btn-success">Add Logo</a>`;
 
-                        return `${statusButton} ${deleteButton} ${editButton} ${viewButton}`;
+                        return `${statusButton} ${deleteButton} ${editButton} ${viewButton} ${logoButton}`;
                     },
                 },
             ],
@@ -468,6 +470,7 @@
         window.updateUserStatus = updateUserStatus;
         window.deleteUser = deleteUser;
         window.editUser = editUser;
+        window.logoButton = logoButton;
     });
 
     // Event handling for dynamic state and city selection

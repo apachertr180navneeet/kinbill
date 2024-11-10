@@ -92,6 +92,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::delete('delete/{id}', 'destroy')->name('destroy');
             Route::get('company/{id}', 'getCompany')->name('get');
             Route::get('{id}', 'show')->name('show');
+            Route::get('logo/{id}', 'logo')->name('logo');
+            Route::post('updatelogo', 'updatelogo')->name('update.logo');
             Route::post('update', 'updateCompany')->name('update');
         });
 

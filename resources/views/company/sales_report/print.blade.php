@@ -12,22 +12,19 @@
         </div>
     </div>
     <div class="row invoice-preview" id="printdata">
-        <div id="printHeader" class="text-center mb-4">
-            <h4 id="companyName"></h4>
-            <h5 id="companyAddress"></h5>
-            <h5 id="companyPhone"></h5>
-            <h5 id="gstNumber"></h5>
-        </div>
         <div class="col-xl-12 col-md-12 col-12 mb-md-0 mb-4">
             <div class="card invoice-preview-card">
-                <div class="card-body">
+                <div class="card-body m-0 p-0" style="height: 253px;">
                     <div class="d-flex justify-content-between flex-xl-row flex-md-column flex-sm-row flex-column p-sm-3 p-0">
                         <div class="mb-xl-0 mb-4">
                             <h4 class="py-2 mb-2"><span>Sales Invoice</span></h4>
                             <div class="d-flex svg-illustration mb-3 gap-2">
-                                <span class="app-brand-logo demo">Logo</span>
+                                <span class="app-brand-logo demo">
+                                    <img src="{{ $companyDetail->logo }}" alt="{{ $companyDetail->name }}" width="50" height="50">
+                                </span>
                             </div>
                             <p class="mb-1" style="color: #000">Bill To :- {{ $salesReport->customer_name }}</p>
+                            <p class="mb-0" style="color: #000">{{ $salesReport->customer_gst_no }}</p>
                             <p class="mb-1">Address</p>
                             <p class="mb-0" style="color: #000">{{ $salesReport->customer_address }}</p>
                             <p class="mb-0" style="color: #000">{{ $salesReport->customer_city }} {{ $salesReport->customer_state }} ({{ $salesReport->customer_phone }})</p>
@@ -39,15 +36,17 @@
                                 <span class="fw-medium" style="color: #000">{{ $salesReport->date }}</span>
                             </div>
                             <div>
-                                <span class="me-1" style="color: #000">GST No.:</span>
-                                <span class="fw-medium" style="color: #000">{{ $salesReport->customer_gst_no }}</span><br>
+                                <span class="fw-medium" style="color: #000">Company Name :- {{ $companyDetail->name }}</span><br>
+                                <span class="fw-medium" style="color: #000">GST No. :- {{ $companyDetail->gstin }}</span><br>
+                                <span class="fw-medium" style="color: #000">Address :- {{ $companyDetail->address }}</span><br>
+                                <span class="fw-medium" style="color: #000">Phone :- {{ $companyDetail->phone }}</span><br>
                                 <span class="fw-medium" style="color: #000">Transport Mode :- {{ $salesReport->item_weight }}</span><br>
                                 <span class="fw-medium" style="color: #000">Place Of Supply :- </span>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="table-responsive">
+                <div class="table-responsive m-0">
                     <table class="table border-top m-0">
                         <thead>
                             <tr>
