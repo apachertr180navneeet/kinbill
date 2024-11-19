@@ -130,6 +130,8 @@ class SalesBookController extends Controller
             'dispatch' => 'required|string|max:255',
             'customer' => 'required|exists:users,id',
             'weight' => 'required',
+            'transport' => 'required',
+            'vehicle_no' => 'required',
             'other_expense' => 'required|numeric',
             'discount' => 'required|numeric',
             'round_off' => 'required|numeric',
@@ -156,6 +158,8 @@ class SalesBookController extends Controller
                 'dispatch_number' => $request->dispatch,
                 'customer_id' => $request->customer,
                 'item_weight' => $request->weight,
+                'transport' => $request->transport,
+                'vehicle_no' => $request->vehicle_no,
                 'igst' => $request->igst,
                 'cgst' => $request->cgst,
                 'sgst' => $request->sgst,
@@ -337,6 +341,8 @@ class SalesBookController extends Controller
         $salesBook->dispatch_number = $request->dispatch;
         $salesBook->customer_id = $request->customer;
         $salesBook->item_weight = $request->weight;
+        $salesBook->transport = $request->transport;
+        $salesBook->vehicle_no = $request->vehicle_no;
         $salesBook->igst = $request->igst;
         $salesBook->cgst = $request->cgst;
         $salesBook->sgst = $request->sgst;

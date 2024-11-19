@@ -50,9 +50,19 @@
                                 </div>
                                 <!-- weight Field -->
                                 <div class="col-md-6 mb-3">
-                                    <label for="weight" class="form-label">Delivery Location</label>
+                                    <label for="weight" class="form-label">Place Of Supply</label>
                                     <input type="text" class="form-control" id="weight" name="weight"
                                         value="{{ $salesBook->item_weight }}">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="weight" class="form-label">Transport</label>
+                                    <input type="text" class="form-control" id="transport" name="transport"
+                                        value="{{ $salesBook->transport }}">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="weight" class="form-label">Vehicle No.</label>
+                                    <input type="text" class="form-control" id="vehicle_no" name="vehicle_no"
+                                        value="{{ $salesBook->vehicle_no }}">
                                 </div>
                             </div>
                         </div>
