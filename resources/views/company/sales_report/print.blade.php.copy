@@ -1,35 +1,5 @@
 @extends('company.layouts.app')
 @section('style')
-<style>
-    .table-container {
-        width: 100%; /* Ensures the container spans the full width */
-    }
-
-    .table {
-        table-layout: auto; /* Table adjusts its size dynamically */
-        width: 100%;
-        border-collapse: collapse; /* Removes double borders between table cells */
-    }
-
-    .table th, .table td {
-        word-wrap: break-word; /* Prevent text overflow */
-        height: 50px; /* Ensures consistent row height */
-        padding: 10px; /* Adds padding for better readability */
-        color: #000; /* Sets uniform text color */
-    }
-
-    .table th {
-        text-align: left;
-    }
-
-    .table td {
-        border: none; /* Removes borders from table cells */
-    }
-
-    .table th {
-        border-bottom: 2px solid #000; /* Adds a bottom border to the header row */
-    }
-</style>
 @endsection
 @section('content')
 <div class="container-fluid flex-grow-1 container-p-y">
@@ -85,7 +55,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="table-container">
+                <div class="table-responsive m-0">
                     <table class="table border-top m-0">
                         <thead>
                             <tr>
@@ -102,30 +72,16 @@
                         <tbody>
                             @foreach ($salesReport->salesbookitem as $index => $item)
                                 <tr>
-                                    <td class="text-nowrap">{{ $index + 1 }}</td>
-                                    <td class="text-nowrap">{{ $item->item->name }}</td>
-                                    <td class="text-nowrap">{{ $item->item->hsn_hac }}</td>
-                                    <td class="text-nowrap">{{ $item->quantity ?? 'N/A' }}</td>
-                                    <td class="text-nowrap">{{ $item->item->variation->code ?? 'N/A' }}</td>
-                                    <td class="text-nowrap">₹{{ number_format(floatval($item->rate ?? 0), 2) }}</td>
-                                    <td class="text-nowrap">{{ $item->item->tax->rate }} %</td>
-                                    <td class="text-nowrap">₹{{ number_format(floatval($item->amount ?? 0), 2) }}</td>
+                                    <td class="text-nowrap" style="color: #000">{{ $index + 1 }}</td>
+                                    <td class="text-nowrap" style="color: #000">{{ $item->item->name }}</td>
+                                    <td class="text-nowrap" style="color: #000">{{ $item->item->hsn_hac }}</td>
+                                    <td class="text-nowrap" style="color: #000">{{ $item->quantity ?? 'N/A' }}</td>
+                                    <td class="text-nowrap" style="color: #000">{{ $item->item->variation->code ?? 'N/A' }}</td>
+                                    <td class="text-nowrap" style="color: #000">₹{{ number_format(floatval($item->rate ?? 0), 2) }}</td>
+                                    <td class="text-nowrap" style="color: #000">{{ $item->item->tax->rate }} %</td>
+                                    <td class="text-nowrap" style="color: #000">₹{{ number_format(floatval($item->amount ?? 0), 2) }}</td>
                                 </tr>
                             @endforeach
-
-                            <!-- Fill empty rows if less than 5 items -->
-                            @for ($i = count($salesReport->salesbookitem); $i < 5; $i++)
-                                <tr>
-                                    <td class="text-nowrap"></td>
-                                    <td class="text-nowrap"></td>
-                                    <td class="text-nowrap"></td>
-                                    <td class="text-nowrap"></td>
-                                    <td class="text-nowrap"></td>
-                                    <td class="text-nowrap"></td>
-                                    <td class="text-nowrap"></td>
-                                    <td class="text-nowrap"></td>
-                                </tr>
-                            @endfor
                             <tr>
                                 <td colspan="6" class="">
                                     <span style="color: #000">Rupees {{ $grandtotalwrod }}</span><br>
@@ -181,12 +137,18 @@
 <script>
     $(document).ready(function(){
         $('#print').on('click', function() {
+            // Set company details dynamically
             $('#companyName').text("{{ $companyDetail->name }}");
             $('#gstNumber').text("GSTIN: {{ $companyDetail->gstin }}");
             $('#companyAddress').text("{{ $companyDetail->address }}");
             $('#companyPhone').text("{{ $companyDetail->phone }}");
-            $('#logoImage').attr('src', "{{ $companyDetail->logo }}").removeClass('d-none');
 
+            // Set image source and alt attributes dynamically
+            $('#logoImage').attr('src', "{{ $companyDetail->logo }}");
+            $('#logoImage').attr('alt', "{{ $companyDetail->name }}");
+            $('#logoImage').removeClass('d-none');
+
+            // Capture content for printing
             var printContents = $('#printdata').html();
             $('body').html(printContents);
             window.print();

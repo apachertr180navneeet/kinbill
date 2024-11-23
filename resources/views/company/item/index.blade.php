@@ -99,7 +99,7 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel1">Item Add</h5>
+                <h5 class="modal-title" id="exampleModalLabel1">Item Edit</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
@@ -139,6 +139,11 @@
                     <div class="col-md-12 mb-3">
                         <label for="hsn_hac" class="form-label">HSN/HAC</label>
                         <input type="text" id="edithsn_hac" class="form-control" placeholder="Enter HSN/HAC" />
+                        <small class="error-text text-danger"></small>
+                    </div>
+                    <div class="col-md-12 mb-3">
+                        <label for="opening_stock" class="form-label">Opening Stock</label>
+                        <input type="text" id="editopening_stock" class="form-control" placeholder="Enter Opening Stock" />
                         <small class="error-text text-danger"></small>
                     </div>
                 </div>
@@ -259,6 +264,7 @@
                     $('#editvariation_id').val(data.variation_id);
                     $('#edithsn_hac').val(data.hsn_hac);
                     $('#edittax_id').val(data.tax_id);
+                    $('#editopening_stock').val(data.quantity);
 
                     // Open the modal
                     $('#editModal').modal('show');
@@ -283,6 +289,7 @@
                     variation_id: $('#editvariation_id').val(),
                     hsn_hac: $('#edithsn_hac').val(),
                     tax_id: $('#edittax_id').val(),
+                    stock: $('#editopening_stock').val(),
                     id: userId // Ensure userId is in scope or adjust accordingly
                 },
                 success: function(response) {

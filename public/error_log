@@ -134,3 +134,10 @@ Stack trace:
 #12 [internal function]: Illuminate\Foundation\Bootstrap\HandleExceptions->Illuminate\Foundation\Bootstrap\{closure}(Object(Illuminate\Contracts\Container\BindingResolutionException))
 #13 {main}
   thrown in /home4/kinbill/public_html/vendor/laravel/framework/src/Illuminate/Container/Container.php on line 914
+[16-Sep-2024 12:45:34 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Support\Str" not found in /home4/kinbill/public_html/vendor/laravel/framework/src/Illuminate/Http/Concerns/InteractsWithContentTypes.php:16
+Stack trace:
+#0 /home4/kinbill/public_html/vendor/laravel/framework/src/Illuminate/Http/Request.php(490): Illuminate\Http\Request->isJson()
+#1 /home4/kinbill/public_html/vendor/laravel/framework/src/Illuminate/Http/Request.php(68): Illuminate\Http\Request::createFromBase(Object(Symfony\Component\HttpFoundation\Request))
+#2 /home4/kinbill/public_html/public/index.php(52): Illuminate\Http\Request::capture()
+#3 {main}
+  thrown in /home4/kinbill/public_html/vendor/laravel/framework/src/Illuminate/Http/Concerns/InteractsWithContentTypes.php on line 16

@@ -146,6 +146,10 @@ class ItemController extends Controller
     public function get($id)
     {
         $user = Item::find($id);
+
+        $stockReport = StockReport::where('item_id', $id)->first();
+
+        $user->quantity = $stockReport->quantity;
         return response()->json($user);
     }
 
@@ -167,6 +171,16 @@ class ItemController extends Controller
         $user = Item::find($request->id);
         if ($user) {
             $user->update($request->all());
+            $stockReport = StockReport::where('item_id', $request->id)->first();
+            if ($stockReport) {
+                $stockReport->quantity = $request->stock;
+                $stockReport->save();
+            } else {
+                StockReport::create([
+                    'item_id' => $request->id,
+                    'quantity' => $request->stock,
+                ]);
+            }
             return response()->json(['success' => true , 'message' => 'User Update Successfully']);
         }
 
