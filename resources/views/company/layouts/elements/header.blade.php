@@ -8,6 +8,8 @@
 	 
 
     $company = $company ? $company[0] : null;
+
+	$user = Auth::user();
 @endphp
 
 <nav class="layout-navbar container-fluid navbar navbar-expand-xl navbar-detached align-items-center bg-navbar-theme"

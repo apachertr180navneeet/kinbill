@@ -64,11 +64,11 @@
                                 </g>
                             </svg>
                         </span>
-                        <span class="app-brand-text demo text-body fw-bolder">{{ config('app.name') }}</span>
+                        <span class="app-brand-text demo text-body fw-bolder text-capitalize">{{ config('app.name') }} Super Admin</span>
                     </a>
                 </div>
                 <!-- /Logo -->
-                <h4 class="mb-2">Welcome to {{ config('app.name') }}! 👋</h4>
+                {{--  <h4 class="mb-2">Welcome to {{ config('app.name') }}! 👋</h4>  --}}
                 <p class="mb-4">Please sign-in to your admin account</p>
                 <form action="{{ route('admin.login.post') }}" id="" class="mb-3" method="POST">
                     @csrf

@@ -69,8 +69,10 @@ class BankController extends Controller
     public function show_invoice(Request $request)
     {
         try {
+            $user = Auth::user();
+            $compId = $user->company_id;
             // Sab banks ka show_invoice 0 set kar rahe hain
-            Bank::where('company_id', $request->compId)->update(['show_invoice' => '0']);
+            Bank::where('company_id', $compId)->update(['show_invoice' => '0']);
 
             // Ab specified userId wale bank ka show_invoice 1 karenge
             $User = Bank::findOrFail($request->userId);

@@ -94,7 +94,7 @@
                                 <th class="fw-bolder" style="font-size: 17px;">HSN</th>
                                 <th class="fw-bolder" style="font-size: 17px;">Qty</th>
                                 <th class="fw-bolder" style="font-size: 17px;">Unit</th>
-                                <th class="fw-bolder" style="font-size: 17px;">Price</th>
+                                <th class="fw-bolder" style="font-size: 17px;">Rate</th>
                                 <th class="fw-bolder" style="font-size: 17px;">Tax</th>
                                 <th class="fw-bolder" style="font-size: 17px;">Amount</th>
                             </tr>
@@ -129,11 +129,13 @@
                             <tr>
                                 <td colspan="6" class="">
                                     <span style="color: #000">Rupees {{ $grandtotalwrod }}</span><br>
-                                    <span style="color: #000">Bank :</span><br>
-                                    <span style="color: #000">Account Name :- {{ $bank->name }}</span><br>
-                                    <span style="color: #000">Account Number :- {{ $bank->account_number }}</span><br>
-                                    <span style="color: #000">IFSC Code :- {{ $bank->ifsc_code }}</span><br>
-                                    <span style="color: #000">Bank Name :- {{ $bank->bank_name }}</span><br>
+                                    @if($bank)
+                                        <span style="color: #000">Bank :</span><br>
+                                        <span style="color: #000">Account Name :- {{ $bank->name }}</span><br>
+                                        <span style="color: #000">Account Number :- {{ $bank->account_number }}</span><br>
+                                        <span style="color: #000">IFSC Code :- {{ $bank->ifsc_code }}</span><br>
+                                        <span style="color: #000">Bank Name :- {{ $bank->bank_name }}</span><br>
+                                    @endif
                                     <h6 class="mb-2 mt-4" style="color: #000">Terms and Conditions</h6>
                                     <ul>
                                         <li style="color: #000; font-size: 12px;">Interest @ 24% will be payable if this bill is not paid within 1 month</li>
@@ -173,6 +175,9 @@
         </div>
         <div class="col-xl-12 col-md-12 col-12 mb-md-0 mb-4 text-end">
             <p>For : {{ $companyDetail->name }}</p>
+
+
+            <p class="mb-4">Authorized Signatory</p>
         </div>
     </div>
 </div>
