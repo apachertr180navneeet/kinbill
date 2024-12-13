@@ -86,7 +86,7 @@
                                 <!-- Quantity Field -->
                                 <div class="col-md-3 mb-3">
                                     <label for="qty" class="form-label">Quantity</label>
-                                    <input type="number" class="form-control" id="qty" min="0">
+                                    <input type="text" class="form-control" id="qty" min="0">
                                     <div id="qty-error" class="text-danger"></div>
                                 </div>
                                 <!-- Amount per Unit Field -->
@@ -320,7 +320,7 @@
             let itemTax = parseFloat($("#item option:selected").data('tax')) || 0; // Handle missing tax rate
             let itemVariation = $("#item option:selected").data('variation');
             let hsn = $('#item option:selected').data('hsn');
-            let qty = parseInt($("#qty").val()) || 0; // Convert quantity to integer
+            let qty = $("#qty").val() || 0; // Convert quantity to integer
             let amount = parseFloat($("#amount").val()) || 0; // Convert amount to float
 
             // Validate item, quantity, and amount before adding

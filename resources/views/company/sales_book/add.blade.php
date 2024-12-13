@@ -95,7 +95,7 @@
                                 <!-- Quantity Field -->
                                 <div class="col-md-3 mb-3">
                                     <label for="qty" class="form-label">Quantity</label>
-                                    <input type="number" class="form-control" id="qty" min="0">
+                                    <input type="text" class="form-control" id="qty" min="0">
                                 </div>
                                 <!-- Amount per Unit Field -->
                                 <div class="col-md-3 mb-3">
@@ -398,7 +398,7 @@
                 const variation = $('#item option:selected').data('variation');
                 const hsn = $('#item option:selected').data('hsn');
                 const taxRate = parseFloat($('#item option:selected').data('tax'));
-                const qty = parseInt($('#qty').val());
+                const qty = $('#qty').val();
                 const amountPerUnit = parseFloat($('#amount').val());
 
                 // Check if the item ID, quantity, and amount per unit are valid

@@ -73,7 +73,7 @@
                             <!-- Quantity Field -->
                             <div class="col-md-3 mb-3">
                                 <label for="qty" class="form-label">Quantity</label>
-                                <input type="number" class="form-control" id="qty" min="0">
+                                <input type="text" class="form-control" id="qty" min="0">
                                 <div id="qty-error" class="text-danger"></div>
                             </div>
                             <!-- Amount per Unit Field -->
@@ -287,7 +287,7 @@
             let itemTax = parseFloat($("#item option:selected").data('tax'));
             let itemVariation = $("#item option:selected").data('variation');
             let itemhsn = $("#item option:selected").data('hsn');
-            let qty = parseFloat($("#qty").val());
+            let qty = $("#qty").val();
             let amount = parseFloat($("#amount").val());
 
             if (!item || qty <= 0 || amount <= 0) {
