@@ -1,6 +1,3 @@
-@php
-	$user = Auth::user();
-@endphp
 <nav class="layout-navbar container-fluid navbar navbar-expand-xl navbar-detached align-items-center bg-navbar-theme"
 	id="layout-navbar">
 	<div class="layout-menu-toggle navbar-nav align-items-xl-center me-3 me-xl-0 d-xl-none">
@@ -25,11 +22,7 @@
 				<a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);"
 					data-bs-toggle="dropdown">
 					<div class="avatar avatar-online">
-						@if($user->avatar)
-							<img src="{{asset($user->avatar)}}" alt="admin" class="w-px-40 h-auto rounded-circle" />
-						@else
-							<img src="{{asset('assets/admin/img/avatars/1.png')}}" alt="admin" class="w-px-40 h-auto rounded-circle" />
-						@endif
+						<img src="{{asset('assets/admin/img/avatars/1.png')}}" alt="admin" class="w-px-40 h-auto rounded-circle" />
 					</div>
 				</a>
 				<ul class="dropdown-menu dropdown-menu-end">
